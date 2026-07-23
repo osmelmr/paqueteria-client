@@ -1,0 +1,61 @@
+export interface User {
+    id: string;
+    username: string;
+    fullName: string;
+    email?: string;
+    role: string;
+    isActive: boolean;
+}
+
+export interface Guide {
+    id: string;
+    externalRef: string;
+    agency: string;
+    createdAt?: string;
+}
+
+export interface Location {
+    id: string;
+    name: string;
+    type: string;
+}
+
+export interface Province {
+    id: string;
+    name: string;
+}
+
+export interface Recipient {
+    id: string;
+    fullName: string;
+    idCard: string;
+    phone?: string;
+    address?: string;
+}
+
+export interface Status {
+    id: string;
+    name: string;
+    category?: string;
+}
+
+export interface PackageHbl {
+    id: string;
+    hblCode: string;
+}
+
+export interface PackageItem {
+    id: string;
+    guide?: Guide | null;
+    recipient?: Recipient | null;
+    province?: Province | null;
+    status?: Status | null;
+    location?: Location | null;
+    addressDetail?: string | null;
+    weight?: number | null;
+    contentDescription?: string | null;
+    departureDate?: string | null;
+    isOrphan?: boolean | null;
+    hbls?: PackageHbl[] | null;
+    createdAt?: string;
+}
