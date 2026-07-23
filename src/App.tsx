@@ -9,10 +9,11 @@ import type {
   PackageItem,
   User,
 } from './types';
+import BulkPackageEntryPage from './page/BulkPackageEntryPage';
 
 const API_BASE = '';
 
-type Section = 'login' | 'agencies' | 'guides' | 'packages' | 'recipients' | 'provinces' | 'locations' | 'statuses';
+type Section = 'login' | 'bulk' | 'agencies' | 'guides' | 'packages' | 'recipients' | 'provinces' | 'locations' | 'statuses';
 
 type PackageCreateForm = {
   guideId: string;
@@ -351,14 +352,14 @@ function App() {
 
   const renderNav = () => (
     <nav className="section-nav">
-      {['agencies', 'guides', 'packages', 'recipients', 'provinces', 'locations', 'statuses'].map((item) => (
+      {['bulk', 'agencies', 'guides', 'packages', 'recipients', 'provinces', 'locations', 'statuses'].map((item) => (
         <button
           key={item}
           className={section === item ? 'active' : ''}
           onClick={() => setSection(item as Section)}
           type="button"
         >
-          {item[0].toUpperCase() + item.slice(1)}
+          {item === 'bulk' ? 'Ingreso masivo' : item[0].toUpperCase() + item.slice(1)}
         </button>
       ))}
     </nav>
@@ -812,6 +813,7 @@ function App() {
         <>
           {renderNav()}
           {loading && <div className="loading-banner">Cargando...</div>}
+          {section === 'bulk' && <BulkPackageEntryPage />}
           {section === 'agencies' && renderAgencies()}
           {section === 'guides' && renderGuides()}
           {section === 'packages' && renderPackages()}
