@@ -7,10 +7,16 @@ export interface User {
     isActive: boolean;
 }
 
+export interface Agency {
+    id: string;
+    name: string;
+}
+
 export interface Guide {
     id: string;
     externalRef: string;
-    agency: string;
+    agencyId?: string;
+    agency?: Agency | null;
     createdAt?: string;
 }
 

@@ -11,6 +11,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/auth': 'http://127.0.0.1:3000',
+      '/agencies': 'http://127.0.0.1:3000',
       '/guides': 'http://127.0.0.1:3000',
       '/packages': 'http://127.0.0.1:3000',
       '/locations': 'http://127.0.0.1:3000',

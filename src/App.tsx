@@ -1,5 +1,6 @@
 ﻿import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import type {
+  Agency,
   Guide,
   Location,
   Province,
@@ -11,7 +12,7 @@ import type {
 
 const API_BASE = '';
 
-type Section = 'login' | 'guides' | 'packages' | 'recipients' | 'provinces' | 'locations' | 'statuses';
+type Section = 'login' | 'agencies' | 'guides' | 'packages' | 'recipients' | 'provinces' | 'locations' | 'statuses';
 
 type PackageCreateForm = {
   guideId: string;
@@ -62,6 +63,7 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const [agencies, setAgencies] = useState<Agency[]>([]);
   const [guides, setGuides] = useState<Guide[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const [provinces, setProvinces] = useState<Province[]>([]);
@@ -70,7 +72,8 @@ function App() {
   const [packages, setPackages] = useState<PackageItem[]>([]);
 
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
-  const [guideForm, setGuideForm] = useState({ externalRef: '', agency: '' });
+  const [guideForm, setGuideForm] = useState({ externalRef: '', agencyId: '' });
+  const [agencyForm, setAgencyForm] = useState({ name: '' });
   const [recipientForm, setRecipientForm] = useState({ fullName: '', idCard: '', phone: '', address: '' });
   const [provinceForm, setProvinceForm] = useState({ name: '' });
   const [locationForm, setLocationForm] = useState({ name: '', type: '' });
@@ -177,18 +180,20 @@ function App() {
   const loadReferenceData = async () => {
     setLoading(true);
     try {
-      const [statusesData, provincesData, locationsData, recipientsData, guidesData] = await Promise.all([
+      const [statusesData, provincesData, locationsData, recipientsData, guidesData, agenciesData] = await Promise.all([
         request('/statuses'),
         request('/provinces'),
         request('/locations'),
         request('/recipients'),
         request('/guides'),
+        request('/agencies'),
       ]);
       setStatuses(Array.isArray(statusesData) ? statusesData : statusesData.data || []);
       setProvinces(Array.isArray(provincesData) ? provincesData : provincesData.data || []);
       setLocations(Array.isArray(locationsData) ? locationsData : locationsData.data || []);
       setRecipients(Array.isArray(recipientsData) ? recipientsData : recipientsData.data || []);
       setGuides(Array.isArray(guidesData) ? guidesData : guidesData.data || []);
+      setAgencies(Array.isArray(agenciesData) ? agenciesData : agenciesData.data || []);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -221,7 +226,21 @@ function App() {
     try {
       const newGuide = await request('/guides', 'POST', guideForm);
       setGuides((prev) => [newGuide, ...prev]);
-      setGuideForm({ externalRef: '', agency: '' });
+      setGuideForm({ externalRef: '', agencyId: '' });
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createAgency = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+    try {
+      const newAgency = await request('/agencies', 'POST', agencyForm);
+      setAgencies((prev) => [newAgency, ...prev]);
+      setAgencyForm({ name: '' });
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -332,7 +351,7 @@ function App() {
 
   const renderNav = () => (
     <nav className="section-nav">
-      {['guides', 'packages', 'recipients', 'provinces', 'locations', 'statuses'].map((item) => (
+      {['agencies', 'guides', 'packages', 'recipients', 'provinces', 'locations', 'statuses'].map((item) => (
         <button
           key={item}
           className={section === item ? 'active' : ''}
@@ -380,11 +399,16 @@ function App() {
       <form onSubmit={createGuide} className="simple-form grid-form">
         <label>
           Agencia
-          <input
-            value={guideForm.agency}
-            onChange={(e) => setGuideForm((prev) => ({ ...prev, agency: e.target.value }))}
+          <select
+            value={guideForm.agencyId}
+            onChange={(e) => setGuideForm((prev) => ({ ...prev, agencyId: e.target.value }))}
             required
-          />
+          >
+            <option value="">Seleccionar agencia</option>
+            {agencies.map((agency) => (
+              <option key={agency.id} value={agency.id}>{agency.name}</option>
+            ))}
+          </select>
         </label>
         <label>
           Referencia externa
@@ -412,11 +436,44 @@ function App() {
             {guides.map((guide) => (
               <tr key={guide.id}>
                 <td>{guide.id}</td>
-                <td>{guide.agency}</td>
+                <td>{guide.agency?.name || '—'}</td>
                 <td>{guide.externalRef}</td>
                 <td>
                   <button type="button" className="small" onClick={() => deleteGuide(guide.id)}>Eliminar</button>
                 </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+
+  const renderAgencies = () => (
+    <section className="panel">
+      <h2>Agencias</h2>
+      <form onSubmit={createAgency} className="simple-form two-column-form">
+        <label>
+          Nombre
+          <input value={agencyForm.name} onChange={(e) => setAgencyForm({ name: e.target.value })} required />
+        </label>
+        <button type="submit">Crear agencia</button>
+      </form>
+
+      <div className="list-card">
+        <h3>Agencias existentes</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+            </tr>
+          </thead>
+          <tbody>
+            {agencies.map((agency) => (
+              <tr key={agency.id}>
+                <td>{agency.id}</td>
+                <td>{agency.name}</td>
               </tr>
             ))}
           </tbody>
@@ -436,7 +493,7 @@ function App() {
               <select value={packageFilter.guideId} onChange={(e) => setPackageFilter((prev) => ({ ...prev, guideId: e.target.value }))}>
                 <option value="">Todas</option>
                 {guides.map((guide) => (
-                  <option key={guide.id} value={guide.id}>{guide.externalRef || guide.agency}</option>
+                  <option key={guide.id} value={guide.id}>{guide.externalRef || guide.agency?.name}</option>
                 ))}
               </select>
             </label>
@@ -486,7 +543,7 @@ function App() {
             <select value={packageForm.guideId} onChange={(e) => setPackageForm((prev) => ({ ...prev, guideId: e.target.value }))}>
               <option value="">Sin guía</option>
               {guides.map((guide) => (
-                <option key={guide.id} value={guide.id}>{guide.externalRef || guide.agency}</option>
+                <option key={guide.id} value={guide.id}>{guide.externalRef || guide.agency?.name}</option>
               ))}
             </select>
           </label>
@@ -571,7 +628,7 @@ function App() {
             {packages.map((pkg) => (
               <tr key={pkg.id}>
                 <td>{pkg.id}</td>
-                <td>{pkg.hbls?.map((h) => h.hblCode).join(', ')}</td>
+                <td>{pkg.hbls ? pkg.hbls.map((h) => h.hblCode).join(', ') : ''}</td>
                 <td>{pkg.recipient?.fullName || '—'}</td>
                 <td>{pkg.province?.name || '—'}</td>
                 <td>{pkg.status?.name || '—'}</td>
@@ -755,6 +812,7 @@ function App() {
         <>
           {renderNav()}
           {loading && <div className="loading-banner">Cargando...</div>}
+          {section === 'agencies' && renderAgencies()}
           {section === 'guides' && renderGuides()}
           {section === 'packages' && renderPackages()}
           {section === 'recipients' && renderRecipients()}
