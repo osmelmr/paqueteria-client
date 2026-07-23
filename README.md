@@ -1,77 +1,65 @@
-# React + TypeScript + Vite
+# 🖥️ Paqueteria Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend del **Sistema de Control de Paquetería**. Aplicación web construida con
+React, Vite y TypeScript que permite a los almaceneros y administradores gestionar
+todo el flujo de paquetes de manera intuitiva.
 
-Currently, two official plugins are available:
+## ✨ Funcionalidades principales
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- ✅ Carga de guías mediante archivo Excel (parseado localmente en el navegador).
+- ✅ Vista previa de los datos extraídos por IA, con tabla editable para correcciones.
+- ✅ Confirmación de guías y envío al backend para almacenamiento.
+- ✅ Subida de archivos de recepción (escaneos) y visualización de informes de
+  faltantes y huérfanos.
+- ✅ Listado de paquetes con filtros por HBL, destinatario, provincia, estado.
+- ✅ Panel de administración de destinatarios, provincias, ubicaciones y estados.
+- ✅ Gestión de usuarios (solo administradores).
+- ✅ Cambio manual de estado y ubicación de cualquier paquete.
+- ✅ Exportación de hojas de ruta para choferes.
 
-## React Compiler
+## 🧱 Stack
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+- [React](https://react.dev) con [Vite](https://vitejs.dev)
+- TypeScript
+- [Axios](https://axios-http.com) para llamadas a la API
+- [SheetJS (xlsx)](https://sheetjs.com) para parseo de Excel en el frontend
 
-Note: This will impact Vite dev & build performances.
+## 🚀 Ejecución local
 
-## Expanding the ESLint configuration
+\`\`\`bash
+git clone https://github.com/tuusuario/paqueteria-client.git
+cd paqueteria-client
+pnpm install
+pnpm dev
+\`\`\`
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+La aplicación estará disponible en `http://localhost:5173` y espera que el backend
+esté corriendo en `http://localhost:3000`. La URL de la API se configura en el
+archivo `.env` (`VITE_API_URL`).
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🌐 Integración con el servidor
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+El flujo completo de subida de guías funciona así:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. El usuario elige un archivo `.xlsx`.
+2. El frontend lo convierte en un array de strings (celdas separadas por `|`).
+3. Se envía al endpoint `POST /guides/upload` y se recibe la vista previa con los
+   datos estructurados.
+4. El usuario revisa, corrige y confirma mediante `POST /guides/confirm`.
 
-```
+Para más detalles, consulta el [repositorio del servidor](https://github.com/tuusuario/paqueteria-server).
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📄 Licencia
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Misma licencia restrictiva que el backend: solo para evaluación profesional.  
+Ver [LICENSE](LICENSE).
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 📬 Contacto
 
-```
+**Osmel Medero Rosales**  
+Email: [osmelmr.dev@gmail.com](mailto:osmelmr.dev@gmail.com)  
+Teléfono: +53 63967194
+
+---
+
+© 2026 Osmel Medero Rosales – Todos los derechos reservados.
