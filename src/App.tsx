@@ -9,7 +9,7 @@ import type {
   PackageItem,
   User,
 } from './types';
-import BulkPackageEntryPage from './page/BulkPackageEntryPage';
+import BulkPackageEntryPage from './pages/BulkPackageEntryPage';
 
 const API_BASE = '';
 

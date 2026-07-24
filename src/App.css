@@ -197,6 +197,24 @@ thead th {
   color: #555;
 }
 
+fieldset {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 0;
+}
+
+fieldset + fieldset {
+  margin-top: 14px;
+}
+
+legend {
+  font-weight: 600;
+  padding: 0 8px;
+  color: var(--text-h);
+  font-size: 0.95rem;
+}
+
 @media (max-width: 960px) {
   .grid-form,
   .filter-grid,

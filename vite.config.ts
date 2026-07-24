@@ -10,14 +10,14 @@ export default defineConfig({
   ],
   server: {
     proxy: {
-      '/auth': 'http://127.0.0.1:3000',
-      '/agencies': 'http://127.0.0.1:3000',
-      '/guides': 'http://127.0.0.1:3000',
-      '/packages': 'http://127.0.0.1:3000',
-      '/locations': 'http://127.0.0.1:3000',
-      '/provinces': 'http://127.0.0.1:3000',
-      '/recipients': 'http://127.0.0.1:3000',
-      '/statuses': 'http://127.0.0.1:3000',
+      '/auth': 'http://127.0.0.1:4000',
+      '/agencies': 'http://127.0.0.1:4000',
+      '/guides': 'http://127.0.0.1:4000',
+      '/packages': 'http://127.0.0.1:4000',
+      '/locations': 'http://127.0.0.1:4000',
+      '/provinces': 'http://127.0.0.1:4000',
+      '/recipients': 'http://127.0.0.1:4000',
+      '/statuses': 'http://127.0.0.1:4000',
     },
   },
 })
