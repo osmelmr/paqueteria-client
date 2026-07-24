@@ -13,6 +13,7 @@ export default defineConfig({
       '/auth': 'http://127.0.0.1:4000',
       '/agencies': 'http://127.0.0.1:4000',
       '/guides': 'http://127.0.0.1:4000',
+      '/package-entry': 'http://127.0.0.1:4000',
       '/packages': 'http://127.0.0.1:4000',
       '/locations': 'http://127.0.0.1:4000',
       '/provinces': 'http://127.0.0.1:4000',
