@@ -31,25 +31,56 @@ type StaticDefaults = {
 type PackagePreview = {
     id: string;
     guideRef: string;
+    agencyId: string;
     agencyName: string;
+    recipientId: string;
     recipientName: string;
     recipientIdCard: string;
     recipientPhone: string;
+    provinceId: string;
     provinceName: string;
     address: string;
     weight: string;
     content: string;
     departureDate: string;
+    statusId: string;
     statusName: string;
+    locationId: string;
     locationName: string;
     isOrphan: boolean;
     hbls: string[];
+};
+
+type BatchResult = {
+    summary: { total: number; saved: number; failed: number; successRate: string };
+    successful: Array<{ index: number; packageId?: string; data?: Record<string, unknown> }>;
+    failed: Array<{ index: number; error: string; data?: Record<string, unknown> }>;
+    savedIds: string[];
+};
+
+const INITIAL_FORM: PackageForm = {
+    guideRef: '',
+    agencyId: '',
+    recipientId: '',
+    recipientName: '',
+    recipientIdCard: '',
+    recipientPhone: '',
+    provinceId: '',
+    address: '',
+    weight: '',
+    content: '',
+    departureDate: '',
+    statusId: '',
+    locationId: '',
+    isOrphan: '',
+    hbls: '',
 };
 
 function BulkPackageEntryPage() {
     const [token] = useState(() => window.localStorage.getItem('paqueteria_token') || '');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
     const [agencies, setAgencies] = useState<Agency[]>([]);
     const [statuses, setStatuses] = useState<Status[]>([]);
     const [locations, setLocations] = useState<Location[]>([]);
@@ -57,24 +88,10 @@ function BulkPackageEntryPage() {
     const [recipients, setRecipients] = useState<Recipient[]>([]);
     const [fileName, setFileName] = useState<string>('');
     const [staticDefaults, setStaticDefaults] = useState<StaticDefaults>({ guideRef: '', agencyId: '', statusId: '', locationId: '', isOrphan: '', departureDate: '' });
-    const [packageForm, setPackageForm] = useState<PackageForm>({
-        guideRef: '',
-        agencyId: '',
-        recipientId: '',
-        recipientName: '',
-        recipientIdCard: '',
-        recipientPhone: '',
-        provinceId: '',
-        address: '',
-        weight: '',
-        content: '',
-        departureDate: '',
-        statusId: '',
-        locationId: '',
-        isOrphan: '',
-        hbls: '',
-    });
-    const [packages, setPackages] = useState<PackagePreview[]>([]);
+    const [packageForm, setPackageForm] = useState<PackageForm>(INITIAL_FORM);
+    const [pendingPackages, setPendingPackages] = useState<PackagePreview[]>([]);
+    const [savedPackages, setSavedPackages] = useState<PackagePreview[]>([]);
+    const [batchResult, setBatchResult] = useState<BatchResult | null>(null);
 
     const apiHeaders = useMemo(() => {
         const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -117,53 +134,173 @@ function BulkPackageEntryPage() {
         }));
     };
 
-    const handleAddPackage = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const guideRef = packageForm.guideRef || staticDefaults.guideRef || '';
-        const agencyId = packageForm.agencyId || staticDefaults.agencyId || '';
-        const agencyName = getAgencyName(agencyId) || '';
-        const statusId = packageForm.statusId || staticDefaults.statusId;
-        const locationId = packageForm.locationId || staticDefaults.locationId;
-        const departureDate = packageForm.departureDate || staticDefaults.departureDate;
-        const isOrphan = packageForm.isOrphan ? packageForm.isOrphan === 'true' : staticDefaults.isOrphan === 'true';
+    const buildPackagePreview = (form: PackageForm, defaults: StaticDefaults): PackagePreview => {
+        const guideRef = form.guideRef || defaults.guideRef || '';
+        const agencyId = form.agencyId || defaults.agencyId || '';
+        const statusId = form.statusId || defaults.statusId || '';
+        const locationId = form.locationId || defaults.locationId || '';
+        const departureDate = form.departureDate || defaults.departureDate || '';
+        const isOrphan = form.isOrphan ? form.isOrphan === 'true' : defaults.isOrphan === 'true';
 
-        const nextPackage: PackagePreview = {
+        return {
             id: crypto.randomUUID(),
             guideRef,
-            agencyName,
-            recipientName: packageForm.recipientName,
-            recipientIdCard: packageForm.recipientIdCard,
-            recipientPhone: packageForm.recipientPhone,
-            provinceName: getProvinceName(packageForm.provinceId),
-            address: packageForm.address,
-            weight: packageForm.weight,
-            content: packageForm.content,
+            agencyId,
+            agencyName: getAgencyName(agencyId) || '',
+            recipientId: form.recipientId,
+            recipientName: form.recipientName,
+            recipientIdCard: form.recipientIdCard,
+            recipientPhone: form.recipientPhone,
+            provinceId: form.provinceId,
+            provinceName: getProvinceName(form.provinceId) || '',
+            address: form.address,
+            weight: form.weight,
+            content: form.content,
             departureDate,
-            statusName: getStatusName(statusId),
-            locationName: getLocationName(locationId),
+            statusId,
+            statusName: getStatusName(statusId) || '',
+            locationId,
+            locationName: getLocationName(locationId) || '',
             isOrphan,
-            hbls: packageForm.hbls.split(/[,;\n]/).map((item) => item.trim()).filter(Boolean),
+            hbls: form.hbls.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean),
+        };
+    };
+
+    const convertToBackendPayload = (pkg: PackagePreview): Record<string, unknown> => {
+        const payload: Record<string, unknown> = {
+            statusId: pkg.statusId,
+            address: pkg.address || undefined,
+            weight: pkg.weight ? parseFloat(pkg.weight) : undefined,
+            content: pkg.content || undefined,
+            departureDate: pkg.departureDate || undefined,
+            isOrphan: pkg.isOrphan,
+            hblCodes: pkg.hbls.length > 0 ? pkg.hbls : undefined,
         };
 
-        setPackages((prev) => [nextPackage, ...prev]);
-        setPackageForm((prev) => ({
-            ...prev,
-            guideRef: '',
-            agencyId: '',
-            recipientId: '',
-            recipientName: '',
-            recipientIdCard: '',
-            recipientPhone: '',
-            provinceId: '',
-            address: '',
-            weight: '',
-            content: '',
-            departureDate: '',
-            statusId: '',
-            locationId: '',
-            isOrphan: '',
-            hbls: '',
-        }));
+        if (pkg.recipientId) {
+            payload.recipientId = pkg.recipientId;
+        } else if (pkg.recipientName && pkg.recipientIdCard) {
+            payload.newRecipient = {
+                fullName: pkg.recipientName,
+                idCard: pkg.recipientIdCard,
+                phone: pkg.recipientPhone || undefined,
+            };
+        }
+
+        if (pkg.agencyId && pkg.guideRef) {
+            payload.newGuide = {
+                externalRef: pkg.guideRef,
+                agencyId: pkg.agencyId,
+            };
+        }
+
+        if (pkg.provinceId) payload.provinceId = pkg.provinceId;
+        if (pkg.locationId) payload.locationId = pkg.locationId;
+
+        return payload;
+    };
+
+    const resetPackageForm = () => {
+        setPackageForm(INITIAL_FORM);
+    };
+
+    const handleAddToPending = (event: FormEvent) => {
+        event.preventDefault();
+        const statusId = packageForm.statusId || staticDefaults.statusId;
+        if (!statusId) {
+            setError('Debes seleccionar un estado (en el formulario o en valores estáticos)');
+            return;
+        }
+        if (!packageForm.recipientName && !packageForm.recipientId) {
+            setError('Debes proporcionar un destinatario (nombre o seleccionar uno existente)');
+            return;
+        }
+
+        const newPkg = buildPackagePreview(packageForm, staticDefaults);
+        setPendingPackages((prev) => [...prev, newPkg]);
+        setError(null);
+        resetPackageForm();
+    };
+
+    const handleSaveSingle = async (event: FormEvent) => {
+        event.preventDefault();
+        const statusId = packageForm.statusId || staticDefaults.statusId;
+        if (!statusId) {
+            setError('Debes seleccionar un estado');
+            return;
+        }
+        if (!packageForm.recipientName && !packageForm.recipientId) {
+            setError('Debes proporcionar un destinatario');
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            const preview = buildPackagePreview(packageForm, staticDefaults);
+            const payload = convertToBackendPayload(preview);
+            console.log(payload)
+            const response = await fetch('/package-entry/single', {
+                method: 'POST',
+                headers: apiHeaders,
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error((errData as { message?: string }).message || 'Error al guardar');
+            }
+
+            const result = await response.json();
+            setSavedPackages((prev) => [...prev, preview]);
+            setError(null);
+            resetPackageForm();
+        } catch (err) {
+            setError((err as Error).message);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleSaveBatch = async () => {
+        if (pendingPackages.length === 0) {
+            setError('No hay paquetes pendientes para guardar');
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            const payload = {
+                packages: pendingPackages.map((pkg) => convertToBackendPayload(pkg)),
+            };
+            console.log(payload)
+            const response = await fetch('/package-entry', {
+                method: 'POST',
+                headers: apiHeaders,
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error((errData as { message?: string }).message || 'Error al guardar el lote');
+            }
+
+            const result: BatchResult = await response.json();
+            setBatchResult(result);
+
+            if (result.savedIds.length > 0) {
+                setSavedPackages((prev) => [...prev, ...pendingPackages]);
+                setPendingPackages([]);
+            }
+            setError(null);
+        } catch (err) {
+            setError((err as Error).message);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleRemovePending = (id: string) => {
+        setPendingPackages((prev) => prev.filter((p) => p.id !== id));
     };
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -247,9 +384,9 @@ function BulkPackageEntryPage() {
 
             <section className="list-card">
                 <h3>Agregar paquete</h3>
-                <form onSubmit={handleAddPackage} className="simple-form">
+                <form className="simple-form" onSubmit={(e) => e.preventDefault()}>
                     <fieldset className="grid-form">
-                        <legend>Identificación</legend>
+                        <legend>Valores del paquete (coinciden con estáticos)</legend>
                         <label>
                             Guía del paquete
                             <input
@@ -267,6 +404,39 @@ function BulkPackageEntryPage() {
                                 ))}
                             </select>
                         </label>
+                        <label>
+                            Estado
+                            <select value={packageForm.statusId} onChange={(e) => setPackageForm((prev) => ({ ...prev, statusId: e.target.value }))}>
+                                <option value="">Usar valor estático</option>
+                                {statuses.map((status) => (
+                                    <option key={status.id} value={status.id}>{status.name}</option>
+                                ))}
+                            </select>
+                        </label>
+                        <label>
+                            Ubicación
+                            <select value={packageForm.locationId} onChange={(e) => setPackageForm((prev) => ({ ...prev, locationId: e.target.value }))}>
+                                <option value="">Usar valor estático</option>
+                                {locations.map((location) => (
+                                    <option key={location.id} value={location.id}>{location.name}</option>
+                                ))}
+                            </select>
+                        </label>
+                        <label>
+                            Fecha de salida
+                            <input type="date" value={packageForm.departureDate} onChange={(e) => setPackageForm((prev) => ({ ...prev, departureDate: e.target.value }))} />
+                        </label>
+                        <label>
+                            Huérfano
+                            <select value={packageForm.isOrphan} onChange={(e) => setPackageForm((prev) => ({ ...prev, isOrphan: e.target.value }))}>
+                                <option value="">Usar valor estático</option>
+                                <option value="true">Sí</option>
+                                <option value="false">No</option>
+                            </select>
+                        </label>
+                    </fieldset>
+                    <fieldset className="grid-form">
+                        <legend>Identificación</legend>
                         <label className="full-width">
                             HBLs (coma, punto y coma o nueva línea)
                             <textarea value={packageForm.hbls} onChange={(e) => setPackageForm((prev) => ({ ...prev, hbls: e.target.value }))} rows={3} />
@@ -322,39 +492,6 @@ function BulkPackageEntryPage() {
                             Contenido
                             <input value={packageForm.content} onChange={(e) => setPackageForm((prev) => ({ ...prev, content: e.target.value }))} />
                         </label>
-                        <label>
-                            Fecha de salida
-                            <input type="date" value={packageForm.departureDate} onChange={(e) => setPackageForm((prev) => ({ ...prev, departureDate: e.target.value }))} />
-                        </label>
-                    </fieldset>
-                    <fieldset className="grid-form">
-                        <legend>Seguimiento</legend>
-                        <label>
-                            Estado
-                            <select value={packageForm.statusId} onChange={(e) => setPackageForm((prev) => ({ ...prev, statusId: e.target.value }))}>
-                                <option value="">Usar valor estático</option>
-                                {statuses.map((status) => (
-                                    <option key={status.id} value={status.id}>{status.name}</option>
-                                ))}
-                            </select>
-                        </label>
-                        <label>
-                            Ubicación
-                            <select value={packageForm.locationId} onChange={(e) => setPackageForm((prev) => ({ ...prev, locationId: e.target.value }))}>
-                                <option value="">Usar valor estático</option>
-                                {locations.map((location) => (
-                                    <option key={location.id} value={location.id}>{location.name}</option>
-                                ))}
-                            </select>
-                        </label>
-                        <label>
-                            Huérfano
-                            <select value={packageForm.isOrphan} onChange={(e) => setPackageForm((prev) => ({ ...prev, isOrphan: e.target.value }))}>
-                                <option value="">Usar valor estático</option>
-                                <option value="true">Sí</option>
-                                <option value="false">No</option>
-                            </select>
-                        </label>
                     </fieldset>
                     <fieldset className="simple-form">
                         <legend>Importación</legend>
@@ -364,40 +501,77 @@ function BulkPackageEntryPage() {
                             {fileName && <small>Archivo seleccionado: {fileName}</small>}
                         </label>
                     </fieldset>
-                    <button type="submit">Agregar paquete</button>
+                    <div className="button-group">
+                        <button type="button" onClick={handleAddToPending} disabled={submitting}>
+                            Continuar
+                        </button>
+                        <button type="button" onClick={handleSaveSingle} disabled={submitting}>
+                            {submitting ? 'Guardando...' : 'Guardar'}
+                        </button>
+                        <button type="button" onClick={handleSaveBatch} disabled={submitting || pendingPackages.length === 0}>
+                            Guardar lote ({pendingPackages.length})
+                        </button>
+                    </div>
                 </form>
             </section>
 
+            {batchResult && (
+                <section className="list-card batch-result">
+                    <h3>Resultado del lote</h3>
+                    <p>Total: {batchResult.summary.total} | Guardados: {batchResult.summary.saved} | Fallidos: {batchResult.summary.failed} | Éxito: {batchResult.summary.successRate}</p>
+                    {batchResult.failed.length > 0 && (
+                        <details>
+                            <summary>Ver fallos ({batchResult.failed.length})</summary>
+                            <ul>
+                                {batchResult.failed.map((f, idx) => (
+                                    <li key={idx}>Índice {f.index}: {f.error}</li>
+                                ))}
+                            </ul>
+                        </details>
+                    )}
+                </section>
+            )}
+
             <section className="list-card">
-                <h3>Previsualización de paquetes</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Guía</th>
-                            <th>Agencia</th>
-                            <th>Destinatario</th>
-                            <th>Provincia</th>
-                            <th>Estado</th>
-                            <th>Ubicación</th>
-                            <th>Huérfano</th>
-                            <th>HBLs</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {packages.map((pkg) => (
-                            <tr key={pkg.id}>
-                                <td>{pkg.guideRef || '—'}</td>
-                                <td>{pkg.agencyName || '—'}</td>
-                                <td>{pkg.recipientName || pkg.recipientIdCard || '—'}</td>
-                                <td>{pkg.provinceName || '—'}</td>
-                                <td>{pkg.statusName || '—'}</td>
-                                <td>{pkg.locationName || '—'}</td>
-                                <td>{pkg.isOrphan ? 'Sí' : 'No'}</td>
-                                <td>{pkg.hbls.join(', ')}</td>
+                <h3>Paquetes pendientes ({pendingPackages.length})</h3>
+                {pendingPackages.length === 0 ? (
+                    <p>No hay paquetes en la lista.</p>
+                ) : (
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Guía</th>
+                                <th>Agencia</th>
+                                <th>Destinatario</th>
+                                <th>Provincia</th>
+                                <th>Estado</th>
+                                <th>Ubicación</th>
+                                <th>Huérfano</th>
+                                <th>HBLs</th>
+                                <th>Acción</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {pendingPackages.map((pkg) => (
+                                <tr key={pkg.id}>
+                                    <td>{pkg.guideRef || '—'}</td>
+                                    <td>{pkg.agencyName || '—'}</td>
+                                    <td>{pkg.recipientName || pkg.recipientIdCard || '—'}</td>
+                                    <td>{pkg.provinceName || '—'}</td>
+                                    <td>{pkg.statusName || '—'}</td>
+                                    <td>{pkg.locationName || '—'}</td>
+                                    <td>{pkg.isOrphan ? 'Sí' : 'No'}</td>
+                                    <td>{pkg.hbls.join(', ')}</td>
+                                    <td>
+                                        <button type="button" className="small secondary" onClick={() => handleRemovePending(pkg.id)}>
+                                            Quitar
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </section>
         </div>
     );

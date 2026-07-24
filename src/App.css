@@ -215,6 +215,30 @@ legend {
   font-size: 0.95rem;
 }
 
+.button-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.batch-result {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 12px;
+}
+
+.batch-result details {
+  margin-top: 8px;
+}
+
+.batch-result ul {
+  margin: 8px 0 0;
+  padding-left: 24px;
+}
+
 @media (max-width: 960px) {
   .grid-form,
   .filter-grid,
