@@ -12,12 +12,14 @@ import UsersPage from './pages/UsersPage';
 import BulkPackageEntryPage from './pages/BulkPackageEntryPage';
 import AiPreviewPage from './pages/AiPreviewPage';
 import AiExtractPage from './pages/AiExtractPage';
+import UpdateStatusBulkPage from './pages/UpdateStatusBulkPage';
 
-type Section = 'login' | 'bulk' | 'ai-preview' | 'ai-extract' | 'agencies' | 'guides' | 'packages' | 'recipients' | 'provinces' | 'locations' | 'statuses' | 'users';
+type Section = 'login' | 'bulk' | 'ai-preview' | 'ai-extract' | 'update-status-bulk' | 'agencies' | 'guides' | 'packages' | 'recipients' | 'provinces' | 'locations' | 'statuses' | 'users';
 
 const SECTIONS: { key: Section; label: string }[] = [
   { key: 'ai-extract', label: 'AI Extract' },
   { key: 'bulk', label: 'Ingreso masivo' },
+  { key: 'update-status-bulk', label: 'Actualizar Estado Bulk' },
   { key: 'ai-preview', label: 'AI Preview' },
   { key: 'agencies', label: 'Agencias' },
   { key: 'guides', label: 'Guías' },
@@ -118,6 +120,7 @@ function App() {
       </nav>
       {section === 'ai-extract' && <AiExtractPage />}
       {section === 'bulk' && <BulkPackageEntryPage />}
+      {section === 'update-status-bulk' && <UpdateStatusBulkPage />}
       {section === 'ai-preview' && <AiPreviewPage />}
       {section === 'agencies' && <AgenciesPage />}
       {section === 'guides' && <GuidesPage />}
