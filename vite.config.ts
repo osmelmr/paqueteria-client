@@ -19,6 +19,7 @@ export default defineConfig({
       '/provinces': 'http://127.0.0.1:4000',
       '/recipients': 'http://127.0.0.1:4000',
       '/statuses': 'http://127.0.0.1:4000',
+      '/users': 'http://127.0.0.1:4000',
     },
   },
 })

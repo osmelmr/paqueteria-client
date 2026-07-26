@@ -23,7 +23,6 @@ export interface Guide {
 export interface Location {
     id: string;
     name: string;
-    type: string;
 }
 
 export interface Province {
@@ -36,13 +35,11 @@ export interface Recipient {
     fullName: string;
     idCard: string;
     phone?: string;
-    address?: string;
 }
 
 export interface Status {
     id: string;
     name: string;
-    category?: string;
 }
 
 export interface PackageHbl {
@@ -60,7 +57,7 @@ export interface PackageItem {
     addressDetail?: string | null;
     weight?: number | null;
     contentDescription?: string | null;
-    departureDate?: string | null;
+    arrivalDate?: string | null;
     isOrphan?: boolean | null;
     hbls?: PackageHbl[] | null;
     createdAt?: string;
