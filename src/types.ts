@@ -59,6 +59,9 @@ export interface PackageItem {
     contentDescription?: string | null;
     arrivalDate?: string | null;
     isOrphan?: boolean | null;
+    anotations?: string | null;
+    alert?: boolean | null;
+    alertDescription?: string | null;
     hbls?: PackageHbl[] | null;
     createdAt?: string;
 }

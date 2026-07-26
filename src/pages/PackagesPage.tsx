@@ -13,6 +13,9 @@ type PackageCreateForm = {
   statusId: string;
   locationId: string;
   isOrphan: boolean;
+  anotations: string;
+  alert: boolean;
+  alertDescription: string;
   hbls: string;
 };
 
@@ -27,6 +30,9 @@ const normalizeBody = (f: PackageCreateForm) => ({
   statusId: f.statusId || undefined,
   locationId: f.locationId || undefined,
   isOrphan: f.isOrphan ? true : undefined,
+  anotations: f.anotations || undefined,
+  alert: f.alert ? true : undefined,
+  alertDescription: f.alertDescription || undefined,
   hbls: f.hbls.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean),
 });
 
@@ -43,7 +49,8 @@ function PackagesPage() {
   const [filter, setFilter] = useState({ guideId: '', statusId: '', provinceId: '', recipientId: '', hbl: '', search: '' });
   const [form, setForm] = useState<PackageCreateForm>({
     guideId: '', recipientId: '', provinceId: '', addressDetail: '', weight: '',
-    contentDescription: '', arrivalDate: '', statusId: '', locationId: '', isOrphan: false, hbls: '',
+    contentDescription: '', arrivalDate: '', statusId: '', locationId: '', isOrphan: false,
+    anotations: '', alert: false, alertDescription: '', hbls: '',
   });
 
   const loadRefs = async () => {
@@ -89,7 +96,7 @@ function PackagesPage() {
     setLoading(true);
     try {
       await api('/packages', 'POST', normalizeBody(form));
-      setForm((prev) => ({ ...prev, addressDetail: '', weight: '', contentDescription: '', arrivalDate: '', hbls: '' }));
+      setForm((prev) => ({ ...prev, addressDetail: '', weight: '', contentDescription: '', arrivalDate: '', anotations: '', alert: false, alertDescription: '', hbls: '' }));
       await fetchPackages();
     } catch (err) {
       setError((err as Error).message);
@@ -227,6 +234,20 @@ function PackagesPage() {
             </select>
           </label>
           <label className="full-width">
+            Anotaciones
+            <textarea value={form.anotations} onChange={(e) => setForm((prev) => ({ ...prev, anotations: e.target.value }))} rows={2} />
+          </label>
+          <label className="full-width checkbox-label">
+            <input type="checkbox" checked={form.alert} onChange={(e) => setForm((prev) => ({ ...prev, alert: e.target.checked }))} />
+            Alerta
+          </label>
+          {form.alert && (
+            <label className="full-width">
+              Descripcion de alerta
+              <textarea value={form.alertDescription} onChange={(e) => setForm((prev) => ({ ...prev, alertDescription: e.target.value }))} rows={2} />
+            </label>
+          )}
+          <label className="full-width">
             HBLs
             <textarea value={form.hbls} onChange={(e) => setForm((prev) => ({ ...prev, hbls: e.target.value }))} rows={3} />
           </label>
@@ -244,7 +265,7 @@ function PackagesPage() {
           <thead>
             <tr>
               <th>ID</th><th>HBLs</th><th>Destinatario</th><th>Provincia</th>
-              <th>Estado</th><th>Ubicación</th><th>Acciones</th>
+              <th>Estado</th><th>Ubicación</th><th>Alerta</th><th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -256,6 +277,7 @@ function PackagesPage() {
                 <td>{pkg.province?.name || '—'}</td>
                 <td>{pkg.status?.name || '—'}</td>
                 <td>{pkg.location?.name || '—'}</td>
+                <td>{pkg.alert ? <span style={{ color: '#e74c3c', fontWeight: 'bold' }}>⚠ {pkg.alertDescription || 'Si'}</span> : '—'}</td>
                 <td>
                   <div className="inline-actions">
                     <select value={pkg.status?.id || ''} onChange={(e) => handleUpdateStatus(pkg, e.target.value, pkg.location?.id || '')}>
