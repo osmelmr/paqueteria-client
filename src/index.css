@@ -229,12 +229,45 @@ html, body {
 }
 
 .sidebar__group-label {
-  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--muted);
-  padding: 12px 16px 4px;
+  padding: 10px 16px 8px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  text-align: left;
+  border-radius: 0;
+}
+
+.sidebar__group-label::after {
+  content: '\25B6';
+  font-size: 0.6rem;
+  transition: transform 0.2s;
+}
+
+.sidebar__group-label--open::after {
+  transform: rotate(90deg);
+}
+
+.sidebar__group-label:hover {
+  color: var(--text-h);
+}
+
+.sidebar__group-links {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease;
+}
+
+.sidebar__group-links--open {
+  max-height: 200px;
 }
 
 .sidebar__link {

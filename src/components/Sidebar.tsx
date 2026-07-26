@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/auth.store';
 import { useUIStore } from '../store/ui.store';
@@ -94,6 +95,30 @@ export function Sidebar() {
     return false;
   };
 
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
+    const init: Record<string, boolean> = {};
+    for (const g of visibleGroups) {
+      const hasActive = g.links.some((l) => isActive(l.path));
+      if (hasActive) init[g.label] = true;
+    }
+    return init;
+  });
+
+  useEffect(() => {
+    setOpenGroups((prev) => {
+      const next = { ...prev };
+      for (const g of visibleGroups) {
+        const hasActive = g.links.some((l) => isActive(l.path));
+        if (hasActive) next[g.label] = true;
+      }
+      return next;
+    });
+  }, [location.pathname, visibleGroups]);
+
+  const toggleGroup = (label: string) => {
+    setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
+  };
+
   return (
     <>
       {sidebarOpen && (
@@ -101,24 +126,35 @@ export function Sidebar() {
       )}
       <aside className={`sidebar ${sidebarOpen ? 'sidebar--open' : ''}`}>
         <nav className="sidebar__nav">
-          {visibleGroups.map((group) => (
-            <div key={group.label} className="sidebar__group">
-              <span className="sidebar__group-label">{group.label}</span>
-              {group.links.map((link) => (
+          {visibleGroups.map((group) => {
+            const isOpen = openGroups[group.label] ?? false;
+            return (
+              <div key={group.label} className="sidebar__group">
                 <button
-                  key={link.path}
                   type="button"
-                  className={`sidebar__link ${isActive(link.path) ? 'sidebar__link--active' : ''}`}
-                  onClick={() => {
-                    navigate(link.path);
-                    setSidebarOpen(false);
-                  }}
+                  className={`sidebar__group-label ${isOpen ? 'sidebar__group-label--open' : ''}`}
+                  onClick={() => toggleGroup(group.label)}
                 >
-                  {link.label}
+                  {group.label}
                 </button>
-              ))}
-            </div>
-          ))}
+                <div className={`sidebar__group-links ${isOpen ? 'sidebar__group-links--open' : ''}`}>
+                  {group.links.map((link) => (
+                    <button
+                      key={link.path}
+                      type="button"
+                      className={`sidebar__link ${isActive(link.path) ? 'sidebar__link--active' : ''}`}
+                      onClick={() => {
+                        navigate(link.path);
+                        setSidebarOpen(false);
+                      }}
+                    >
+                      {link.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </nav>
       </aside>
     </>
