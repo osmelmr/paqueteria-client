@@ -20,6 +20,9 @@ export default defineConfig({
       '/recipients': 'http://127.0.0.1:4000',
       '/statuses': 'http://127.0.0.1:4000',
       '/users': 'http://127.0.0.1:4000',
+      // 👇 nuevas rutas
+      '/ai': 'http://127.0.0.1:4000',
+      '/business': 'http://127.0.0.1:4000',
     },
   },
 })

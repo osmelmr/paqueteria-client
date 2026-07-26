@@ -11,10 +11,12 @@ import StatusesPage from './pages/StatusesPage';
 import UsersPage from './pages/UsersPage';
 import BulkPackageEntryPage from './pages/BulkPackageEntryPage';
 import AiPreviewPage from './pages/AiPreviewPage';
+import AiExtractPage from './pages/AiExtractPage';
 
-type Section = 'login' | 'bulk' | 'ai-preview' | 'agencies' | 'guides' | 'packages' | 'recipients' | 'provinces' | 'locations' | 'statuses' | 'users';
+type Section = 'login' | 'bulk' | 'ai-preview' | 'ai-extract' | 'agencies' | 'guides' | 'packages' | 'recipients' | 'provinces' | 'locations' | 'statuses' | 'users';
 
 const SECTIONS: { key: Section; label: string }[] = [
+  { key: 'ai-extract', label: 'AI Extract' },
   { key: 'bulk', label: 'Ingreso masivo' },
   { key: 'ai-preview', label: 'AI Preview' },
   { key: 'agencies', label: 'Agencias' },
@@ -114,6 +116,7 @@ function App() {
           </button>
         ))}
       </nav>
+      {section === 'ai-extract' && <AiExtractPage />}
       {section === 'bulk' && <BulkPackageEntryPage />}
       {section === 'ai-preview' && <AiPreviewPage />}
       {section === 'agencies' && <AgenciesPage />}
