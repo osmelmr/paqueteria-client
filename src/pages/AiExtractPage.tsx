@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
-import type { Agency, Location, Status } from '../types';
+import { useAgencies } from '../hooks/useAgencies';
+import { useStatuses } from '../hooks/useStatuses';
+import { useLocations } from '../hooks/useLocations';
+import { useProcessBulkAi } from '../hooks/useBusiness';
 
-// ----------------------------------------------------------------
-// Tipos (coinciden con los DTOs del backend)
-// ----------------------------------------------------------------
 type ExtractedPackage = {
   address?: string | null;
   content?: string | null;
@@ -13,36 +13,24 @@ type ExtractedPackage = {
   phone?: string | null;
   province?: string | null;
   municipe?: string | null;
-  arrivalDate?: string | null;   // ← ahora usamos arrivalDate
+  arrivalDate?: string | null;
   hblCodes?: string[];
   weight?: number | null;
 };
 
-type AiExtractResponse = {
-  packages: ExtractedPackage[];
-};
-
 type BatchResult = {
-  success: any[];   // podrías tiparlo mejor
+  success: any[];
   failed: Array<{ entity: any; error: string }>;
 };
 
-// ----------------------------------------------------------------
-// Componente principal
-// ----------------------------------------------------------------
 function AiExtractPage() {
-  const [token] = useState(() => window.localStorage.getItem('paqueteria_token') || '');
+  const { data: agencies = [] } = useAgencies();
+  const { data: statuses = [] } = useStatuses();
+  const { data: locations = [] } = useLocations();
+  const bulkMutation = useProcessBulkAi();
+
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [saving, setSaving] = useState(false);
-
-  // Datos de referencia
-  const [agencies, setAgencies] = useState<Agency[]>([]);
-  const [statuses, setStatuses] = useState<Status[]>([]);
-  const [locations, setLocations] = useState<Location[]>([]);
-
-  // Estado del formulario
   const [excelText, setExcelText] = useState('');
   const [fileName, setFileName] = useState('');
   const [statusId, setStatusId] = useState('');
@@ -50,52 +38,16 @@ function AiExtractPage() {
   const [agencyId, setAgencyId] = useState('');
   const [externalRef, setExternalRef] = useState('');
   const [isOrphan, setIsOrphan] = useState(false);
-
-  // Datos de la IA y resultado del guardado
   const [preview, setPreview] = useState<ExtractedPackage[] | null>(null);
   const [batchResult, setBatchResult] = useState<BatchResult | null>(null);
 
+  const token = useMemo(() => window.localStorage.getItem('paqueteria_token') || '', []);
   const apiHeaders = useMemo(() => {
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers.Authorization = `Bearer ${token}`;
-    return headers;
+    const h: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) h.Authorization = `Bearer ${token}`;
+    return h;
   }, [token]);
 
-  // Cargar datos de referencia
-  useEffect(() => {
-    if (!token) return;
-    setLoading(true);
-    Promise.all([
-      fetch('/agencies', { headers: apiHeaders }),
-      fetch('/statuses', { headers: apiHeaders }),
-      fetch('/locations', { headers: apiHeaders }),
-    ])
-      .then(async ([aRes, sRes, lRes]) => {
-        if (!aRes.ok || !sRes.ok || !lRes.ok) {
-          throw new Error('No fue posible cargar datos de referencia');
-        }
-        const [aData, sData, lData] = await Promise.all([
-          aRes.json(),
-          sRes.json(),
-          lRes.json(),
-        ]);
-        setAgencies(Array.isArray(aData) ? aData : aData.data || []);
-        setStatuses(Array.isArray(sData) ? sData : sData.data || []);
-        setLocations(Array.isArray(lData) ? lData : lData.data || []);
-      })
-      .catch((err) => setError((err as Error).message))
-      .finally(() => setLoading(false));
-  }, [token, apiHeaders]);
-
-  // Seleccionar primeros valores por defecto
-  useEffect(() => {
-    if (statuses.length > 0 && !statusId) setStatusId(statuses[0].id);
-  }, [statuses, statusId]);
-  useEffect(() => {
-    if (agencies.length > 0 && !agencyId) setAgencyId(agencies[0].id);
-  }, [agencies, agencyId]);
-
-  // Manejo del archivo Excel
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -119,18 +71,17 @@ function AiExtractPage() {
           .map((row) =>
             row
               .map((cell) => (cell !== null && cell !== undefined ? String(cell).trim() : ''))
-              .join('\t')
+              .join('\t'),
           );
 
         setExcelText(textLines.join('\n'));
       } catch {
-        setError('Error al leer el archivo Excel. Asegúrate de que sea un .xlsx o .xls válido.');
+        setError('Error al leer el archivo Excel. Asegurate de que sea un .xlsx o .xls valido.');
       }
     };
     reader.readAsArrayBuffer(file);
   };
 
-  // 1. Generar vista previa con IA (llamada a /ai/extract)
   const handleGeneratePreview = async () => {
     if (!excelText.trim()) {
       setError('Debes cargar un archivo Excel primero');
@@ -154,7 +105,7 @@ function AiExtractPage() {
         throw new Error((errData as { message?: string }).message || 'Error al extraer datos con IA');
       }
 
-      const result: AiExtractResponse = await response.json();
+      const result = await response.json() as { packages: ExtractedPackage[] };
       setPreview(result.packages);
     } catch (err) {
       setError((err as Error).message);
@@ -163,34 +114,23 @@ function AiExtractPage() {
     }
   };
 
-  // 2. Guardar el lote (llamada a /business/process-bulk-ai)
   const handleSaveBatch = async () => {
     if (!preview || preview.length === 0) {
       setError('No hay paquetes en la vista previa');
       return;
     }
-    if (!statusId) {
-      setError('Debes seleccionar un estado');
-      return;
-    }
-    if (!agencyId) {
-      setError('Debes seleccionar una agencia');
-      return;
-    }
-    if (!externalRef.trim()) {
-      setError('Debes escribir una referencia externa');
+    if (!statusId || !agencyId || !externalRef.trim()) {
+      setError('Debes completar estado, agencia y referencia externa');
       return;
     }
 
-    setSaving(true);
     setError(null);
 
     try {
-      // Construir el payload para /business/process-bulk-ai
-      const payload = {
+      const result = await bulkMutation.mutateAsync({
         statusId,
         agencyId,
-        guide: externalRef.trim(),      // el backend creará la guía con este externalRef
+        guide: externalRef.trim(),
         locationId: locationId || undefined,
         isOrphan: isOrphan || false,
         packages: preview.map((pkg) => ({
@@ -201,40 +141,22 @@ function AiExtractPage() {
           phone: pkg.phone ?? undefined,
           province: pkg.province ?? undefined,
           municipe: pkg.municipe ?? undefined,
-          arrivalDate: pkg.arrivalDate ?? undefined, // ← importante: arrivalDate
+          arrivalDate: pkg.arrivalDate ?? undefined,
           hblCodes: pkg.hblCodes ?? [],
           weight: pkg.weight ?? undefined,
         })),
-      };
-
-      const response = await fetch('/business/process-bulk-ai', {
-        method: 'POST',
-        headers: apiHeaders,
-        body: JSON.stringify(payload),
       });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error((errData as { message?: string }).message || 'Error al guardar el lote');
-      }
-
-      const result: BatchResult = await response.json();
-      setBatchResult(result);
+      setBatchResult(result as BatchResult);
     } catch (err) {
       setError((err as Error).message);
-    } finally {
-      setSaving(false);
     }
   };
 
-  // ----------------------------------------------------------------
-  // Renderizado
-  // ----------------------------------------------------------------
   if (!token) {
     return (
       <div className="panel">
-        <h2>Extracción con IA</h2>
-        <p>Debes iniciar sesión primero para usar esta página.</p>
+        <h2>Extraccion con IA</h2>
+        <p>Debes iniciar sesion primero para usar esta pagina.</p>
       </div>
     );
   }
@@ -242,16 +164,14 @@ function AiExtractPage() {
   return (
     <div className="panel" style={{ maxWidth: 1200, margin: '0 auto' }}>
       <header style={{ marginBottom: 24 }}>
-        <h2 style={{ margin: 0 }}>📦 Extraer datos con IA (Gemini)</h2>
+        <h2 style={{ margin: 0 }}>Extraer datos con IA (Gemini)</h2>
         <p className="hint" style={{ marginTop: 4, color: '#666' }}>
-          Carga un Excel → la IA extrae los campos → revisa y guarda el lote.
+          Carga un Excel &rarr; la IA extrae los campos &rarr; revisa y guarda el lote.
         </p>
       </header>
 
       {error && <div className="error-box" style={{ marginBottom: 16 }}>{error}</div>}
-      {loading && <div className="loading-banner" style={{ marginBottom: 16 }}>Cargando opciones...</div>}
 
-      {/* Paso 1: Cargar archivo */}
       <section className="list-card" style={{ marginBottom: 24 }}>
         <h3>1. Subir archivo Excel</h3>
         <form className="simple-form" style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -262,7 +182,7 @@ function AiExtractPage() {
               onChange={handleFileChange}
               style={{ display: 'block', marginTop: 4 }}
             />
-            {fileName && <small style={{ display: 'block', marginTop: 4 }}>📎 {fileName}</small>}
+            {fileName && <small style={{ display: 'block', marginTop: 4 }}>&#128206; {fileName}</small>}
           </label>
           <button
             type="button"
@@ -270,12 +190,12 @@ function AiExtractPage() {
             disabled={generating || !excelText}
             style={{ padding: '8px 24px' }}
           >
-            {generating ? '⏳ Extrayendo...' : '🔍 Extraer con IA'}
+            {generating ? 'Extrayendo...' : 'Extraer con IA'}
           </button>
         </form>
         {excelText && (
           <details style={{ marginTop: 12 }}>
-            <summary>Ver texto extraído (puedes editarlo)</summary>
+            <summary>Ver texto extraido (puedes editarlo)</summary>
             <textarea
               value={excelText}
               onChange={(e) => setExcelText(e.target.value)}
@@ -294,7 +214,6 @@ function AiExtractPage() {
         )}
       </section>
 
-      {/* Paso 2: Metadatos del lote (solo si hay preview) */}
       {preview && (
         <section className="list-card" style={{ marginBottom: 24 }}>
           <h3>2. Metadatos del lote</h3>
@@ -310,9 +229,9 @@ function AiExtractPage() {
                 </select>
               </label>
               <label>
-                Ubicación
+                Ubicacion
                 <select value={locationId} onChange={(e) => setLocationId(e.target.value)}>
-                  <option value="">Sin ubicación</option>
+                  <option value="">Sin ubicacion</option>
                   {locations.map((l) => (
                     <option key={l.id} value={l.id}>{l.name}</option>
                   ))}
@@ -342,14 +261,14 @@ function AiExtractPage() {
                   checked={isOrphan}
                   onChange={(e) => setIsOrphan(e.target.checked)}
                 />
-                Marcar paquetes como huérfanos
+                Marcar paquetes como huerfanos
               </label>
             </div>
             <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
-              <button type="button" onClick={handleSaveBatch} disabled={saving}>
-                {saving ? '⏳ Guardando...' : `💾 Guardar lote (${preview.length})`}
+              <button type="button" onClick={handleSaveBatch} disabled={bulkMutation.isPending}>
+                {bulkMutation.isPending ? 'Guardando...' : `Guardar lote (${preview.length})`}
               </button>
-              <button type="button" onClick={() => setPreview(null)} disabled={saving}>
+              <button type="button" onClick={() => setPreview(null)} disabled={bulkMutation.isPending}>
                 Cancelar
               </button>
             </div>
@@ -357,10 +276,9 @@ function AiExtractPage() {
         </section>
       )}
 
-      {/* Vista previa de los paquetes */}
       {preview && (
         <section className="list-card" style={{ marginBottom: 24 }}>
-          <h3>📋 Vista previa ({preview.length} paquetes)</h3>
+          <h3>Vista previa ({preview.length} paquetes)</h3>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
               <thead>
@@ -368,10 +286,10 @@ function AiExtractPage() {
                   <th style={{ padding: 8, textAlign: 'left' }}>#</th>
                   <th style={{ padding: 8, textAlign: 'left' }}>Destinatario</th>
                   <th style={{ padding: 8, textAlign: 'left' }}>Carnet</th>
-                  <th style={{ padding: 8, textAlign: 'left' }}>Teléfono</th>
+                  <th style={{ padding: 8, textAlign: 'left' }}>Telefono</th>
                   <th style={{ padding: 8, textAlign: 'left' }}>Provincia</th>
                   <th style={{ padding: 8, textAlign: 'left' }}>Municipio</th>
-                  <th style={{ padding: 8, textAlign: 'left' }}>Dirección</th>
+                  <th style={{ padding: 8, textAlign: 'left' }}>Direccion</th>
                   <th style={{ padding: 8, textAlign: 'left' }}>Contenido</th>
                   <th style={{ padding: 8, textAlign: 'left' }}>Peso</th>
                   <th style={{ padding: 8, textAlign: 'left' }}>Fecha llegada</th>
@@ -400,10 +318,9 @@ function AiExtractPage() {
         </section>
       )}
 
-      {/* Resultado del guardado */}
       {batchResult && (
         <section className="list-card batch-result" style={{ background: '#f8f9fa', padding: 16, borderRadius: 6 }}>
-          <h3>✅ Resultado del guardado</h3>
+          <h3>Resultado del guardado</h3>
           <p>
             Total: {batchResult.success.length + batchResult.failed.length} |
             Guardados: {batchResult.success.length} |
@@ -417,7 +334,7 @@ function AiExtractPage() {
               <ul style={{ marginTop: 8, paddingLeft: 20 }}>
                 {batchResult.failed.map((f, idx) => (
                   <li key={idx} style={{ marginBottom: 4 }}>
-                    <strong>Índice {idx}</strong>: {f.error}
+                    <strong>Indice {idx}</strong>: {f.error}
                     <pre style={{ fontSize: '0.8rem', background: '#fff', padding: 4, border: '1px solid #ddd', borderRadius: 4, marginTop: 2, whiteSpace: 'pre-wrap' }}>
                       {JSON.stringify(f.entity, null, 2)}
                     </pre>

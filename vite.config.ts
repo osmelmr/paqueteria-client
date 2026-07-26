@@ -17,6 +17,7 @@ export default defineConfig({
       '/packages': 'http://127.0.0.1:4000',
       '/locations': 'http://127.0.0.1:4000',
       '/provinces': 'http://127.0.0.1:4000',
+      '/municipes': 'http://127.0.0.1:4000',
       '/recipients': 'http://127.0.0.1:4000',
       '/statuses': 'http://127.0.0.1:4000',
       '/users': 'http://127.0.0.1:4000',

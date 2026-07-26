@@ -1,61 +1,46 @@
-import { useEffect, useState, type FormEvent } from 'react';
-import type { Location, Status } from '../types';
-import { api } from '../api';
-
-type UpdatedItem = { hbl: string; package: any };
-type FailedItem = string;
+import { useState, type FormEvent } from 'react';
+import { useUpdateStatusBulk } from '../hooks/useBusiness';
+import { useStatuses } from '../hooks/useStatuses';
+import { useLocations } from '../hooks/useLocations';
 
 type BulkResult = {
-  success: UpdatedItem[];
-  failed: FailedItem[];
+  success: Array<{ hbl: string; package: any }>;
+  failed: string[];
 };
 
-function UpdateStatusBulkPage() {
+export default function UpdateStatusBulkPage() {
   const [hbls, setHbls] = useState('');
   const [statusId, setStatusId] = useState('');
   const [locationId, setLocationId] = useState('');
-  const [statuses, setStatuses] = useState<Status[]>([]);
-  const [locations, setLocations] = useState<Location[]>([]);
   const [result, setResult] = useState<BulkResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
 
-  const loadRefs = async () => {
-    const [sData, lData] = await Promise.all([
-      api<Status[]>('/statuses'),
-      api<Location[]>('/locations'),
-    ]);
-    setStatuses(Array.isArray(sData) ? sData : (sData as unknown as { data: Status[] }).data || []);
-    setLocations(Array.isArray(lData) ? lData : (lData as unknown as { data: Location[] }).data || []);
-  };
+  const { data: statuses = [] } = useStatuses();
+  const { data: locations = [] } = useLocations();
+  const mutation = useUpdateStatusBulk();
 
-  useEffect(() => { loadRefs(); }, []);
+  const error = mutation.error ? (mutation.error as Error).message : localError;
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    setLoading(true);
-    setError(null);
+    setLocalError(null);
     setResult(null);
+
+    const parsed = hbls.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean);
+    if (parsed.length === 0) {
+      setLocalError('Ingresa al menos un HBL');
+      return;
+    }
+
     try {
-      const parsed = hbls
-        .split(/[,;\n]/)
-        .map((s) => s.trim())
-        .filter(Boolean);
-      if (parsed.length === 0) {
-        setError('Ingresa al menos un HBL');
-        setLoading(false);
-        return;
-      }
-      const data = await api<BulkResult>('/business/update-status-bulk', 'POST', {
+      const data = await mutation.mutateAsync({
         hbls: parsed,
         statusId: statusId || undefined,
         locationId: locationId || undefined,
       });
-      setResult(data);
+      setResult(data as BulkResult);
     } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
+      setLocalError((err as Error).message);
     }
   };
 
@@ -63,7 +48,7 @@ function UpdateStatusBulkPage() {
     <div className="panel">
       <h2>Actualizar estado por HBL (bulk)</h2>
       {error && <div className="error-box">{error}</div>}
-      {loading && <div className="loading-banner">Procesando...</div>}
+      {mutation.isPending && <div className="loading-banner">Procesando...</div>}
 
       <form onSubmit={handleSubmit} className="simple-form grid-form">
         <label className="full-width">
@@ -94,7 +79,7 @@ function UpdateStatusBulkPage() {
             ))}
           </select>
         </label>
-        <button type="submit" className="full-width" disabled={loading}>
+        <button type="submit" className="full-width" disabled={mutation.isPending}>
           Actualizar
         </button>
       </form>
@@ -149,5 +134,3 @@ function UpdateStatusBulkPage() {
     </div>
   );
 }
-
-export default UpdateStatusBulkPage;
