@@ -94,7 +94,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
   };
 
   return (
-    <div ref={containerRef} className="relative flex flex-col sm:flex-row gap-4 p-3.5 border rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+    <div ref={containerRef} className="relative flex flex-col sm:flex-row gap-4 p-3.5 border rounded-xl bg-[#b8b8b8] dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all">
       
       {/* Bloque Principal (Datos del paquete) */}
       <div className="flex flex-1 flex-col gap-2.5 min-w-0">
@@ -139,7 +139,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
         </div>
 
         {/* Fila 3: Estado, Locación, Cliente, Destino y Peso en texto plano */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-1 text-sm text-slate-600 dark:text-slate-300">
+        <div className="flex flex-wrap items-center  justify-between gap-3 pt-1 text-sm text-slate-600 dark:text-slate-300">
           <div className="flex flex-wrap items-center gap-4">
             
             {/* Estado como texto plano */}
@@ -196,7 +196,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
             </button>
 
             {openDropdown === 'status' && (
-              <div className="absolute right-0 sm:right-full sm:mr-2 top-full sm:top-0 mt-1 sm:mt-0 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded shadow-xl z-30 max-h-48 overflow-y-auto p-1">
+              <div className="absolute right-0 sm:right-full sm:mr-2 top-full sm:top-0 mt-1 sm:mt-0 w-48 bg-[#dbdbdb] dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded shadow-xl z-30 max-h-48 overflow-y-auto p-1">
                 <div className="px-2 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 mb-1">
                   Seleccionar Estado
                 </div>
@@ -230,7 +230,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
             </button>
 
             {openDropdown === 'location' && (
-              <div className="absolute right-0 sm:right-full sm:mr-2 top-full sm:top-0 mt-1 sm:mt-0 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded shadow-xl z-30 max-h-48 overflow-y-auto p-1">
+              <div className="absolute right-0 sm:right-full sm:mr-2 top-full sm:top-0 mt-1 sm:mt-0 w-48 bg-[#dbdbdb] dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded shadow-xl z-30 max-h-48 overflow-y-auto p-1">
                 <div className="px-2 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 mb-1">
                   Seleccionar Ubicación
                 </div>

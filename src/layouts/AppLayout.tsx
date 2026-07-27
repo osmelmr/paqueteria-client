@@ -8,7 +8,7 @@ export function AppLayout() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <Sidebar />
-      <main className="flex-1 md:ml-[220px] pt-24 px-5 pb-5 max-w-full overflow-x-auto bg-slate-50 dark:bg-slate-950">
+      <main className="flex-1 md:ml-[220px] pt-24 px-5 pb-5 max-w-full overflow-x-auto bg-[#b8b8b8] dark:bg-slate-950">
         <Outlet />
       </main>
       <Footer />

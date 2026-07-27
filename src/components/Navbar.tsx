@@ -22,7 +22,7 @@ export function Navbar() {
   const toggleTheme = useThemeStore((s) => s.toggleTheme);
 
   return (
-    <header className="fixed top-0 left-0 right-0 flex items-center justify-between h-[76px] px-5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 z-50 transition-colors">
+    <header className="fixed top-0 left-0 right-0 flex items-center justify-between h-[76px] px-5 bg-[#dbdbdb] dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 z-50 transition-colors">
       
       {/* Sección Izquierda: Menú móvil y Título/Logo */}
       <div className="flex items-center gap-3">

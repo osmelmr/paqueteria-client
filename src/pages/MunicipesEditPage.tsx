@@ -27,13 +27,13 @@ export default function MunicipesEditPage() {
 
   return (
     <div className="max-w-7xl mx-auto w-full min-w-0">
-      <div className="p-[18px] border border-gray-200 dark:border-gray-700 rounded-xl bg-white/92 dark:bg-[#1e1f27] shadow-lg mb-[18px]">
+      <div className="p-[18px] border border-gray-200 dark:border-gray-700 rounded-xl bg-[#dbdbdb] dark:bg-[#1e1f27] shadow-lg mb-[18px]">
         <h2 className="text-gray-900 dark:text-gray-100 font-semibold m-0 mb-4">Editar municipio</h2>
         {error && <div className="mb-4 p-3.5 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl">{error}</div>}
         <form onSubmit={handleSubmit} className="grid grid-cols-[1fr_auto] gap-3.5 items-end">
           <label className="flex flex-col gap-1.5 font-medium">
             Nombre
-            <input className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" value={name} onChange={(e) => setName(e.target.value)} required />
+            <input className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200" value={name} onChange={(e) => setName(e.target.value)} required />
           </label>
           <div className="flex gap-2.5 flex-wrap mt-3.5">
             <button type="submit" className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50" disabled={updateEntity.isPending}>Actualizar municipio</button>

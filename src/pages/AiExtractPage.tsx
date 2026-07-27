@@ -154,7 +154,7 @@ function AiExtractPage() {
 
   if (!token) {
     return (
-      <div className="p-[18px] border border-gray-200 dark:border-gray-700 rounded-xl bg-white/92 dark:bg-[#1e1f27] shadow-lg mb-[18px]">
+      <div className="p-[18px] border border-gray-200 dark:border-gray-700 rounded-xl bg-[#dbdbdb] dark:bg-[#1e1f27] shadow-lg mb-[18px]">
         <h2 className="text-gray-900 dark:text-gray-100 font-semibold m-0 mb-4">Extraccion con IA</h2>
         <p>Debes iniciar sesion primero para usar esta pagina.</p>
       </div>
@@ -162,7 +162,7 @@ function AiExtractPage() {
   }
 
   return (
-    <div className="p-[18px] border border-gray-200 dark:border-gray-700 rounded-xl bg-white/92 dark:bg-[#1e1f27] shadow-lg mb-[18px]" style={{ maxWidth: 1200, margin: '0 auto' }}>
+    <div className="p-[18px] border border-gray-200 dark:border-gray-700 rounded-xl bg-[#dbdbdb] dark:bg-[#1e1f27] shadow-lg mb-[18px]" style={{ maxWidth: 1200, margin: '0 auto' }}>
       <header style={{ marginBottom: 24 }}>
         <h2 className="text-gray-900 dark:text-gray-100 font-semibold m-0 mb-4">Extraer datos con IA (Gemini)</h2>
         <p className="m-0 text-gray-500 dark:text-gray-400" style={{ marginTop: 4, color: '#666' }}>
@@ -177,7 +177,7 @@ function AiExtractPage() {
         <form className="flex flex-col gap-3.5 mb-4.5" style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
           <label className="flex flex-col gap-1.5 font-medium" style={{ flex: 1 }}>
             <input
-              className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100"
+              className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200"
               type="file"
               accept=".xlsx,.xls"
               onChange={handleFileChange}
@@ -223,7 +223,7 @@ function AiExtractPage() {
             <div className="grid grid-cols-2 gap-3.5" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <label className="flex flex-col gap-1.5 font-medium">
                 Estado *
-                <select className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" value={statusId} onChange={(e) => setStatusId(e.target.value)} required>
+                <select className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200" value={statusId} onChange={(e) => setStatusId(e.target.value)} required>
                   <option value="">Seleccionar</option>
                   {statuses.map((s) => (
                     <option key={s.id} value={s.id}>{s.name}</option>
@@ -232,7 +232,7 @@ function AiExtractPage() {
               </label>
               <label className="flex flex-col gap-1.5 font-medium">
                 Ubicacion
-                <select className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" value={locationId} onChange={(e) => setLocationId(e.target.value)}>
+                <select className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200" value={locationId} onChange={(e) => setLocationId(e.target.value)}>
                   <option value="">Sin ubicacion</option>
                   {locations.map((l) => (
                     <option key={l.id} value={l.id}>{l.name}</option>
@@ -241,7 +241,7 @@ function AiExtractPage() {
               </label>
               <label className="flex flex-col gap-1.5 font-medium">
                 Agencia *
-                <select className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" value={agencyId} onChange={(e) => setAgencyId(e.target.value)} required>
+                <select className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200" value={agencyId} onChange={(e) => setAgencyId(e.target.value)} required>
                   <option value="">Seleccionar</option>
                   {agencies.map((a) => (
                     <option key={a.id} value={a.id}>{a.name}</option>
@@ -251,7 +251,7 @@ function AiExtractPage() {
               <label className="flex flex-col gap-1.5 font-medium">
                 Referencia externa *
                 <input
-                  className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100"
+                  className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200"
                   value={externalRef}
                   onChange={(e) => setExternalRef(e.target.value)}
                   placeholder="Ej: LOTE-001"
@@ -260,7 +260,7 @@ function AiExtractPage() {
               </label>
               <label className="flex flex-col gap-1.5 font-medium" style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 8 }}>
               <input
-                className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100"
+                className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200"
                 type="checkbox"
                 checked={isOrphan}
                 onChange={(e) => setIsOrphan(e.target.checked)}

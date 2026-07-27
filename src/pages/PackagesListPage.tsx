@@ -66,9 +66,9 @@ export default function PackagesListPage() {
   };
 
   return (
-    <main className="flex-1  pt-[76px] p-5 max-w-full overflow-x-auto bg-slate-50 dark:bg-slate-950 min-h-screen">
+    <main className="flex-1 max-w-full overflow-x-auto dark:bg-slate-950 min-h-screen">
       <div className="w-full">
-        <div className="p-5 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 shadow-sm w-full">
+        <div className="p-5 border border-neutral-200 dark:border-slate-800 rounded-2xl bg-[#dbdbdb] dark:bg-slate-900 shadow-sm w-full">
           <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-2.5">
               <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400">
