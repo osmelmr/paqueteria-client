@@ -47,6 +47,38 @@ export interface PackageHbl {
     hblCode: string;
 }
 
+export interface Vehicle {
+  id: string;
+  name: string;
+  isActive: boolean;
+  drivers?: DriverVehicle[];
+  _count?: { routes: number };
+}
+
+export interface Driver {
+  id: string;
+  name: string;
+  isActive: boolean;
+  vehicles?: DriverVehicle[];
+}
+
+export interface DriverVehicle {
+  id: string;
+  vehicleId: string;
+  driverId: string;
+  vehicle?: Vehicle;
+  driver?: Driver;
+}
+
+export interface RouteItem {
+  id: string;
+  name: string;
+  description?: string | null;
+  departureDate?: string;
+  vehicle?: Vehicle | null;
+  packages?: PackageItem[];
+}
+
 export interface PackageItem {
     id: string;
     guide?: Guide | null;
