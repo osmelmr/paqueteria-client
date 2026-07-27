@@ -5,10 +5,10 @@ import { Footer } from '../components/Footer';
 
 export function AppLayout() {
   return (
-    <div className="app-layout">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       <Sidebar />
-      <main className="app-layout__content">
+      <main className="flex-1 md:ml-[220px] pt-24 px-5 pb-5 max-w-full overflow-x-auto bg-slate-50 dark:bg-slate-950">
         <Outlet />
       </main>
       <Footer />

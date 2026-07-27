@@ -77,9 +77,9 @@ export default function PackagesEditPage() {
 
   if (pkgLoading) {
     return (
-      <div className="page">
-        <div className="panel">
-          <div className="loading-banner">Cargando...</div>
+      <div className="max-w-7xl mx-auto w-full min-w-0">
+        <div className="p-[18px] border border-gray-200 dark:border-gray-700 rounded-xl bg-white/92 dark:bg-[#1e1f27] shadow-lg mb-[18px]">
+          <div className="mb-4 p-2.5 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100">Cargando...</div>
         </div>
       </div>
     );
@@ -87,96 +87,105 @@ export default function PackagesEditPage() {
 
   if (pkgError || !pkg) {
     return (
-      <div className="page">
-        <div className="panel">
-          <div className="error-box">Paquete no encontrado</div>
+      <div className="max-w-7xl mx-auto w-full min-w-0">
+        <div className="p-[18px] border border-gray-200 dark:border-gray-700 rounded-xl bg-white/92 dark:bg-[#1e1f27] shadow-lg mb-[18px]">
+          <div className="mb-4 p-3.5 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl">Paquete no encontrado</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="page">
-      <div className="panel">
-        <h2 style={{ margin: 0, marginBottom: 16 }}>Editar paquete</h2>
-        {localError && <div className="error-box">{localError}</div>}
-        <form onSubmit={handleSubmit} className="simple-form grid-form">
-          <label>
+    <div className="max-w-7xl mx-auto w-full min-w-0">
+      <div className="p-[18px] border border-gray-200 dark:border-gray-700 rounded-xl bg-white/92 dark:bg-[#1e1f27] shadow-lg mb-[18px]">
+        <h2 className="text-gray-900 dark:text-gray-100 font-semibold m-0 mb-4">Editar paquete</h2>
+        {localError && <div className="mb-4 p-3.5 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl">{localError}</div>}
+        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3.5">
+           <label className="flex flex-col gap-1.5 font-medium">
+
             Guia
-            <select value={form.guideId} onChange={(e) => setForm((prev) => ({ ...prev, guideId: e.target.value }))}>
+            <select className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" value={form.guideId} onChange={(e) => setForm((prev) => ({ ...prev, guideId: e.target.value }))}>
               <option value="">Sin guia</option>
               {guides.map((g) => <option key={g.id} value={g.id}>{g.externalRef || g.agency?.name}</option>)}
             </select>
           </label>
-          <label>
+           <label className="flex flex-col gap-1.5 font-medium">
+
             Destinatario
-            <select value={form.recipientId} onChange={(e) => setForm((prev) => ({ ...prev, recipientId: e.target.value }))}>
+            <select className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" value={form.recipientId} onChange={(e) => setForm((prev) => ({ ...prev, recipientId: e.target.value }))}>
               <option value="">Seleccionar</option>
               {recipients.map((r) => <option key={r.id} value={r.id}>{r.fullName}</option>)}
             </select>
           </label>
-          <label>
+           <label className="flex flex-col gap-1.5 font-medium">
+
             Provincia
-            <select value={form.provinceId} onChange={(e) => setForm((prev) => ({ ...prev, provinceId: e.target.value }))}>
+            <select className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" value={form.provinceId} onChange={(e) => setForm((prev) => ({ ...prev, provinceId: e.target.value }))}>
               <option value="">Seleccionar</option>
               {provinces.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </label>
-          <label>
+           <label className="flex flex-col gap-1.5 font-medium">
+
             Direccion
-            <input value={form.address} onChange={(e) => setForm((prev) => ({ ...prev, address: e.target.value }))} />
+            <input className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" value={form.address} onChange={(e) => setForm((prev) => ({ ...prev, address: e.target.value }))} />
           </label>
-          <label>
+           <label className="flex flex-col gap-1.5 font-medium">
+
             Peso
-            <input type="number" step="0.1" value={form.weight} onChange={(e) => setForm((prev) => ({ ...prev, weight: e.target.value }))} />
+            <input className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" type="number" step="0.1" value={form.weight} onChange={(e) => setForm((prev) => ({ ...prev, weight: e.target.value }))} />
           </label>
-          <label>
+           <label className="flex flex-col gap-1.5 font-medium">
+
             Contenido
-            <input value={form.content} onChange={(e) => setForm((prev) => ({ ...prev, content: e.target.value }))} />
+            <input className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" value={form.content} onChange={(e) => setForm((prev) => ({ ...prev, content: e.target.value }))} />
           </label>
-          <label>
+           <label className="flex flex-col gap-1.5 font-medium">
+
             Fecha llegada
-            <input type="date" value={form.arrivalDate} onChange={(e) => setForm((prev) => ({ ...prev, arrivalDate: e.target.value }))} />
+            <input className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" type="date" value={form.arrivalDate} onChange={(e) => setForm((prev) => ({ ...prev, arrivalDate: e.target.value }))} />
           </label>
-          <label>
+           <label className="flex flex-col gap-1.5 font-medium">
+
             Estado
-            <select value={form.statusId} onChange={(e) => setForm((prev) => ({ ...prev, statusId: e.target.value }))} required>
+            <select className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" value={form.statusId} onChange={(e) => setForm((prev) => ({ ...prev, statusId: e.target.value }))} required>
               <option value="">Seleccionar</option>
               {statuses.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
           </label>
-          <label>
+           <label className="flex flex-col gap-1.5 font-medium">
+
             Ubicacion
-            <select value={form.locationId} onChange={(e) => setForm((prev) => ({ ...prev, locationId: e.target.value }))}>
+            <select className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" value={form.locationId} onChange={(e) => setForm((prev) => ({ ...prev, locationId: e.target.value }))}>
               <option value="">Sin ubicacion</option>
               {locations.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
             </select>
           </label>
-          <label className="full-width">
+          <label className="col-span-full">
             Anotaciones
-            <textarea value={form.anotations} onChange={(e) => setForm((prev) => ({ ...prev, anotations: e.target.value }))} rows={2} />
+            <textarea className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" value={form.anotations} onChange={(e) => setForm((prev) => ({ ...prev, anotations: e.target.value }))} rows={2} />
           </label>
-          <label className="full-width checkbox-label">
-            <input type="checkbox" checked={form.alert} onChange={(e) => setForm((prev) => ({ ...prev, alert: e.target.checked }))} />
+          <label className="col-span-full flex items-center gap-2.5 flex-row">
+            <input className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" type="checkbox" checked={form.alert} onChange={(e) => setForm((prev) => ({ ...prev, alert: e.target.checked }))} />
             Alerta
           </label>
           {form.alert && (
-            <label className="full-width">
+            <label className="col-span-full">
               Descripcion de alerta
-              <textarea value={form.alertDescription} onChange={(e) => setForm((prev) => ({ ...prev, alertDescription: e.target.value }))} rows={2} />
+              <textarea className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" value={form.alertDescription} onChange={(e) => setForm((prev) => ({ ...prev, alertDescription: e.target.value }))} rows={2} />
             </label>
           )}
-          <label className="full-width">
+          <label className="col-span-full">
             HBLs
-            <textarea value={form.hbls} onChange={(e) => setForm((prev) => ({ ...prev, hbls: e.target.value }))} rows={3} />
+            <textarea className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" value={form.hbls} onChange={(e) => setForm((prev) => ({ ...prev, hbls: e.target.value }))} rows={3} />
           </label>
-          <label className="full-width checkbox-label">
-            <input type="checkbox" checked={form.isOrphan} onChange={(e) => setForm((prev) => ({ ...prev, isOrphan: e.target.checked }))} />
+          <label className="col-span-full flex items-center gap-2.5 flex-row">
+            <input className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" type="checkbox" checked={form.isOrphan} onChange={(e) => setForm((prev) => ({ ...prev, isOrphan: e.target.checked }))} />
             Hu erfano
           </label>
-          <div className="button-group" style={{ gridColumn: '1 / -1' }}>
-            <button type="submit" disabled={updatePackage.isPending}>Actualizar paquete</button>
-            <button type="button" className="secondary" onClick={() => navigate('/packages')}>Cancelar</button>
+          <div className="flex gap-2.5 flex-wrap mt-3.5" style={{ gridColumn: '1 / -1' }}>
+            <button type="submit" className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50" disabled={updatePackage.isPending}>Actualizar paquete</button>
+            <button type="button" className="bg-transparent text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors" onClick={() => navigate('/packages')}>Cancelar</button>
           </div>
         </form>
       </div>

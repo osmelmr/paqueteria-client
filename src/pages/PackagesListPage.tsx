@@ -6,7 +6,10 @@ import { useRecipients } from '../hooks/useRecipients';
 import { useProvinces } from '../hooks/useProvinces';
 import { useStatuses } from '../hooks/useStatuses';
 import { useLocations } from '../hooks/useLocations';
+import { PackageCard } from '../components/PackageCard.tsx';
+import { PackageFiltersForm } from '../components/PackageFiltersForm.tsx';
 import type { PackageFilters } from '../api/packages.api';
+import { Plus, Package as PackageIcon } from 'lucide-react';
 
 export default function PackagesListPage() {
   const navigate = useNavigate();
@@ -57,95 +60,84 @@ export default function PackagesListPage() {
   };
 
   return (
-    <div className="page">
-      <div className="panel">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <h2 style={{ margin: 0 }}>Paquetes</h2>
-          <button type="button" onClick={() => navigate('/packages/new')}>Nuevo paquete</button>
-        </div>
-        {error && <div className="error-box">{error}</div>}
-        {isLoading && <div className="loading-banner">Cargando...</div>}
+    <main className="flex-1 md:ml-[220px] pt-[76px] px-5 pb-5 max-w-full overflow-x-auto bg-slate-50 dark:bg-slate-950 min-h-screen">
+      <div className="max-w-7xl mx-auto w-full min-w-0">
+        
+        {/* Contenedor Principal Estilizado */}
+        <div className="p-5 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 shadow-sm">
+          
+          {/* Cabecera: Título y Botón Nuevo Paquete */}
+          <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-2.5">
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                <PackageIcon className="w-4 h-4" />
+              </div>
+              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 m-0">
+                Paquetes
+              </h2>
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                {packages.length}
+              </span>
+            </div>
 
-        <form onSubmit={(e) => { e.preventDefault(); applyFilters(); }} className="simple-form filter-form">
-          <div className="filter-grid">
-            <label>
-              Guia
-              <select value={filterForm.guideId} onChange={(e) => setFilterForm((prev) => ({ ...prev, guideId: e.target.value }))}>
-                <option value="">Todas</option>
-                {guides.map((g) => <option key={g.id} value={g.id}>{g.externalRef || g.agency?.name}</option>)}
-              </select>
-            </label>
-            <label>
-              Estado
-              <select value={filterForm.statusId} onChange={(e) => setFilterForm((prev) => ({ ...prev, statusId: e.target.value }))}>
-                <option value="">Todos</option>
-                {statuses.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
-            </label>
-            <label>
-              Provincia
-              <select value={filterForm.provinceId} onChange={(e) => setFilterForm((prev) => ({ ...prev, provinceId: e.target.value }))}>
-                <option value="">Todas</option>
-                {provinces.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
-            </label>
-            <label>
-              Destinatario
-              <select value={filterForm.recipientId} onChange={(e) => setFilterForm((prev) => ({ ...prev, recipientId: e.target.value }))}>
-                <option value="">Todos</option>
-                {recipients.map((r) => <option key={r.id} value={r.id}>{r.fullName}</option>)}
-              </select>
-            </label>
-            <label>
-              HBL
-              <input value={filterForm.hbl} onChange={(e) => setFilterForm((prev) => ({ ...prev, hbl: e.target.value }))} placeholder="Buscar por HBL" />
-            </label>
-            <label>
-              Busqueda
-              <input value={filterForm.search} onChange={(e) => setFilterForm((prev) => ({ ...prev, search: e.target.value }))} placeholder="Direccion, contenido..." />
-            </label>
+            <button
+              type="button"
+              onClick={() => navigate('/packages/new')}
+              className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white font-semibold rounded-xl px-3.5 py-2 text-xs transition-colors shadow-sm cursor-pointer border-none"
+            >
+              <Plus className="w-4 h-4" />
+              Nuevo paquete
+            </button>
           </div>
-          <button type="submit">Filtrar</button>
-        </form>
 
-        <div className="list-card">
-          <h3>Paquetes ({packages.length})</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th><th>HBLs</th><th>Destinatario</th><th>Provincia</th>
-                <th>Estado</th><th>Ubicacion</th><th>Alerta</th><th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {packages.map((pkg: any) => (
-                <tr key={pkg.id}>
-                  <td>{pkg.id}</td>
-                  <td>{pkg.hbls ? pkg.hbls.map((h: { hblCode: string }) => h.hblCode).join(', ') : ''}</td>
-                  <td>{pkg.recipient?.fullName || '—'}</td>
-                  <td>{pkg.province?.name || '—'}</td>
-                  <td>{pkg.status?.name || '—'}</td>
-                  <td>{pkg.location?.name || '—'}</td>
-                  <td>{pkg.alert ? <span style={{ color: '#e74c3c', fontWeight: 'bold' }}>&#9888; {pkg.alertDescription || 'Si'}</span> : '—'}</td>
-                  <td>
-                    <div className="inline-actions">
-                      <select value={pkg.status?.id || ''} onChange={(e) => handleUpdateStatus(pkg.id, e.target.value, pkg.location?.id || '')}>
-                        <option value="">Estado</option>
-                        {statuses.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                      </select>
-                      <select value={pkg.location?.id || ''} onChange={(e) => handleUpdateStatus(pkg.id, pkg.status?.id || '', e.target.value)}>
-                        <option value="">Ubicacion</option>
-                        {locations.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
-                      </select>
-                      <button type="button" className="small secondary" onClick={() => handleDelete(pkg.id)}>Eliminar</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {/* Alertas y Estados de Carga */}
+          {error && (
+            <div className="mb-4 p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 rounded-xl text-xs">
+              {error}
+            </div>
+          )}
+          {isLoading && (
+            <div className="mb-4 p-3 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 text-xs font-medium">
+              Cargando paquetes...
+            </div>
+          )}
+
+          {/* Formulario de Filtros Reducido */}
+          <PackageFiltersForm
+            filterForm={filterForm}
+            setFilterForm={setFilterForm}
+            onSubmit={applyFilters}
+            guides={guides}
+            statuses={statuses}
+            provinces={provinces}
+            recipients={recipients}
+          />
+
+          {/* Listado de Paquetes */}
+          <div className="mt-4">
+            {packages.length === 0 && !isLoading ? (
+              <div className="text-center py-12 text-slate-400 dark:text-slate-500 text-xs">
+                No se encontraron paquetes
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {packages.map((pkg: any) => (
+                  <PackageCard
+                    key={pkg.id}
+                    data={pkg}
+                    onEdit={(id) => navigate(`/packages/${id}/edit`)}
+                    onDelete={handleDelete}
+                    onUpdateStatus={handleUpdateStatus}
+                    statuses={statuses}
+                    locations={locations}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
         </div>
       </div>
-    </div>
+    </main>
   );
 }

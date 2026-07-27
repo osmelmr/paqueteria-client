@@ -73,6 +73,12 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Nuevo', path: '/users/new' },
     ],
   },
+  {
+    label: 'Test', roles: ['ADMIN', 'STOREKEEPER'],
+    links: [
+      { label: 'PackageCard', path: '/package-card-test' },
+    ],
+  },
 ];
 
 export function Sidebar() {
@@ -122,27 +128,28 @@ export function Sidebar() {
   return (
     <>
       {sidebarOpen && (
-        <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-black/30 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
-      <aside className={`sidebar ${sidebarOpen ? 'sidebar--open' : ''}`}>
-        <nav className="sidebar__nav">
+      <aside className={`fixed top-14 left-0 bottom-0 w-[220px] bg-white dark:bg-[#16171d] border-r border-gray-200 dark:border-gray-700 overflow-y-auto py-2 z-30 max-md:-translate-x-full max-md:transition-transform max-md:duration-200 md:translate-x-0 ${sidebarOpen ? 'max-md:translate-x-0' : ''}`}>
+        <nav className="flex flex-col gap-0.5">
           {visibleGroups.map((group) => {
             const isOpen = openGroups[group.label] ?? false;
             return (
-              <div key={group.label} className="sidebar__group">
+              <div key={group.label} className="flex flex-col">
                 <button
                   type="button"
-                  className={`sidebar__group-label ${isOpen ? 'sidebar__group-label--open' : ''}`}
+                  className={`flex items-center justify-between w-full text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 px-4 py-2.5 cursor-pointer bg-transparent border-none text-left hover:text-gray-900 dark:hover:text-gray-100 transition-colors`}
                   onClick={() => toggleGroup(group.label)}
                 >
                   {group.label}
+                  <span className={`text-[0.6rem] transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`}>&#9656;</span>
                 </button>
-                <div className={`sidebar__group-links ${isOpen ? 'sidebar__group-links--open' : ''}`}>
+                <div className={`overflow-hidden transition-all duration-200 ${isOpen ? 'max-h-50' : 'max-h-0'}`}>
                   {group.links.map((link) => (
                     <button
                       key={link.path}
                       type="button"
-                      className={`sidebar__link ${isActive(link.path) ? 'sidebar__link--active' : ''}`}
+                      className={`bg-transparent border-none text-left px-6 py-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer w-full font-medium hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:text-gray-900 dark:hover:text-gray-100 transition-colors ${isActive(link.path) ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-500 dark:text-purple-400 border-r-2 border-purple-500 dark:border-purple-400' : ''}`}
                       onClick={() => {
                         navigate(link.path);
                         setSidebarOpen(false);

@@ -32,6 +32,7 @@ import StatusesEditPage from '../pages/StatusesEditPage';
 import UsersListPage from '../pages/UsersListPage';
 import UsersCreatePage from '../pages/UsersCreatePage';
 import UsersEditPage from '../pages/UsersEditPage';
+import PackageCardTestPage from '../pages/PackageCardTestPage';
 
 export const router = createBrowserRouter([
   {
@@ -75,6 +76,7 @@ export const router = createBrowserRouter([
           { path: 'users/:id/edit', element: <UsersEditPage /> },
           { path: 'ai-extract', element: <AiExtractPage /> },
           { path: 'update-status-bulk', element: <UpdateStatusBulkPage /> },
+          { path: 'package-card-test', element: <PackageCardTestPage /> },
         ],
       },
     ],

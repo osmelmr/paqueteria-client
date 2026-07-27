@@ -18,29 +18,29 @@ export default function GuidesListPage() {
   };
 
   return (
-    <div className="page">
-      <div className="panel">
+    <div className="max-w-7xl mx-auto w-full min-w-0">
+      <div className="p-[18px] border border-gray-200 dark:border-gray-700 rounded-xl bg-white/92 dark:bg-[#1e1f27] shadow-lg mb-[18px]">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <h2 style={{ margin: 0 }}>Guias</h2>
-          <button type="button" onClick={() => navigate('/guides/new')}>Nueva guia</button>
+          <h2 className="text-gray-900 dark:text-gray-100 font-semibold m-0">Guias</h2>
+          <button type="button" className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors" onClick={() => navigate('/guides/new')}>Nueva guia</button>
         </div>
-        {error && <div className="error-box">{error}</div>}
-        {isLoading && <div className="loading-banner">Cargando...</div>}
-        <div className="list-card">
-          <table>
+        {error && <div className="mb-4 p-3.5 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl">{error}</div>}
+        {isLoading && <div className="mb-4 p-2.5 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100">Cargando...</div>}
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full border-collapse text-sm">
             <thead>
-              <tr><th>ID</th><th>Agencia</th><th>Referencia</th><th>Acciones</th></tr>
+              <tr><th className="border border-gray-200 dark:border-gray-700 p-2.5 text-left bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100 font-semibold">ID</th><th className="border border-gray-200 dark:border-gray-700 p-2.5 text-left bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100 font-semibold">Agencia</th><th className="border border-gray-200 dark:border-gray-700 p-2.5 text-left bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100 font-semibold">Referencia</th><th className="border border-gray-200 dark:border-gray-700 p-2.5 text-left bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100 font-semibold">Acciones</th></tr>
             </thead>
             <tbody>
               {guides.map((g) => (
                 <tr key={g.id}>
-                  <td>{g.id}</td>
-                  <td>{g.agency?.name || '—'}</td>
-                  <td>{g.externalRef}</td>
-                  <td>
-                    <div className="inline-actions">
-                      <button type="button" className="small" onClick={() => navigate(`/guides/${g.id}/edit`)}>Editar</button>
-                      <button type="button" className="small secondary" onClick={() => handleDelete(g.id)}>Eliminar</button>
+                  <td className="border border-gray-200 dark:border-gray-700 p-2.5 text-gray-700 dark:text-gray-300">{g.id}</td>
+                  <td className="border border-gray-200 dark:border-gray-700 p-2.5 text-gray-700 dark:text-gray-300">{g.agency?.name || '—'}</td>
+                  <td className="border border-gray-200 dark:border-gray-700 p-2.5 text-gray-700 dark:text-gray-300">{g.externalRef}</td>
+                  <td className="border border-gray-200 dark:border-gray-700 p-2.5 text-gray-700 dark:text-gray-300">
+                    <div className="flex gap-2 flex-wrap">
+                      <button type="button" className="bg-purple-500 dark:bg-purple-400 text-white rounded-xl px-2.5 py-2 text-xs cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors" onClick={() => navigate(`/guides/${g.id}/edit`)}>Editar</button>
+                      <button type="button" className="bg-transparent text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-xl px-2.5 py-2 text-xs cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors" onClick={() => handleDelete(g.id)}>Eliminar</button>
                     </div>
                   </td>
                 </tr>

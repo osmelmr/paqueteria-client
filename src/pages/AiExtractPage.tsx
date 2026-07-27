@@ -154,29 +154,30 @@ function AiExtractPage() {
 
   if (!token) {
     return (
-      <div className="panel">
-        <h2>Extraccion con IA</h2>
+      <div className="p-[18px] border border-gray-200 dark:border-gray-700 rounded-xl bg-white/92 dark:bg-[#1e1f27] shadow-lg mb-[18px]">
+        <h2 className="text-gray-900 dark:text-gray-100 font-semibold m-0 mb-4">Extraccion con IA</h2>
         <p>Debes iniciar sesion primero para usar esta pagina.</p>
       </div>
     );
   }
 
   return (
-    <div className="panel" style={{ maxWidth: 1200, margin: '0 auto' }}>
+    <div className="p-[18px] border border-gray-200 dark:border-gray-700 rounded-xl bg-white/92 dark:bg-[#1e1f27] shadow-lg mb-[18px]" style={{ maxWidth: 1200, margin: '0 auto' }}>
       <header style={{ marginBottom: 24 }}>
-        <h2 style={{ margin: 0 }}>Extraer datos con IA (Gemini)</h2>
-        <p className="hint" style={{ marginTop: 4, color: '#666' }}>
+        <h2 className="text-gray-900 dark:text-gray-100 font-semibold m-0 mb-4">Extraer datos con IA (Gemini)</h2>
+        <p className="m-0 text-gray-500 dark:text-gray-400" style={{ marginTop: 4, color: '#666' }}>
           Carga un Excel &rarr; la IA extrae los campos &rarr; revisa y guarda el lote.
         </p>
       </header>
 
-      {error && <div className="error-box" style={{ marginBottom: 16 }}>{error}</div>}
+      {error && <div className="mb-4 p-3.5 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl" style={{ marginBottom: 16 }}>{error}</div>}
 
-      <section className="list-card" style={{ marginBottom: 24 }}>
+      <section className="mt-4 overflow-x-auto" style={{ marginBottom: 24 }}>
         <h3>1. Subir archivo Excel</h3>
-        <form className="simple-form" style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-          <label style={{ flex: 1 }}>
+        <form className="flex flex-col gap-3.5 mb-4.5" style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+          <label className="flex flex-col gap-1.5 font-medium" style={{ flex: 1 }}>
             <input
+              className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100"
               type="file"
               accept=".xlsx,.xls"
               onChange={handleFileChange}
@@ -186,6 +187,7 @@ function AiExtractPage() {
           </label>
           <button
             type="button"
+            className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50"
             onClick={handleGeneratePreview}
             disabled={generating || !excelText}
             style={{ padding: '8px 24px' }}
@@ -215,60 +217,62 @@ function AiExtractPage() {
       </section>
 
       {preview && (
-        <section className="list-card" style={{ marginBottom: 24 }}>
+        <section className="mt-4 overflow-x-auto" style={{ marginBottom: 24 }}>
           <h3>2. Metadatos del lote</h3>
-          <form className="simple-form" onSubmit={(e) => e.preventDefault()}>
-            <div className="grid-form" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <label>
+          <form className="flex flex-col gap-3.5 mb-4.5" onSubmit={(e) => e.preventDefault()}>
+            <div className="grid grid-cols-2 gap-3.5" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <label className="flex flex-col gap-1.5 font-medium">
                 Estado *
-                <select value={statusId} onChange={(e) => setStatusId(e.target.value)} required>
+                <select className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" value={statusId} onChange={(e) => setStatusId(e.target.value)} required>
                   <option value="">Seleccionar</option>
                   {statuses.map((s) => (
                     <option key={s.id} value={s.id}>{s.name}</option>
                   ))}
                 </select>
               </label>
-              <label>
+              <label className="flex flex-col gap-1.5 font-medium">
                 Ubicacion
-                <select value={locationId} onChange={(e) => setLocationId(e.target.value)}>
+                <select className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" value={locationId} onChange={(e) => setLocationId(e.target.value)}>
                   <option value="">Sin ubicacion</option>
                   {locations.map((l) => (
                     <option key={l.id} value={l.id}>{l.name}</option>
                   ))}
                 </select>
               </label>
-              <label>
+              <label className="flex flex-col gap-1.5 font-medium">
                 Agencia *
-                <select value={agencyId} onChange={(e) => setAgencyId(e.target.value)} required>
+                <select className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100" value={agencyId} onChange={(e) => setAgencyId(e.target.value)} required>
                   <option value="">Seleccionar</option>
                   {agencies.map((a) => (
                     <option key={a.id} value={a.id}>{a.name}</option>
                   ))}
                 </select>
               </label>
-              <label>
+              <label className="flex flex-col gap-1.5 font-medium">
                 Referencia externa *
                 <input
+                  className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100"
                   value={externalRef}
                   onChange={(e) => setExternalRef(e.target.value)}
                   placeholder="Ej: LOTE-001"
                   required
                 />
               </label>
-              <label style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input
-                  type="checkbox"
-                  checked={isOrphan}
-                  onChange={(e) => setIsOrphan(e.target.checked)}
-                />
+              <label className="flex flex-col gap-1.5 font-medium" style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-[#16171d] text-gray-900 dark:text-gray-100"
+                type="checkbox"
+                checked={isOrphan}
+                onChange={(e) => setIsOrphan(e.target.checked)}
+              />
                 Marcar paquetes como huerfanos
               </label>
             </div>
             <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
-              <button type="button" onClick={handleSaveBatch} disabled={bulkMutation.isPending}>
+              <button type="button" className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50" onClick={handleSaveBatch} disabled={bulkMutation.isPending}>
                 {bulkMutation.isPending ? 'Guardando...' : `Guardar lote (${preview.length})`}
               </button>
-              <button type="button" onClick={() => setPreview(null)} disabled={bulkMutation.isPending}>
+              <button type="button" className="bg-transparent text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors" onClick={() => setPreview(null)} disabled={bulkMutation.isPending}>
                 Cancelar
               </button>
             </div>
@@ -277,7 +281,7 @@ function AiExtractPage() {
       )}
 
       {preview && (
-        <section className="list-card" style={{ marginBottom: 24 }}>
+        <section className="mt-4 overflow-x-auto" style={{ marginBottom: 24 }}>
           <h3>Vista previa ({preview.length} paquetes)</h3>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
@@ -319,7 +323,7 @@ function AiExtractPage() {
       )}
 
       {batchResult && (
-        <section className="list-card batch-result" style={{ background: '#f8f9fa', padding: 16, borderRadius: 6 }}>
+        <section className="mt-4 p-4 bg-purple-50 dark:bg-purple-900/30 border border-purple-400/50 dark:border-purple-800/50 rounded-xl" style={{ background: '#f8f9fa', padding: 16, borderRadius: 6 }}>
           <h3>Resultado del guardado</h3>
           <p>
             Total: {batchResult.success.length + batchResult.failed.length} |

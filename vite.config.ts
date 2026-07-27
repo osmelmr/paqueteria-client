@@ -1,15 +1,17 @@
 import { defineConfig } from 'vite'
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import babel from '@rolldown/plugin-babel'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [
     react(),
+    tailwindcss(),
     babel({ presets: [reactCompilerPreset()] }),
   ],
   server: {
     proxy: {
-      '/api/v1': 'http://127.0.0.1:4000',
+      '/api/v1': 'http://127.0.0.1:5000',
     },
   },
 })
