@@ -9,6 +9,7 @@ interface FilterFormState {
   recipientId: string;
   hbl: string;
   search: string;
+  alert: string;
 }
 
 interface Props {
@@ -102,6 +103,17 @@ export function PackageFiltersForm({
         onChange={(e) => setFilterForm((prev) => ({ ...prev, search: e.target.value }))} 
         placeholder="Dirección, contenido..." 
       />
+
+      {/* Solo con alerta */}
+      <label className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer shrink-0 h-9 px-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+        <input 
+          type="checkbox"
+          className="w-3.5 h-3.5 rounded border-slate-300 dark:border-slate-600 text-purple-600 focus:ring-purple-500 cursor-pointer"
+          checked={filterForm.alert === 'true'}
+          onChange={(e) => setFilterForm((prev) => ({ ...prev, alert: e.target.checked ? 'true' : '' }))}
+        />
+        <span>Alerta</span>
+      </label>
 
       {/* Botón de filtrar */}
       <button 

@@ -9,6 +9,7 @@ export interface PackageFilters {
   recipientId?: string;
   guideId?: string;
   search?: string;
+  alert?: boolean;
 }
 
 export interface CreatePackageDto {

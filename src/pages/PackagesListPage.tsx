@@ -26,7 +26,7 @@ export default function PackagesListPage() {
   const { data: statuses = [] } = useStatuses();
   const { data: locations = [] } = useLocations();
 
-  const [filterForm, setFilterForm] = useState({ guideId: '', statusId: '', provinceId: '', municipeId: '', recipientId: '', hbl: '', search: '' });
+  const [filterForm, setFilterForm] = useState({ guideId: '', statusId: '', provinceId: '', municipeId: '', recipientId: '', hbl: '', search: '', alert: '' });
   const [localError, setLocalError] = useState<string | null>(null);
 
   const error = queryError ? (queryError as Error).message : localError;
@@ -40,6 +40,7 @@ export default function PackagesListPage() {
     if (filterForm.recipientId) f.recipientId = filterForm.recipientId;
     if (filterForm.hbl) f.hbl = filterForm.hbl;
     if (filterForm.search) f.search = filterForm.search;
+    if (filterForm.alert) f.alert = true;
     setFilters(f);
   };
 
