@@ -10,6 +10,7 @@ interface FilterFormState {
   hbl: string;
   search: string;
   alert: string;
+  statusDate: string;
 }
 
 interface Props {
@@ -57,6 +58,16 @@ export function PackageFiltersForm({
         <option value="">Todos los estados</option>
         {statuses?.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
       </select>
+
+      {filterForm.statusId && (
+        <input 
+          type="date"
+          className="min-w-[140px] h-9 border border-slate-200 dark:border-slate-700/80 rounded-lg px-2.5 text-xs bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all" 
+          value={filterForm.statusDate} 
+          onChange={(e) => setFilterForm((prev) => ({ ...prev, statusDate: e.target.value }))} 
+          title="Fecha del estado"
+        />
+      )}
 
       {/* Provincia */}
       <select 

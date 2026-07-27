@@ -10,6 +10,7 @@ export interface PackageFilters {
   guideId?: string;
   search?: string;
   alert?: boolean;
+  statusDate?: string;
 }
 
 export interface CreatePackageDto {
