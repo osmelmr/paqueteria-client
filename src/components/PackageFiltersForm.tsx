@@ -1,16 +1,16 @@
 import type { Guide } from '../api/guides.api';
-import type { Recipient } from '../api/recipients.api';
 
 interface FilterFormState {
   guideId: string;
   statusId: string;
   provinceId: string;
   municipeId: string;
-  recipientId: string;
   hbl: string;
   search: string;
   alert: string;
   statusDate: string;
+  locationId: string;
+  agencyId: string;
 }
 
 interface Props {
@@ -21,7 +21,8 @@ interface Props {
   statuses?: { id: string; name: string }[];
   provinces?: { id: string; name: string }[];
   municipes?: { id: string; name: string }[];
-  recipients?: Recipient[];
+  locations?: { id: string; name: string }[];
+  agencies?: { id: string; name: string }[];
 }
 
 export function PackageFiltersForm({ 
@@ -32,7 +33,8 @@ export function PackageFiltersForm({
   statuses = [], 
   provinces = [],
   municipes = [],
-  recipients = [] 
+  locations = [],
+  agencies = [],
 }: Props) {
   return (
     <form 
@@ -69,6 +71,16 @@ export function PackageFiltersForm({
         />
       )}
 
+      {/* Localización */}
+      <select 
+        className="flex-1 min-w-[120px] h-9 border border-slate-200 dark:border-slate-700/80 rounded-lg px-2.5 text-xs bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all" 
+        value={filterForm.locationId} 
+        onChange={(e) => setFilterForm((prev) => ({ ...prev, locationId: e.target.value }))}
+      >
+        <option value="">Todas las localizaciones</option>
+        {locations?.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
+      </select>
+
       {/* Provincia */}
       <select 
         className="flex-1 min-w-[120px] h-9 border border-slate-200 dark:border-slate-700/80 rounded-lg px-2.5 text-xs bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all" 
@@ -89,14 +101,14 @@ export function PackageFiltersForm({
         {municipes?.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
       </select>
 
-      {/* Destinatario */}
+      {/* Agencia */}
       <select 
         className="flex-1 min-w-[130px] h-9 border border-slate-200 dark:border-slate-700/80 rounded-lg px-2.5 text-xs bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all" 
-        value={filterForm.recipientId} 
-        onChange={(e) => setFilterForm((prev) => ({ ...prev, recipientId: e.target.value }))}
+        value={filterForm.agencyId} 
+        onChange={(e) => setFilterForm((prev) => ({ ...prev, agencyId: e.target.value }))}
       >
-        <option value="">Todos los destinatarios</option>
-        {recipients?.map((r) => <option key={r.id} value={r.id}>{r.fullName}</option>)}
+        <option value="">Todas las agencias</option>
+        {agencies?.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
       </select>
 
       {/* HBL Input */}

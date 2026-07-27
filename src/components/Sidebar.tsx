@@ -130,7 +130,7 @@ export function Sidebar() {
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/30 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
-      <aside className={`fixed top-14 left-0 bottom-0 w-[220px] bg-white dark:bg-[#16171d] border-r border-gray-200 dark:border-gray-700 overflow-y-auto py-2 z-30 max-md:-translate-x-full max-md:transition-transform max-md:duration-200 md:translate-x-0 ${sidebarOpen ? 'max-md:translate-x-0' : ''}`}>
+      <aside className={`fixed top-19 left-0 bottom-0 w-[220px] bg-white dark:bg-[#16171d] border-r border-gray-200 dark:border-gray-700 overflow-y-auto py-2 z-30 max-md:-translate-x-full max-md:transition-transform max-md:duration-200 md:translate-x-0 ${sidebarOpen ? 'max-md:translate-x-0' : ''}`}>
         <nav className="flex flex-col gap-0.5">
           {visibleGroups.map((group) => {
             const isOpen = openGroups[group.label] ?? false;

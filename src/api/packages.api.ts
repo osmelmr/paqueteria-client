@@ -11,6 +11,8 @@ export interface PackageFilters {
   search?: string;
   alert?: boolean;
   statusDate?: string;
+  locationId?: string;
+  agencyId?: string;
 }
 
 export interface CreatePackageDto {

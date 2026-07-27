@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePackages, useUpdatePackageStatus, useDeletePackage } from '../hooks/usePackages';
 import { useGuides } from '../hooks/useGuides';
-import { useRecipients } from '../hooks/useRecipients';
 import { useProvinces } from '../hooks/useProvinces';
 import { useMunicipes } from '../hooks/useMunicipes';
 import { useStatuses } from '../hooks/useStatuses';
 import { useLocations } from '../hooks/useLocations';
+import { useAgencies } from '../hooks/useAgencies';
 import { PackageCard } from '../components/PackageCard.tsx';
 import { PackageFiltersForm } from '../components/PackageFiltersForm.tsx';
 import type { PackageFilters } from '../api/packages.api';
@@ -20,13 +20,13 @@ export default function PackagesListPage() {
   const deletePackage = useDeletePackage();
 
   const { data: guides = [] } = useGuides();
-  const { data: recipients = [] } = useRecipients();
   const { data: provinces = [] } = useProvinces();
   const { data: municipes = [] } = useMunicipes();
   const { data: statuses = [] } = useStatuses();
   const { data: locations = [] } = useLocations();
+  const { data: agencies = [] } = useAgencies();
 
-  const [filterForm, setFilterForm] = useState({ guideId: '', statusId: '', provinceId: '', municipeId: '', recipientId: '', hbl: '', search: '', alert: '', statusDate: '' });
+  const [filterForm, setFilterForm] = useState({ guideId: '', statusId: '', provinceId: '', municipeId: '', hbl: '', search: '', alert: '', statusDate: '', locationId: '', agencyId: '' });
   const [localError, setLocalError] = useState<string | null>(null);
 
   const error = queryError ? (queryError as Error).message : localError;
@@ -37,11 +37,12 @@ export default function PackagesListPage() {
     if (filterForm.statusId) f.status = filterForm.statusId;
     if (filterForm.provinceId) f.provinceId = filterForm.provinceId;
     if (filterForm.municipeId) f.municipeId = filterForm.municipeId;
-    if (filterForm.recipientId) f.recipientId = filterForm.recipientId;
     if (filterForm.hbl) f.hbl = filterForm.hbl;
     if (filterForm.search) f.search = filterForm.search;
     if (filterForm.alert) f.alert = true;
     if (filterForm.statusDate) f.statusDate = filterForm.statusDate;
+    if (filterForm.locationId) f.locationId = filterForm.locationId;
+    if (filterForm.agencyId) f.agencyId = filterForm.agencyId;
     setFilters(f);
   };
 
@@ -109,7 +110,8 @@ export default function PackagesListPage() {
             statuses={statuses}
             provinces={provinces}
             municipes={municipes}
-            recipients={recipients}
+            locations={locations}
+            agencies={agencies}
           />
 
           <div className="mt-4">
