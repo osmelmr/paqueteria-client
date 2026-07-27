@@ -21,7 +21,7 @@ export default function PackagesEditPage() {
 
   const [form, setForm] = useState({
     guideId: '', recipientId: '', provinceId: '', address: '', weight: '',
-    content: '', arrivalDate: '', statusId: '', locationId: '', isOrphan: false,
+    content: '', arrivalDate: '', statusId: '', locationId: '',
     anotations: '', alert: false, alertDescription: '', hbls: '',
   });
   const [localError, setLocalError] = useState<string | null>(null);
@@ -38,7 +38,6 @@ export default function PackagesEditPage() {
         arrivalDate: pkg.arrivalDate || '',
         statusId: pkg.status?.id || '',
         locationId: pkg.location?.id || '',
-        isOrphan: pkg.isOrphan || false,
         anotations: pkg.anotations || '',
         alert: pkg.alert || false,
         alertDescription: pkg.alertDescription || '',
@@ -62,7 +61,6 @@ export default function PackagesEditPage() {
         arrivalDate: form.arrivalDate || undefined,
         statusId: form.statusId,
         locationId: form.locationId || undefined,
-        isOrphan: form.isOrphan ? true : undefined,
         anotations: form.anotations || undefined,
         alert: form.alert ? true : undefined,
         alertDescription: form.alertDescription || undefined,
@@ -179,10 +177,7 @@ export default function PackagesEditPage() {
             HBLs
             <textarea className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200" value={form.hbls} onChange={(e) => setForm((prev) => ({ ...prev, hbls: e.target.value }))} rows={3} />
           </label>
-          <label className="col-span-full flex items-center gap-2.5 flex-row">
-            <input className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200" type="checkbox" checked={form.isOrphan} onChange={(e) => setForm((prev) => ({ ...prev, isOrphan: e.target.checked }))} />
-            Hu erfano
-          </label>
+
           <div className="flex gap-2.5 flex-wrap mt-3.5" style={{ gridColumn: '1 / -1' }}>
             <button type="submit" className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50" disabled={updatePackage.isPending}>Actualizar paquete</button>
             <button type="button" className="bg-transparent text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors" onClick={() => navigate('/packages')}>Cancelar</button>

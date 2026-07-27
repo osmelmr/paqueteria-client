@@ -4,7 +4,6 @@ export interface PackageFilters {
   status?: string;
   provinceId?: string;
   municipeId?: string;
-  isOrphan?: boolean;
   hbl?: string;
   recipientId?: string;
   guideId?: string;
@@ -25,7 +24,6 @@ export interface CreatePackageDto {
   arrivalDate?: string;
   statusId: string;
   locationId?: string;
-  isOrphan?: boolean;
   anotations?: string;
   alert?: boolean;
   alertDescription?: string;

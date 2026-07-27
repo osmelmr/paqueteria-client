@@ -37,7 +37,6 @@ function AiExtractPage() {
   const [locationId, setLocationId] = useState('');
   const [agencyId, setAgencyId] = useState('');
   const [externalRef, setExternalRef] = useState('');
-  const [isOrphan, setIsOrphan] = useState(false);
   const [preview, setPreview] = useState<ExtractedPackage[] | null>(null);
   const [batchResult, setBatchResult] = useState<BatchResult | null>(null);
 
@@ -132,7 +131,6 @@ function AiExtractPage() {
         agencyId,
         guide: externalRef.trim(),
         locationId: locationId || undefined,
-        isOrphan: isOrphan || false,
         packages: preview.map((pkg) => ({
           address: pkg.address ?? undefined,
           content: pkg.content ?? undefined,
@@ -257,15 +255,6 @@ function AiExtractPage() {
                   placeholder="Ej: LOTE-001"
                   required
                 />
-              </label>
-              <label className="flex flex-col gap-1.5 font-medium" style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <input
-                className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200"
-                type="checkbox"
-                checked={isOrphan}
-                onChange={(e) => setIsOrphan(e.target.checked)}
-              />
-                Marcar paquetes como huerfanos
               </label>
             </div>
             <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>

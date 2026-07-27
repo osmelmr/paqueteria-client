@@ -58,7 +58,6 @@ export interface PackageItem {
     weight?: number | null;
     contentDescription?: string | null;
     arrivalDate?: string | null;
-    isOrphan?: boolean | null;
     anotations?: string | null;
     alert?: boolean | null;
     alertDescription?: string | null;

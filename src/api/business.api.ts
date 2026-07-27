@@ -7,7 +7,6 @@ export interface BulkAiEntities {
   location?: string;
   guideId?: string;
   guide?: string;
-  isOrphan?: boolean;
   packages: Array<{
     province?: string;
     municipe?: string;
@@ -38,7 +37,6 @@ export interface ResolveAlertDto {
   arrivalDate?: string;
   statusId?: string;
   locationId?: string;
-  isOrphan?: boolean;
   anotations?: string;
   alertDescription?: string;
   hbls?: string[];
