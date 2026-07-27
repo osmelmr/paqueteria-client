@@ -5,6 +5,7 @@ interface FilterFormState {
   guideId: string;
   statusId: string;
   provinceId: string;
+  municipeId: string;
   recipientId: string;
   hbl: string;
   search: string;
@@ -14,13 +15,23 @@ interface Props {
   filterForm: FilterFormState;
   setFilterForm: React.Dispatch<React.SetStateAction<FilterFormState>>;
   onSubmit: () => void;
-  guides: Guide[];
-  statuses: { id: string; name: string }[];
-  provinces: { id: string; name: string }[];
-  recipients: Recipient[];
+  guides?: Guide[];
+  statuses?: { id: string; name: string }[];
+  provinces?: { id: string; name: string }[];
+  municipes?: { id: string; name: string }[];
+  recipients?: Recipient[];
 }
 
-export function PackageFiltersForm({ filterForm, setFilterForm, onSubmit, guides, statuses, provinces, recipients }: Props) {
+export function PackageFiltersForm({ 
+  filterForm, 
+  setFilterForm, 
+  onSubmit, 
+  guides = [], 
+  statuses = [], 
+  provinces = [],
+  municipes = [],
+  recipients = [] 
+}: Props) {
   return (
     <form 
       onSubmit={(e) => { e.preventDefault(); onSubmit(); }} 
@@ -33,7 +44,7 @@ export function PackageFiltersForm({ filterForm, setFilterForm, onSubmit, guides
         onChange={(e) => setFilterForm((prev) => ({ ...prev, guideId: e.target.value }))}
       >
         <option value="">Todas las guías</option>
-        {guides.map((g) => <option key={g.id} value={g.id}>{g.externalRef || g.agency?.name}</option>)}
+        {guides?.map((g) => <option key={g.id} value={g.id}>{g.externalRef || g.agency?.name}</option>)}
       </select>
 
       {/* Estado */}
@@ -43,7 +54,7 @@ export function PackageFiltersForm({ filterForm, setFilterForm, onSubmit, guides
         onChange={(e) => setFilterForm((prev) => ({ ...prev, statusId: e.target.value }))}
       >
         <option value="">Todos los estados</option>
-        {statuses.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+        {statuses?.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
       </select>
 
       {/* Provincia */}
@@ -53,7 +64,17 @@ export function PackageFiltersForm({ filterForm, setFilterForm, onSubmit, guides
         onChange={(e) => setFilterForm((prev) => ({ ...prev, provinceId: e.target.value }))}
       >
         <option value="">Todas las provincias</option>
-        {provinces.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+        {provinces?.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+      </select>
+
+      {/* Municipio */}
+      <select 
+        className="flex-1 min-w-[120px] h-9 border border-slate-200 dark:border-slate-700/80 rounded-lg px-2.5 text-xs bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all" 
+        value={filterForm.municipeId} 
+        onChange={(e) => setFilterForm((prev) => ({ ...prev, municipeId: e.target.value }))}
+      >
+        <option value="">Todos los municipios</option>
+        {municipes?.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
       </select>
 
       {/* Destinatario */}
@@ -63,7 +84,7 @@ export function PackageFiltersForm({ filterForm, setFilterForm, onSubmit, guides
         onChange={(e) => setFilterForm((prev) => ({ ...prev, recipientId: e.target.value }))}
       >
         <option value="">Todos los destinatarios</option>
-        {recipients.map((r) => <option key={r.id} value={r.id}>{r.fullName}</option>)}
+        {recipients?.map((r) => <option key={r.id} value={r.id}>{r.fullName}</option>)}
       </select>
 
       {/* HBL Input */}

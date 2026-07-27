@@ -4,6 +4,7 @@ import { usePackages, useUpdatePackageStatus, useDeletePackage } from '../hooks/
 import { useGuides } from '../hooks/useGuides';
 import { useRecipients } from '../hooks/useRecipients';
 import { useProvinces } from '../hooks/useProvinces';
+import { useMunicipes } from '../hooks/useMunicipes';
 import { useStatuses } from '../hooks/useStatuses';
 import { useLocations } from '../hooks/useLocations';
 import { PackageCard } from '../components/PackageCard.tsx';
@@ -21,10 +22,11 @@ export default function PackagesListPage() {
   const { data: guides = [] } = useGuides();
   const { data: recipients = [] } = useRecipients();
   const { data: provinces = [] } = useProvinces();
+  const { data: municipes = [] } = useMunicipes();
   const { data: statuses = [] } = useStatuses();
   const { data: locations = [] } = useLocations();
 
-  const [filterForm, setFilterForm] = useState({ guideId: '', statusId: '', provinceId: '', recipientId: '', hbl: '', search: '' });
+  const [filterForm, setFilterForm] = useState({ guideId: '', statusId: '', provinceId: '', municipeId: '', recipientId: '', hbl: '', search: '' });
   const [localError, setLocalError] = useState<string | null>(null);
 
   const error = queryError ? (queryError as Error).message : localError;
@@ -34,6 +36,7 @@ export default function PackagesListPage() {
     if (filterForm.guideId) f.guideId = filterForm.guideId;
     if (filterForm.statusId) f.status = filterForm.statusId;
     if (filterForm.provinceId) f.provinceId = filterForm.provinceId;
+    if (filterForm.municipeId) f.municipeId = filterForm.municipeId;
     if (filterForm.recipientId) f.recipientId = filterForm.recipientId;
     if (filterForm.hbl) f.hbl = filterForm.hbl;
     if (filterForm.search) f.search = filterForm.search;
@@ -60,13 +63,9 @@ export default function PackagesListPage() {
   };
 
   return (
-    <main className="flex-1 md:ml-[220px] pt-[76px] px-5 pb-5 max-w-full overflow-x-auto bg-slate-50 dark:bg-slate-950 min-h-screen">
-      <div className="max-w-7xl mx-auto w-full min-w-0">
-        
-        {/* Contenedor Principal Estilizado */}
-        <div className="p-5 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 shadow-sm">
-          
-          {/* Cabecera: Título y Botón Nuevo Paquete */}
+    <main className="flex-1  pt-[76px] p-5 max-w-full overflow-x-auto bg-slate-50 dark:bg-slate-950 min-h-screen">
+      <div className="w-full">
+        <div className="p-5 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 shadow-sm w-full">
           <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-2.5">
               <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400">
@@ -79,7 +78,6 @@ export default function PackagesListPage() {
                 {packages.length}
               </span>
             </div>
-
             <button
               type="button"
               onClick={() => navigate('/packages/new')}
@@ -90,7 +88,6 @@ export default function PackagesListPage() {
             </button>
           </div>
 
-          {/* Alertas y Estados de Carga */}
           {error && (
             <div className="mb-4 p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 rounded-xl text-xs">
               {error}
@@ -102,7 +99,6 @@ export default function PackagesListPage() {
             </div>
           )}
 
-          {/* Formulario de Filtros Reducido */}
           <PackageFiltersForm
             filterForm={filterForm}
             setFilterForm={setFilterForm}
@@ -110,10 +106,10 @@ export default function PackagesListPage() {
             guides={guides}
             statuses={statuses}
             provinces={provinces}
+            municipes={municipes}
             recipients={recipients}
           />
 
-          {/* Listado de Paquetes */}
           <div className="mt-4">
             {packages.length === 0 && !isLoading ? (
               <div className="text-center py-12 text-slate-400 dark:text-slate-500 text-xs">
@@ -135,7 +131,6 @@ export default function PackagesListPage() {
               </div>
             )}
           </div>
-
         </div>
       </div>
     </main>

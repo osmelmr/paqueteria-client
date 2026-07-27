@@ -3,6 +3,7 @@ import api from './axios';
 export interface PackageFilters {
   status?: string;
   provinceId?: string;
+  municipeId?: string;
   isOrphan?: boolean;
   hbl?: string;
   recipientId?: string;
