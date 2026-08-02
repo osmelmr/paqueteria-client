@@ -10,6 +10,7 @@ export interface User {
 export interface Agency {
     id: string;
     name: string;
+    type: 'AEREA' | 'MARITIMA';
 }
 
 export interface Guide {
@@ -40,6 +41,16 @@ export interface Recipient {
 export interface Status {
     id: string;
     name: string;
+}
+
+export interface PackageHistoryItem {
+    id: string;
+    packageId: string;
+    statusId: string;
+    locationId: string | null;
+    createdAt: string;
+    status?: Status | null;
+    location?: Location | null;
 }
 
 export interface PackageHbl {

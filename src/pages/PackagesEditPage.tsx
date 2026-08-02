@@ -6,7 +6,7 @@ import { useRecipients } from '../hooks/useRecipients';
 import { useProvinces } from '../hooks/useProvinces';
 import { useStatuses } from '../hooks/useStatuses';
 import { useLocations } from '../hooks/useLocations';
-import type { CreatePackageDto } from '../api/packages.api';
+import type { UpdatePackageDto } from '../api/packages.api';
 
 export default function PackagesEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -51,7 +51,7 @@ export default function PackagesEditPage() {
     if (!id) return;
     setLocalError(null);
     try {
-      const dto: CreatePackageDto = {
+      const dto: UpdatePackageDto = {
         guideId: form.guideId || undefined,
         recipientId: form.recipientId || undefined,
         provinceId: form.provinceId || undefined,

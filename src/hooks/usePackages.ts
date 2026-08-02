@@ -18,6 +18,14 @@ export function usePackage(id: string) {
   });
 }
 
+export function usePackageHistory(id: string, enabled = true) {
+  return useQuery({
+    queryKey: ['package-history', id],
+    queryFn: () => packagesApi.getHistory(id),
+    enabled: !!id && enabled,
+  });
+}
+
 export function useCreatePackage() {
   const qc = useQueryClient();
   return useMutation({

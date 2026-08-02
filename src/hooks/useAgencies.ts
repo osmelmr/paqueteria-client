@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { agenciesApi } from '../api/agencies.api';
+import { agenciesApi, type CreateAgencyDto, type UpdateAgencyDto } from '../api/agencies.api';
 
 const QUERY_KEY = 'agencies';
 
@@ -10,7 +10,7 @@ export function useAgencies() {
 export function useCreateAgency() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (dto: { name: string }) => agenciesApi.create(dto),
+    mutationFn: (dto: CreateAgencyDto) => agenciesApi.create(dto),
     onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
   });
 }
@@ -18,7 +18,7 @@ export function useCreateAgency() {
 export function useUpdateAgency() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, dto }: { id: string; dto: { name: string } }) => agenciesApi.update(id, dto),
+    mutationFn: ({ id, dto }: { id: string; dto: UpdateAgencyDto }) => agenciesApi.update(id, dto),
     onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
   });
 }

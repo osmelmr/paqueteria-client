@@ -43,7 +43,7 @@ export default function PackagesCreatePage() {
         content: form.content || undefined,
         arrivalDate: form.arrivalDate || undefined,
         statusId: form.statusId,
-        locationId: form.locationId || undefined,
+        locationId: form.locationId,
         anotations: form.anotations || undefined,
         alert: form.alert ? true : undefined,
         alertDescription: form.alertDescription || undefined,
@@ -117,8 +117,8 @@ export default function PackagesCreatePage() {
            <label className="flex flex-col gap-1.5 font-medium">
 
             Ubicacion
-            <select className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200" value={form.locationId} onChange={(e) => setForm((prev) => ({ ...prev, locationId: e.target.value }))}>
-              <option value="">Sin ubicacion</option>
+            <select className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200" value={form.locationId} onChange={(e) => setForm((prev) => ({ ...prev, locationId: e.target.value }))} required>
+              <option value="">Seleccionar</option>
               {locations.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
             </select>
           </label>

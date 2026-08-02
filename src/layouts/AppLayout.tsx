@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 import { Sidebar } from '../components/Sidebar';
 import { Footer } from '../components/Footer';
+import { StatisticsBar } from '../components/StatisticsBar';
 
 export function AppLayout() {
   return (
@@ -9,6 +10,7 @@ export function AppLayout() {
       <Navbar />
       <Sidebar />
       <main className="flex-1 md:ml-[220px] pt-24 px-5 pb-5 max-w-full overflow-x-auto bg-[#b8b8b8] dark:bg-slate-950">
+        <StatisticsBar />
         <Outlet />
       </main>
       <Footer />

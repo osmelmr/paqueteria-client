@@ -1,5 +1,7 @@
 import api from './axios';
 
+export type GuideType = 'AEREA' | 'MARITIMA';
+
 export interface PackageFilters {
   status?: string;
   provinceId?: string;
@@ -12,6 +14,7 @@ export interface PackageFilters {
   statusDate?: string;
   locationId?: string;
   agencyId?: string;
+  guideType?: GuideType;
 }
 
 export interface CreatePackageDto {
@@ -23,7 +26,7 @@ export interface CreatePackageDto {
   content?: string;
   arrivalDate?: string;
   statusId: string;
-  locationId?: string;
+  locationId: string;
   anotations?: string;
   alert?: boolean;
   alertDescription?: string;
@@ -32,6 +35,16 @@ export interface CreatePackageDto {
 
 export interface UpdatePackageDto extends Partial<CreatePackageDto> {
   statusId?: string;
+}
+
+export interface PackageHistoryItem {
+  id: string;
+  packageId: string;
+  statusId: string;
+  locationId: string | null;
+  createdAt: string;
+  status?: { id: string; name: string } | null;
+  location?: { id: string; name: string } | null;
 }
 
 export const packagesApi = {
@@ -52,6 +65,9 @@ export const packagesApi = {
 
   updateStatus: (id: string, statusId: string, locationId?: string) =>
     api.patch(`/packages/${id}/status`, { statusId, locationId }).then((r) => r.data),
+
+  getHistory: (id: string) =>
+    api.get<PackageHistoryItem[]>(`/packages/${id}/history`).then((r) => r.data),
 
   delete: (id: string) =>
     api.delete(`/packages/${id}`),

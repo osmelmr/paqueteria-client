@@ -1,3 +1,4 @@
+import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/auth.store';
 import { useUIStore } from '../store/ui.store';
@@ -10,6 +11,7 @@ import {
   Package, 
   Truck, 
   FilePlus2, 
+  Search,
   User as UserIcon 
 } from 'lucide-react';
 
@@ -20,6 +22,14 @@ export function Navbar() {
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const theme = useThemeStore((s) => s.theme);
   const toggleTheme = useThemeStore((s) => s.toggleTheme);
+  const [hblSearch, setHblSearch] = useState('');
+
+  const handleHblSearch = (event: FormEvent) => {
+    event.preventDefault();
+    const q = hblSearch.trim();
+    if (!q) return;
+    navigate(`/packages?hbl=${encodeURIComponent(q)}`);
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 flex items-center justify-between h-[76px] px-5 bg-[#dbdbdb] dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 z-50 transition-colors">
@@ -48,8 +58,24 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Sección Central: Acciones Rápidas (Recepción y Add Manifiesto) */}
-      <div className="hidden sm:flex items-center gap-2.5">
+      {/* Sección Central: Búsqueda por HBL y Acciones Rápidas */}
+      <div className="hidden sm:flex flex-1 items-center justify-center gap-2.5 px-4">
+        <form
+          onSubmit={handleHblSearch}
+          className="hidden md:block w-full max-w-sm"
+        >
+          <div className="flex items-center gap-2 h-10 px-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 focus-within:border-purple-300 dark:focus-within:border-purple-700 focus-within:ring-1 focus-within:ring-purple-500 transition-all shadow-sm">
+            <Search className="w-4 h-4 text-slate-400 shrink-0" />
+            <input
+              value={hblSearch}
+              onChange={(e) => setHblSearch(e.target.value)}
+              placeholder="Buscar por HBL..."
+              className="w-full bg-transparent text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none"
+              aria-label="Buscar paquete por HBL"
+            />
+          </div>
+        </form>
+
         <button
           type="button"
           className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-200 dark:hover:border-purple-800/60 transition-all shadow-sm"

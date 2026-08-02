@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { usePackages, useUpdatePackageStatus, useDeletePackage } from '../hooks/usePackages';
 import { useGuides } from '../hooks/useGuides';
 import { useProvinces } from '../hooks/useProvinces';
@@ -10,11 +10,15 @@ import { useAgencies } from '../hooks/useAgencies';
 import { PackageCard } from '../components/PackageCard.tsx';
 import { PackageFiltersForm } from '../components/PackageFiltersForm.tsx';
 import type { PackageFilters } from '../api/packages.api';
-import { Plus, Package as PackageIcon } from 'lucide-react';
+import { Plus, X, Package as PackageIcon } from 'lucide-react';
 
 export default function PackagesListPage() {
   const navigate = useNavigate();
-  const [filters, setFilters] = useState<PackageFilters>({});
+  const [searchParams, setSearchParams] = useSearchParams();
+  const hblParam = searchParams.get('hbl') || '';
+  const [filters, setFilters] = useState<PackageFilters>(() =>
+    hblParam ? { hbl: hblParam } : {},
+  );
   const { data: packages = [], isLoading, error: queryError } = usePackages(filters);
   const updateStatus = useUpdatePackageStatus();
   const deletePackage = useDeletePackage();
@@ -26,8 +30,20 @@ export default function PackagesListPage() {
   const { data: locations = [] } = useLocations();
   const { data: agencies = [] } = useAgencies();
 
-  const [filterForm, setFilterForm] = useState({ guideId: '', statusId: '', provinceId: '', municipeId: '', hbl: '', search: '', alert: '', statusDate: '', locationId: '', agencyId: '' });
+  const [filterForm, setFilterForm] = useState({ guideId: '', statusId: '', provinceId: '', municipeId: '', hbl: hblParam, search: '', alert: '', statusDate: '', locationId: '', agencyId: '', guideType: '' });
   const [localError, setLocalError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!hblParam) return;
+    setFilterForm((prev) => ({ ...prev, hbl: hblParam }));
+    setFilters({ hbl: hblParam });
+  }, [hblParam]);
+
+  const clearHblSearch = () => {
+    setFilterForm((prev) => ({ ...prev, hbl: '' }));
+    setFilters({});
+    setSearchParams({}, { replace: true });
+  };
 
   const error = queryError ? (queryError as Error).message : localError;
 
@@ -43,6 +59,7 @@ export default function PackagesListPage() {
     if (filterForm.statusDate) f.statusDate = filterForm.statusDate;
     if (filterForm.locationId) f.locationId = filterForm.locationId;
     if (filterForm.agencyId) f.agencyId = filterForm.agencyId;
+    if (filterForm.guideType) f.guideType = filterForm.guideType as 'AEREA' | 'MARITIMA';
     setFilters(f);
   };
 
@@ -99,6 +116,23 @@ export default function PackagesListPage() {
           {isLoading && (
             <div className="mb-4 p-3 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 text-xs font-medium">
               Cargando paquetes...
+            </div>
+          )}
+
+          {filters.hbl && (
+            <div className="mb-4 p-3 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-medium flex items-center justify-between gap-3">
+              <span>
+                Buscando por HBL: <b className="font-mono">{filters.hbl}</b> —{' '}
+                {isLoading ? '...' : `${packages.length} resultado(s)`}
+              </span>
+              <button
+                type="button"
+                onClick={clearHblSearch}
+                className="flex items-center gap-1.5 shrink-0 px-2.5 py-1.5 rounded-lg bg-purple-600/10 hover:bg-purple-600/20 dark:bg-purple-400/10 dark:hover:bg-purple-400/20 text-purple-700 dark:text-purple-300 font-semibold transition-colors cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+                Limpiar
+              </button>
             </div>
           )}
 

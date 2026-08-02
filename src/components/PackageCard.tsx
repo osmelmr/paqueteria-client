@@ -10,8 +10,12 @@ import {
   FileText, 
   Building2,
   Activity,
-  Compass
+  Compass,
+  History,
+  X
 } from 'lucide-react';
+import { usePackageHistory } from '../hooks/usePackages';
+import type { PackageHistoryItem } from '../api/packages.api';
 
 export interface PackageData {
   id: string;
@@ -66,6 +70,8 @@ export const PackageCard: React.FC<PackageCardProps> = ({
   const [locationId, setLocationId] = useState(data.location?.id || '');
 
   const [openDropdown, setOpenDropdown] = useState<'status' | 'location' | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const history = usePackageHistory(data.id, showHistory);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -280,7 +286,89 @@ export const PackageCard: React.FC<PackageCardProps> = ({
           </button>
 
         </div>
+
+        {/* Botón Ver Historial */}
+        <button
+          type="button"
+          onClick={() => setShowHistory(true)}
+          className="mt-2 w-full h-8 flex items-center justify-center gap-1.5 rounded bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px] font-semibold text-slate-600 dark:text-slate-300 transition-colors duration-200 cursor-pointer"
+          title="Ver historial del paquete"
+        >
+          <History className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+          Historial
+        </button>
       </div>
+
+      {/* Modal de historial */}
+      {showHistory && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          onClick={() => setShowHistory(false)}
+        >
+          <div
+            className="w-full max-w-md max-h-[70vh] overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-[#dbdbdb] dark:bg-[#1e1f27] shadow-2xl p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 m-0">
+                Historial del paquete
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowHistory(false)}
+                className="w-7 h-7 flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                title="Cerrar"
+              >
+                <X className="w-4 h-4 text-slate-500" />
+              </button>
+            </div>
+
+            {history.isLoading && (
+              <p className="text-xs text-slate-500 dark:text-slate-400 m-0">Cargando historial...</p>
+            )}
+            {history.isError && (
+              <p className="text-xs text-red-600 dark:text-red-400 m-0">
+                No se pudo cargar el historial: {(history.error as Error)?.message}
+              </p>
+            )}
+            {!history.isLoading && !history.isError && (!history.data || history.data.length === 0) && (
+              <p className="text-xs text-slate-500 dark:text-slate-400 m-0">Sin movimientos registrados</p>
+            )}
+
+            {history.data && history.data.length > 0 && (
+              <ol className="flex flex-col gap-0">
+                {history.data.map((h: PackageHistoryItem, index: number) => (
+                  <li key={h.id} className="flex gap-3 items-stretch">
+                    <div className="flex flex-col items-center shrink-0">
+                      <span className={`w-2.5 h-2.5 rounded-full mt-1.5 ${index === 0 ? 'bg-purple-500' : 'bg-slate-400 dark:bg-slate-600'}`} />
+                      {index < history.data.length - 1 && (
+                        <span className="w-px flex-1 bg-slate-300 dark:bg-slate-700 min-h-6" />
+                      )}
+                    </div>
+                    <div className="pb-3 min-w-0">
+                      <p className="text-xs font-bold uppercase text-slate-800 dark:text-slate-200 m-0">
+                        {h.status?.name || 'Sin estado'}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 m-0 truncate">
+                        {h.location?.name || 'Sin ubicación'}
+                      </p>
+                      <p className="text-[11px] text-slate-400 dark:text-slate-500 m-0">
+                        {new Date(h.createdAt).toLocaleString('es-ES', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
+        </div>
+      )}
 
     </div>
   );

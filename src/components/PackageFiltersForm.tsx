@@ -11,6 +11,7 @@ interface FilterFormState {
   statusDate: string;
   locationId: string;
   agencyId: string;
+  guideType: string;
 }
 
 interface Props {
@@ -113,6 +114,18 @@ export function PackageFiltersForm({
         >
           <option value="">Todas las agencias</option>
           {agencies?.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+        </select>
+
+        {/* Tipo de guía */}
+        <select 
+          className={`${fieldWidth} h-9 border border-slate-200 dark:border-slate-700/80 rounded-lg px-2.5 text-xs bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all shrink-0`} 
+          value={filterForm.guideType} 
+          onChange={(e) => setFilterForm((prev) => ({ ...prev, guideType: e.target.value }))}
+          title="Tipo de guía"
+        >
+          <option value="">Todas las guías</option>
+          <option value="AEREA">Guías aéreas</option>
+          <option value="MARITIMA">Guías marítimas</option>
         </select>
 
         {/* HBL Input */}
