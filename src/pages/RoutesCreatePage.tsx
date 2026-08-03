@@ -1,11 +1,13 @@
 import { useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useCreateRoute } from '../hooks/useRoutes';
 import { useVehicles } from '../hooks/useVehicles';
 import type { CreateRouteDto } from '../api/routes.api';
 
 export default function RoutesCreatePage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const hblsParam = searchParams.get('hbls') || '';
   const createRoute = useCreateRoute();
   const { data: vehicles = [], isLoading: vehiclesLoading } = useVehicles();
 
@@ -14,7 +16,7 @@ export default function RoutesCreatePage() {
     description: '',
     departureDate: '',
     vehicleId: '',
-    hbls: '',
+    hbls: hblsParam,
   });
   const [localError, setLocalError] = useState<string | null>(null);
 
@@ -79,6 +81,11 @@ export default function RoutesCreatePage() {
           </label>
           <label className="col-span-full flex flex-col gap-1.5 font-medium">
             HBLs (separados por coma, punto y coma o saltos de linea)
+            {form.hbls && (
+              <span className="text-xs font-normal text-gray-500 dark:text-gray-400">
+                {form.hbls.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean).length} HBLs cargados desde el filtro de paquetes
+              </span>
+            )}
             <textarea className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.hbls} onChange={(e) => setForm((prev) => ({ ...prev, hbls: e.target.value }))} rows={3} placeholder="HBL001, HBL002" />
           </label>
           <div className="flex gap-2.5 flex-wrap mt-3.5" style={{ gridColumn: '1 / -1' }}>

@@ -1,4 +1,4 @@
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Route as RouteIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { usePackages, useUpdatePackageStatus, useDeletePackage } from '../hooks/usePackages';
@@ -143,6 +143,16 @@ export default function PackagesListPage() {
           </div>
           
           <div className="flex items-center gap-3 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={() => navigate(`/routes/new?hbls=${encodeURIComponent(allHbls.join(','))}`)}
+              disabled={allHbls.length === 0}
+              title={allHbls.length === 0 ? 'No hay HBLs en los paquetes filtrados' : 'Crear ruta con los HBLs de los paquetes filtrados'}
+              className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-border text-gray-900 dark:text-gray-100 font-semibold rounded-xl px-4 py-2.5 text-sm transition-all duration-200 whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <RouteIcon className="w-4 h-4" />
+              {allHbls.length > 0 ? `Crear ruta (${allHbls.length})` : 'Crear ruta'}
+            </button>
             <button
               type="button"
               onClick={() => navigate('/packages/new')}
