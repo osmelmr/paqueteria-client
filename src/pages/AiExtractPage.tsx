@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
+import api from '../api/axios';
 import { useAgencies } from '../hooks/useAgencies';
 import { useStatuses } from '../hooks/useStatuses';
 import { useLocations } from '../hooks/useLocations';
 import { useProcessBulkAi } from '../hooks/useBusiness';
+import { useAuthStore } from '../store/auth.store';
 import type { GuideType } from '../api/guides.api';
 
 type ExtractedPackage = {
@@ -77,12 +79,7 @@ function AiExtractPage() {
 
   const resultRef = useRef<HTMLDivElement>(null);
 
-  const token = useMemo(() => window.localStorage.getItem('paqueteria_token') || '', []);
-  const apiHeaders = useMemo(() => {
-    const h: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) h.Authorization = `Bearer ${token}`;
-    return h;
-  }, [token]);
+  const token = useAuthStore((s) => s.token);
 
   useEffect(() => {
     const cache = loadCache();
@@ -161,21 +158,13 @@ function AiExtractPage() {
     setBatchResult(null);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/ai/extract`, {
-        method: 'POST',
-        headers: apiHeaders,
-        body: JSON.stringify({ excelText }),
-      });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error((errData as { message?: string }).message || 'Error al extraer datos con IA');
-      }
-
-      const result = await response.json() as { packages: ExtractedPackage[] };
-      setPreview(result.packages);
+      const result = await api.post<{ packages: ExtractedPackage[] }>('/ai/extract', { excelText });
+      setPreview(result.data.packages);
     } catch (err) {
-      setError((err as Error).message);
+      const message = (err as { response?: { data?: { message?: string } } }).response?.data?.message
+        || (err as Error).message
+        || 'Error al extraer datos con IA';
+      setError(message);
     } finally {
       setGenerating(false);
     }

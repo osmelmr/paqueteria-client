@@ -22,7 +22,9 @@ export const authApi = {
     api.post<LoginResult>('/auth/login', dto).then((r) => r.data),
 
   refresh: () =>
-    api.post<{ accessToken: string }>('/auth/refresh').then((r) => r.data),
+    api
+      .post<{ accessToken: string; user?: LoginResult['user'] }>('/auth/refresh')
+      .then((r) => r.data),
 
   logout: () => api.post('/auth/logout'),
 };

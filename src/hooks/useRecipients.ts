@@ -4,7 +4,10 @@ import { recipientsApi } from '../api/recipients.api';
 const QUERY_KEY = 'recipients';
 
 export function useRecipients() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: () => recipientsApi.findAll() });
+  return useQuery({
+    queryKey: [QUERY_KEY],
+    queryFn: () => recipientsApi.findAll({ page: 1, limit: 100 }),
+  });
 }
 
 export function useCreateRecipient() {

@@ -1,7 +1,7 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUsers, useUpdateUser } from '../hooks/useUsers';
-import type { User } from '../api/users.api';
+import { usersApi, type User } from '../api/users.api';
 
 export default function UsersEditPage() {
   const navigate = useNavigate();
@@ -35,6 +35,9 @@ export default function UsersEditPage() {
       };
       if (form.email) dto.email = form.email;
       await updateUser.mutateAsync({ id: id!, dto });
+      if (form.password) {
+        await usersApi.changePassword(id!, form.password);
+      }
       navigate('/users');
     } catch (err) {
       setError((err as Error).message);
@@ -78,7 +81,7 @@ export default function UsersEditPage() {
           <h2 className="text-gray-900 dark:text-gray-100 font-semibold m-0 mb-4">Editar usuario</h2>
         </div>
         {error && <div className="mb-4 p-3.5 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl">{error}</div>}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3.5 mb-4.5 grid grid-cols-2 gap-3.5">
+        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3.5">
           <label className="flex flex-col gap-1.5 font-medium">
             Usuario
             <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={user.username} disabled />

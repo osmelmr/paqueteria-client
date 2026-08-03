@@ -10,15 +10,15 @@ export interface User {
 export interface Agency {
     id: string;
     name: string;
-    type: 'AEREA' | 'MARITIMA';
 }
 
 export interface Guide {
     id: string;
     name: string;
+    type: 'AEREA' | 'MARITIMA';
     agencyId?: string;
     agency?: Agency | null;
-    createdAt?: string;
+    uploadedAt?: string;
 }
 
 export interface Location {
@@ -95,6 +95,7 @@ export interface PackageItem {
     guide?: Guide | null;
     recipient?: Recipient | null;
     province?: Province | null;
+    municipe?: { id: string; name: string } | null;
     status?: Status | null;
     location?: Location | null;
     address?: string | null;

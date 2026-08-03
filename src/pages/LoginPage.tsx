@@ -1,34 +1,23 @@
-import { useState, type FormEvent, useEffect } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLogin } from '../hooks/useAuth';
 import { useAuthStore } from '../store/auth.store';
+import { useThemeStore } from '../store/theme.store';
 import { useSessionValidation } from '../hooks/useSessionValidation';
 
 export function LoginPage() {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem('theme');
-    if (saved) return saved === 'dark';
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
-  
+  const theme = useThemeStore((s) => s.theme);
+  const toggleTheme = useThemeStore((s) => s.toggleTheme);
+  const isDark = theme === 'dark';
+
   const loginMutation = useLogin();
   const error = useAuthStore((s) => s.error);
   const clearError = useAuthStore((s) => s.clearError);
 
   useSessionValidation(() => navigate('/', { replace: true }));
-
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDark]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -39,10 +28,6 @@ export function LoginPage() {
     } catch {
       // error is handled by the store
     }
-  };
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
   };
 
   return (

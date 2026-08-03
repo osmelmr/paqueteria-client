@@ -16,5 +16,7 @@ export const usersApi = {
     api.post<User>('/users', dto).then((r) => r.data),
   update: (id: string, dto: { fullName?: string; email?: string; role?: string; isActive?: boolean }) =>
     api.patch<User>(`/users/${id}`, dto).then((r) => r.data),
+  changePassword: (id: string, newPassword: string) =>
+    api.patch(`/users/${id}/change-password`, { newPassword }).then((r) => r.data),
   delete: (id: string) => api.delete(`/users/${id}`),
 };

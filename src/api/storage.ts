@@ -1,21 +1,37 @@
 const TOKEN_KEY = 'paqueteria_token';
 const USER_KEY = 'paqueteria_user';
 
+let memoryToken = '';
+
+try {
+  if (typeof window !== 'undefined') {
+    window.localStorage.removeItem(TOKEN_KEY);
+  }
+} catch {
+  /* ignore */
+}
+
 export function getToken(): string {
-  return localStorage.getItem(TOKEN_KEY) || '';
+  return memoryToken;
 }
 
 export function setToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token);
+  memoryToken = token;
 }
 
 export function clearToken(): void {
-  localStorage.removeItem(TOKEN_KEY);
+  memoryToken = '';
 }
 
 export function getUser<T = unknown>(): T | null {
   const raw = localStorage.getItem(USER_KEY);
-  return raw ? JSON.parse(raw) : null;
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    localStorage.removeItem(USER_KEY);
+    return null;
+  }
 }
 
 export function setUser(user: unknown): void {

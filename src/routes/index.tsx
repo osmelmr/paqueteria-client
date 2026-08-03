@@ -40,7 +40,7 @@ import VehiclesCreatePage from '../pages/VehiclesCreatePage';
 import VehiclesEditPage from '../pages/VehiclesEditPage';
 import DriversListPage from '../pages/DriversListPage';
 import DriversCreatePage from '../pages/DriversCreatePage';
-import PackageCardTestPage from '../pages/PackageCardTestPage';
+import DriversEditPage from '../pages/DriversEditPage';
 
 export const router = createBrowserRouter([
   {
@@ -90,9 +90,9 @@ export const router = createBrowserRouter([
           { path: 'vehicles/:id/edit', element: <VehiclesEditPage /> },
           { path: 'drivers', element: <DriversListPage /> },
           { path: 'drivers/new', element: <DriversCreatePage /> },
+          { path: 'drivers/:id/edit', element: <DriversEditPage /> },
           { path: 'ai-extract', element: <AiExtractPage /> },
           { path: 'update-status-bulk', element: <UpdateStatusBulkPage /> },
-          { path: 'package-card-test', element: <PackageCardTestPage /> },
         ],
       },
     ],

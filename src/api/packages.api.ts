@@ -22,6 +22,7 @@ export interface CreatePackageDto {
   guideId?: string;
   recipientId?: string;
   provinceId?: string;
+  municipeId?: string;
   address?: string;
   weight?: number;
   content?: string;
