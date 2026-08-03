@@ -38,7 +38,7 @@ export function Navbar() {
       <div className="flex items-center gap-3">
         <button
           type="button"
-          className="flex md:hidden items-center justify-center w-10 h-10 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="flex items-center justify-center w-10 h-10 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           onClick={toggleSidebar}
           aria-label="Toggle sidebar"
         >

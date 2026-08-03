@@ -128,9 +128,9 @@ export function Sidebar() {
   return (
     <>
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/30 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-black/30 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
-      <aside className={`fixed top-19 left-0 bottom-0 w-[220px] bg-[#dbdbdb] dark:bg-[#16171d] border-r border-gray-200 dark:border-gray-700 overflow-y-auto py-2 z-30 max-md:-translate-x-full max-md:transition-transform max-md:duration-200 md:translate-x-0 ${sidebarOpen ? 'max-md:translate-x-0' : ''}`}>
+      <aside className={`fixed top-19 left-0 bottom-0 w-[220px] bg-[#dbdbdb] dark:bg-[#16171d] border-r border-gray-200 dark:border-gray-700 overflow-y-auto py-2 z-40 -translate-x-full transition-transform duration-200 ${sidebarOpen ? 'translate-x-0' : ''}`}>
         <nav className="flex flex-col gap-0.5">
           {visibleGroups.map((group) => {
             const isOpen = openGroups[group.label] ?? false;
@@ -152,7 +152,6 @@ export function Sidebar() {
                       className={`bg-transparent border-none text-left px-6 py-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer w-full font-medium hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:text-gray-900 dark:hover:text-gray-100 transition-colors ${isActive(link.path) ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-500 dark:text-purple-400 border-r-2 border-purple-500 dark:border-purple-400' : ''}`}
                       onClick={() => {
                         navigate(link.path);
-                        setSidebarOpen(false);
                       }}
                     >
                       {link.label}
