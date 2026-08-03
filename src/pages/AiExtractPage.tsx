@@ -93,7 +93,7 @@ function AiExtractPage() {
     setBatchResult(null);
 
     try {
-      const response = await fetch('/ai/extract', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/ai/extract`, {
         method: 'POST',
         headers: apiHeaders,
         body: JSON.stringify({ excelText }),

@@ -14,18 +14,15 @@ export interface LoginResult {
     role: string;
   };
   accessToken: string;
-  refreshToken: string;
+  refreshToken?: string;
 }
 
 export const authApi = {
   login: (dto: LoginDto) =>
     api.post<LoginResult>('/auth/login', dto).then((r) => r.data),
 
-  refresh: (refreshToken: string) =>
-    api.post<{ accessToken: string; refreshToken: string }>('/auth/refresh', {
-      refreshToken,
-    }).then((r) => r.data),
+  refresh: () =>
+    api.post<{ accessToken: string }>('/auth/refresh').then((r) => r.data),
 
-  logout: (refreshToken: string) =>
-    api.post('/auth/logout', { refreshToken }),
+  logout: () => api.post('/auth/logout'),
 };

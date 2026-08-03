@@ -14,6 +14,9 @@ interface AuthState {
   login: (dto: LoginDto) => Promise<void>;
   logout: () => void;
   setAuth: (user: User, token: string, refreshToken: string) => void;
+  applyToken: (token: string) => void;
+  refreshSession: () => Promise<boolean>;
+  clearSession: () => void;
   clearError: () => void;
 }
 
@@ -36,7 +39,7 @@ export const useAuthStore = create<AuthState>()(
           set({
             user: result.user as User,
             token: result.accessToken,
-            refreshToken: result.refreshToken,
+            refreshToken: result.refreshToken ?? '',
             isAuthenticated: true,
             isLoading: false,
             error: null,
@@ -49,10 +52,33 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        const state = useAuthStore.getState();
-        if (state.refreshToken) {
-          authApi.logout(state.refreshToken).catch(() => {});
+        authApi.logout().catch(() => {});
+        useAuthStore.getState().clearSession();
+      },
+
+      setAuth: (user: User, token: string, refreshToken: string) => {
+        setToken(token);
+        setUser(user);
+        set({ user, token, refreshToken, isAuthenticated: true });
+      },
+
+      applyToken: (token: string) => {
+        setToken(token);
+        set({ token, isAuthenticated: true });
+      },
+
+      refreshSession: async () => {
+        try {
+          const { accessToken } = await authApi.refresh();
+          setToken(accessToken);
+          set({ token: accessToken, isAuthenticated: true });
+          return true;
+        } catch {
+          return false;
         }
+      },
+
+      clearSession: () => {
         clearToken();
         clearUser();
         set({
@@ -63,12 +89,6 @@ export const useAuthStore = create<AuthState>()(
           isLoading: false,
           error: null,
         });
-      },
-
-      setAuth: (user: User, token: string, refreshToken: string) => {
-        setToken(token);
-        setUser(user);
-        set({ user, token, refreshToken, isAuthenticated: true });
       },
 
       clearError: () => set({ error: null }),

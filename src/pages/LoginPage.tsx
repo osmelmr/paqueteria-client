@@ -2,6 +2,7 @@ import { useState, type FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLogin } from '../hooks/useAuth';
 import { useAuthStore } from '../store/auth.store';
+import { useSessionValidation } from '../hooks/useSessionValidation';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -14,9 +15,10 @@ export function LoginPage() {
   });
   
   const loginMutation = useLogin();
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const error = useAuthStore((s) => s.error);
   const clearError = useAuthStore((s) => s.clearError);
+
+  useSessionValidation(() => navigate('/', { replace: true }));
 
   useEffect(() => {
     if (isDark) {
@@ -27,10 +29,6 @@ export function LoginPage() {
       localStorage.setItem('theme', 'light');
     }
   }, [isDark]);
-
-  if (isAuthenticated) {
-    navigate('/', { replace: true });
-  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
