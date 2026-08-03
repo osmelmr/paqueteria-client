@@ -10,7 +10,7 @@ import { useAgencies } from '../hooks/useAgencies';
 import { PackageCard } from '../components/PackageCard.tsx';
 import { PackageFiltersForm } from '../components/PackageFiltersForm.tsx';
 import type { PackageFilters } from '../api/packages.api';
-import { Plus, X, Package as PackageIcon } from 'lucide-react';
+import { Plus, X, Package as PackageIcon, LayoutGrid, List } from 'lucide-react';
 
 export default function PackagesListPage() {
   const navigate = useNavigate();
@@ -30,8 +30,21 @@ export default function PackagesListPage() {
   const { data: locations = [] } = useLocations();
   const { data: agencies = [] } = useAgencies();
 
-  const [filterForm, setFilterForm] = useState({ guideId: '', statusId: '', provinceId: '', municipeId: '', hbl: hblParam, search: '', alert: '', statusDate: '', locationId: '', agencyId: '', guideType: '' });
+  const [filterForm, setFilterForm] = useState({ 
+    guideId: '', 
+    statusId: '', 
+    provinceId: '', 
+    municipeId: '', 
+    hbl: hblParam, 
+    search: '', 
+    alert: '', 
+    statusDate: '', 
+    locationId: '', 
+    agencyId: '', 
+    guideType: '' 
+  });
   const [localError, setLocalError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
 
   useEffect(() => {
     if (!hblParam) return;
@@ -73,7 +86,7 @@ export default function PackagesListPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Eliminar este paquete?')) return;
+    if (!confirm('¿Estás seguro de eliminar este paquete?')) return;
     setLocalError(null);
     try {
       await deletePackage.mutateAsync(id);
@@ -83,92 +96,121 @@ export default function PackagesListPage() {
   };
 
   return (
-    <main className="flex-1 max-w-full overflow-x-auto dark:bg-slate-950 min-h-screen">
-      <div className="w-full">
-        <div className="p-5 border border-neutral-200 dark:border-slate-800 rounded-2xl bg-[#dbdbdb] dark:bg-slate-900 shadow-sm w-full">
-          <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 dark:border-slate-800">
-            <div className="flex items-center gap-2.5">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400">
-                <PackageIcon className="w-4 h-4" />
-              </div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 m-0">
-                Paquetes
-              </h2>
-              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
-                {packages.length}
-              </span>
-            </div>
+    <main className="flex-1 min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-400 dark:to-indigo-400 bg-clip-text text-transparent">
+              Paquetes
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Gestiona y rastrea todos tus paquetes
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-3 w-full sm:w-auto">
             <button
               type="button"
               onClick={() => navigate('/packages/new')}
-              className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white font-semibold rounded-xl px-3.5 py-2 text-xs transition-colors shadow-sm cursor-pointer border-none"
+              className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 dark:from-purple-500 dark:to-indigo-500 dark:hover:from-purple-600 dark:hover:to-indigo-600 text-white font-semibold rounded-xl px-4 py-2.5 text-sm transition-all duration-200 shadow-md shadow-purple-500/20 dark:shadow-purple-500/10 hover:shadow-lg hover:shadow-purple-500/30 dark:hover:shadow-purple-500/20 whitespace-nowrap"
             >
               <Plus className="w-4 h-4" />
               Nuevo paquete
             </button>
           </div>
+        </div>
 
-          {error && (
-            <div className="mb-4 p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 rounded-xl text-xs">
-              {error}
+        {/* Error */}
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-sm flex items-center gap-3">
+            <div className="p-1.5 bg-red-100 dark:bg-red-900/30 rounded-lg">
+              <X className="w-4 h-4" />
             </div>
-          )}
-          {isLoading && (
-            <div className="mb-4 p-3 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 text-xs font-medium">
-              Cargando paquetes...
-            </div>
-          )}
+            <span className="flex-1">{error}</span>
+          </div>
+        )}
 
-          {filters.hbl && (
-            <div className="mb-4 p-3 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-medium flex items-center justify-between gap-3">
-              <span>
-                Buscando por HBL: <b className="font-mono">{filters.hbl}</b> —{' '}
-                {isLoading ? '...' : `${packages.length} resultado(s)`}
+        {/* Loading */}
+        {isLoading && (
+          <div className="mb-4 p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl flex items-center gap-3">
+            <div className="inline-block w-5 h-5 border-3 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Cargando paquetes...</span>
+          </div>
+        )}
+
+        {/* HBL Search Banner */}
+        {filters.hbl && (
+          <div className="mb-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border border-purple-200 dark:border-purple-800 rounded-xl flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <PackageIcon className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                Buscando por <span className="font-mono font-bold text-purple-700 dark:text-purple-400">{filters.hbl}</span> —{' '}
+                {isLoading ? '...' : `${packages.length} resultado${packages.length !== 1 ? 's' : ''}`}
               </span>
+            </div>
+            <button
+              type="button"
+              onClick={clearHblSearch}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-600/10 hover:bg-purple-600/20 dark:bg-purple-400/10 dark:hover:bg-purple-400/20 text-purple-700 dark:text-purple-300 font-semibold text-sm transition-all"
+            >
+              <X className="w-4 h-4" />
+              Limpiar
+            </button>
+          </div>
+        )}
+
+        {/* Filters */}
+        <PackageFiltersForm
+          filterForm={filterForm}
+          setFilterForm={setFilterForm}
+          onSubmit={applyFilters}
+          guides={guides}
+          statuses={statuses}
+          provinces={provinces}
+          municipes={municipes}
+          locations={locations}
+          agencies={agencies}
+        />
+
+        {/* Results Counter */}
+        <div className="mt-4 mb-3 flex items-center justify-between">
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            {packages.length} paquete{packages.length !== 1 ? 's' : ''} encontrado{packages.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+
+        {/* Package List */}
+        <div className="mt-4">
+          {packages.length === 0 && !isLoading ? (
+            <div className="text-center py-16 bg-white dark:bg-gray-800/60 rounded-2xl border border-gray-200 dark:border-gray-700">
+              <PackageIcon className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+              <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">No se encontraron paquetes</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Prueba ajustando los filtros o crea un nuevo paquete</p>
               <button
                 type="button"
-                onClick={clearHblSearch}
-                className="flex items-center gap-1.5 shrink-0 px-2.5 py-1.5 rounded-lg bg-purple-600/10 hover:bg-purple-600/20 dark:bg-purple-400/10 dark:hover:bg-purple-400/20 text-purple-700 dark:text-purple-300 font-semibold transition-colors cursor-pointer"
+                onClick={() => navigate('/packages/new')}
+                className="mt-4 inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white font-semibold rounded-xl px-4 py-2 text-sm transition-all"
               >
-                <X className="w-3.5 h-3.5" />
-                Limpiar
+                <Plus className="w-4 h-4" />
+                Crear paquete
               </button>
             </div>
+          ) : (
+            <div className={`grid gap-4 ${viewMode === 'card' ? 'grid-cols-1' : 'grid-cols-1'}`}>
+              {packages.map((pkg: any) => (
+                <PackageCard
+                  key={pkg.id}
+                  data={pkg}
+                  onEdit={(id) => navigate(`/packages/${id}/edit`)}
+                  onDelete={handleDelete}
+                  onUpdateStatus={handleUpdateStatus}
+                  statuses={statuses}
+                  locations={locations}
+                />
+              ))}
+            </div>
           )}
-
-          <PackageFiltersForm
-            filterForm={filterForm}
-            setFilterForm={setFilterForm}
-            onSubmit={applyFilters}
-            guides={guides}
-            statuses={statuses}
-            provinces={provinces}
-            municipes={municipes}
-            locations={locations}
-            agencies={agencies}
-          />
-
-          <div className="mt-4">
-            {packages.length === 0 && !isLoading ? (
-              <div className="text-center py-12 text-slate-400 dark:text-slate-500 text-xs">
-                No se encontraron paquetes
-              </div>
-            ) : (
-              <div className="flex flex-col gap-3">
-                {packages.map((pkg: any) => (
-                  <PackageCard
-                    key={pkg.id}
-                    data={pkg}
-                    onEdit={(id) => navigate(`/packages/${id}/edit`)}
-                    onDelete={handleDelete}
-                    onUpdateStatus={handleUpdateStatus}
-                    statuses={statuses}
-                    locations={locations}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </main>

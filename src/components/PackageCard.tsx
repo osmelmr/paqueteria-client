@@ -9,13 +9,14 @@ import {
   Trash2, 
   FileText, 
   Building2,
-  Activity,
   Compass,
   History,
+  Eye,
   X
 } from 'lucide-react';
 import { usePackageHistory } from '../hooks/usePackages';
 import type { PackageHistoryItem } from '../api/packages.api';
+import { MiniStatusForm } from './MiniStatusForm';
 
 export interface PackageData {
   id: string;
@@ -40,6 +41,7 @@ interface PackageCardProps {
   data: PackageData;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  onView?: (id: string) => void;
   onUpdateStatus?: (id: string, statusId: string, locationId: string) => void;
   statuses?: SelectOption[];
   locations?: SelectOption[];
@@ -58,6 +60,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
   data, 
   onEdit, 
   onDelete, 
+  onView,
   onUpdateStatus, 
   statuses = [], 
   locations = [] 
@@ -68,291 +71,240 @@ export const PackageCard: React.FC<PackageCardProps> = ({
 
   const [statusId, setStatusId] = useState(data.status.id || '');
   const [locationId, setLocationId] = useState(data.location?.id || '');
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  const [openDropdown, setOpenDropdown] = useState<'status' | 'location' | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const history = usePackageHistory(data.id, showHistory);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setOpenDropdown(null);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
   const currentStatusName = statuses.find(s => s.id === statusId)?.name || data.status.name;
   const currentLocationName = locations.find(l => l.id === locationId)?.name || data.location?.name || 'Sin ubicación';
 
-  const handleSelectStatus = (id: string) => {
-    setStatusId(id);
-    setOpenDropdown(null);
-    if (onUpdateStatus) onUpdateStatus(data.id, id, locationId);
+  const hasChanges = statusId !== (data.status.id || '') || locationId !== (data.location?.id || '');
+
+  const handleSaveChanges = async () => {
+    if (!onUpdateStatus || !hasChanges) return;
+    setIsUpdating(true);
+    try {
+      await onUpdateStatus(data.id, statusId, locationId);
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
-  const handleSelectLocation = (id: string) => {
-    setLocationId(id);
-    setOpenDropdown(null);
-    if (onUpdateStatus) onUpdateStatus(data.id, statusId, id);
+  const getStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+      'entregado': 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
+      'en tránsito': 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+      'pendiente': 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
+      'en bodega': 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400',
+    };
+    return colors[status.toLowerCase()] || 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300';
   };
 
   return (
-    <div ref={containerRef} className="relative flex flex-col sm:flex-row gap-4 p-3.5 border rounded-xl bg-[#b8b8b8] dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+    <div ref={containerRef} className="relative group bg-white dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-300 p-4">
       
-      {/* Bloque Principal (Datos del paquete) */}
-      <div className="flex flex-1 flex-col gap-2.5 min-w-0">
+      {/* Layout Principal */}
+      <div className="flex flex-col gap-2.5">
         
-        {/* Fila 1: HBL y Alerta alineada verticalmente con el peso */}
-        <div className="flex items-center justify-between gap-2 min-w-0">
+        {/* Fila 1: HBL y acciones rápidas (Peso, Historial, Alerta) */}
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
-            <Package className="w-5 h-5 text-slate-500 dark:text-slate-400 shrink-0" />
-            <span className="font-mono text-base font-bold text-slate-900 dark:text-slate-100 truncate">
+            <div className="p-1 bg-purple-100 dark:bg-purple-900/30 rounded-lg shrink-0">
+              <Package className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+            </div>
+            <span className="font-mono text-base font-bold text-gray-900 dark:text-white truncate">
               {primaryHbl}
             </span>
             {extraHblCount > 0 && (
-              <span className="text-xs font-bold text-slate-700 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 px-2 py-0.5 rounded-full shrink-0">
+              <span className="text-[10px] font-semibold text-white bg-purple-500 dark:bg-purple-400 px-2 py-0.5 rounded-full shrink-0">
                 +{extraHblCount}
               </span>
             )}
           </div>
 
-          {/* Alerta con el diseño de los botones de acción, alineada arriba con el peso */}
-          {isAlert && (
-            <div className="flex sm:w-28 shrink-0 justify-end sm:justify-center">
-              <div 
-                className="w-9 h-9 flex items-center justify-center rounded bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-200 cursor-help"
-                title={data.alertDescription || "Paquete con alerta"}
-              >
-                <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+          {/* Grupo: Peso, Historial, Alerta */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Peso */}
+            <span className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200">
+              <Weight className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
+              {data.weight ? `${Number(data.weight).toFixed(1)} kg` : '--'}
+            </span>
+
+            {/* Historial */}
+            <button
+              type="button"
+              onClick={() => setShowHistory(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-800/30 border border-amber-200 dark:border-amber-800/50 text-xs font-medium text-amber-700 dark:text-amber-300 transition-all duration-200"
+              title="Ver historial"
+            >
+              <History className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Historial</span>
+            </button>
+
+            {/* Alerta */}
+            {isAlert && (
+              <div className="flex items-center gap-1 px-2.5 py-1 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                <AlertTriangle className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
+                <span className="text-[10px] font-medium text-red-700 dark:text-red-300">Alerta</span>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
-        {/* Fila 2: Guía y Agencia */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800/60 pb-2">
-          <span className="flex items-center gap-1.5 truncate max-w-[150px]" title="Guía">
-            <FileText className="w-4 h-4 text-slate-400 shrink-0" />
-            <span className="truncate">{data.guide?.externalRef || 'Sin guía'}</span>
+        {/* Fila 2: Guía, Agencia, Estado (como información), Provincia y Municipio */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-gray-600 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700/50 pb-2">
+          <span className="flex items-center gap-1.5">
+            <FileText className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
+            <span className="font-medium text-gray-700 dark:text-gray-300">{data.guide?.externalRef || 'Sin guía'}</span>
           </span>
-          <span className="flex items-center gap-1.5 truncate max-w-[150px]" title="Agencia">
-            <Building2 className="w-4 h-4 text-slate-400 shrink-0" />
-            <span className="truncate">{data.guide?.agency?.name || 'Sin agencia'}</span>
+          
+          <span className="flex items-center gap-1.5">
+            <Building2 className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
+            <span className="text-gray-700 dark:text-gray-300">{data.guide?.agency?.name || 'Sin agencia'}</span>
+          </span>
+
+          {/* Estado como información visual */}
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${getStatusColor(currentStatusName)}`}>
+            <div className="w-1.5 h-1.5 rounded-full bg-current opacity-60"></div>
+            {currentStatusName}
+          </span>
+
+          <span className="flex items-center gap-1.5">
+            <Compass className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
+            <span className="text-gray-700 dark:text-gray-300">{data.province?.name || '—'}</span>
+          </span>
+
+          <span className="flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
+            <span className="text-gray-700 dark:text-gray-300">{data.municipe?.name || '—'}</span>
           </span>
         </div>
 
-        {/* Fila 3: Estado, Locación, Cliente, Destino y Peso en texto plano */}
-        <div className="flex flex-wrap items-center  justify-between gap-3 pt-1 text-sm text-slate-600 dark:text-slate-300">
-          <div className="flex flex-wrap items-center gap-4">
+        {/* Fila 3: Destinatario y Ubicación (como información) */}
+        <div className="flex flex-wrap items-center gap-3 text-xs">
+          <span className="inline-flex items-center gap-1.5 text-gray-700 dark:text-gray-300">
+            <User className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
+            {maskName(data.recipient?.fullName)}
+          </span>
+          <span className="inline-flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
+            <MapPin className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
+            {currentLocationName}
+          </span>
+        </div>
+
+        {/* Fila 4: MiniStatusForm y acciones */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-gray-100 dark:border-gray-700/50">
+          {/* MiniStatusForm */}
+          <div className="flex-1 ">
+            <MiniStatusForm
+              statusId={statusId}
+              locationId={locationId}
+              statuses={statuses}
+              locations={locations}
+              currentStatusName={currentStatusName}
+              currentLocationName={currentLocationName}
+              onStatusChange={setStatusId}
+              onLocationChange={setLocationId}
+              onSave={handleSaveChanges}
+              isUpdating={isUpdating}
+              hasChanges={hasChanges}
+              getStatusColor={getStatusColor}
+            />
+          </div>
+
+          {/* Separador */}
+          <div className="w-px h-8 bg-gray-200 dark:bg-gray-700 shrink-0"></div>
+
+          {/* Botones de acción - CON TEXTO en md+ */}
+          <div className="flex-row sm:flex-col items-center gap-3 shrink-0">
             
-            {/* Estado como texto plano */}
-            <span className="flex items-center gap-1.5 truncate max-w-[150px]" title="Estado">
-              <Activity className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="truncate font-semibold uppercase text-xs">{currentStatusName}</span>
-            </span>
-
-            {/* Locación */}
-            <span className="flex items-center gap-1.5 truncate max-w-[150px]" title="Ubicación">
-              <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="truncate text-xs">{currentLocationName}</span>
-            </span>
-
-            <span className="flex items-center gap-1.5 truncate max-w-[160px]" title="Destinatario">
-              <User className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="truncate font-medium">{maskName(data.recipient?.fullName)}</span>
-            </span>
-
-            {/* Destino: Provincia */}
-            <span className="flex items-center gap-1.5 truncate max-w-[150px]" title="Provincia">
-              <Compass className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="truncate">{data.province?.name || '—'}</span>
-            </span>
-
-            {/* Destino: Municipio */}
-            <span className="flex items-center gap-1.5 truncate max-w-[150px]" title="Municipio">
-              <Compass className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="truncate">{data.municipe?.name || '—'}</span>
-            </span>
-
-          </div>
-          
-          <span className="flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md text-xs shrink-0" title="Peso">
-            <Weight className="w-4 h-4 text-slate-400 shrink-0" />
-            {data.weight ? `${Number(data.weight).toFixed(1)} kg` : '--'}
-          </span>
-        </div>
-      </div>
-
-      {/* Sección Derecha: Grid 2x2 con separación vertical y hover más claro */}
-      <div className="flex items-center justify-center sm:justify-center border-t sm:border-t-0 sm:border-l border-slate-100 dark:border-slate-800 pt-3 sm:pt-0 sm:pl-4 shrink-0">
-        <div className="grid grid-cols-2 gap-x-2 gap-y-3 w-full sm:w-28 package-card-actions">
-          
-          {/* Botón Cambiar Estado */}
-          <div className="relative">
+            
             <button
               type="button"
-              onClick={() => setOpenDropdown(openDropdown === 'status' ? null : 'status')}
-              className="w-full h-9 flex items-center justify-center rounded bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-200"
-              title="Cambiar estado"
+              onClick={() => onEdit(data.id)}
+              className="h-8 px-3 flex items-center md:min-w-22 gap-1.5 rounded-lg bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-800/30 text-purple-600 dark:text-purple-400 transition-all duration-200 text-xs font-medium"
+              title="Editar paquete"
             >
-              <Activity className="w-4 h-4 text-blue-500" />
+              <Edit2 className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Editar</span>
             </button>
-
-            {openDropdown === 'status' && (
-              <div className="absolute right-0 sm:right-full sm:mr-2 top-full sm:top-0 mt-1 sm:mt-0 w-48 bg-[#dbdbdb] dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded shadow-xl z-30 max-h-48 overflow-y-auto p-1">
-                <div className="px-2 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 mb-1">
-                  Seleccionar Estado
-                </div>
-                {statuses.map((s) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => handleSelectStatus(s.id)}
-                    className={`w-full text-left px-2 py-1 text-xs rounded transition-colors ${
-                      s.id === statusId 
-                        ? 'bg-slate-100 dark:bg-slate-800 font-bold' 
-                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                    }`}
-                  >
-                    {s.name}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Botón Cambiar Locación */}
-          <div className="relative">
+            
             <button
               type="button"
-              onClick={() => setOpenDropdown(openDropdown === 'location' ? null : 'location')}
-              className="w-full h-9 flex items-center justify-center rounded bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-200"
-              title="Cambiar ubicación"
+              onClick={() => onDelete(data.id)}
+              className="h-8 px-3 flex items-center mt-2 gap-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-800/30 text-red-600 dark:text-red-400 transition-all duration-200 text-xs font-medium"
+              title="Eliminar paquete"
             >
-              <MapPin className="w-4 h-4 text-emerald-500" />
+              <Trash2 className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Eliminar</span>
             </button>
-
-            {openDropdown === 'location' && (
-              <div className="absolute right-0 sm:right-full sm:mr-2 top-full sm:top-0 mt-1 sm:mt-0 w-48 bg-[#dbdbdb] dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded shadow-xl z-30 max-h-48 overflow-y-auto p-1">
-                <div className="px-2 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 mb-1">
-                  Seleccionar Ubicación
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleSelectLocation('')}
-                  className="w-full text-left px-2 py-1 text-xs text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded transition-colors"
-                >
-                  Sin ubicación
-                </button>
-                {locations.map((l) => (
-                  <button
-                    key={l.id}
-                    type="button"
-                    onClick={() => handleSelectLocation(l.id)}
-                    className={`w-full text-left px-2 py-1 text-xs rounded transition-colors ${
-                      l.id === locationId 
-                        ? 'bg-slate-100 dark:bg-slate-800 font-bold' 
-                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                    }`}
-                  >
-                    {l.name}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
-
-          {/* Botón Editar */}
-          <button
-            type="button"
-            onClick={() => onEdit(data.id)}
-            className="w-full h-9 flex items-center justify-center rounded bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-200"
-            title="Editar paquete"
-          >
-            <Edit2 className="w-4 h-4 text-purple-500" />
-          </button>
-
-          {/* Botón Eliminar */}
-          <button
-            type="button"
-            onClick={() => onDelete(data.id)}
-            className="w-full h-9 flex items-center justify-center rounded bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-200"
-            title="Eliminar paquete"
-          >
-            <Trash2 className="w-4 h-4 text-red-500" />
-          </button>
-
         </div>
-
-        {/* Botón Ver Historial */}
-        <button
-          type="button"
-          onClick={() => setShowHistory(true)}
-          className="mt-2 w-full h-8 flex items-center justify-center gap-1.5 rounded bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px] font-semibold text-slate-600 dark:text-slate-300 transition-colors duration-200 cursor-pointer"
-          title="Ver historial del paquete"
-        >
-          <History className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-          Historial
-        </button>
       </div>
 
       {/* Modal de historial */}
       {showHistory && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
           onClick={() => setShowHistory(false)}
         >
           <div
-            className="w-full max-w-md max-h-[70vh] overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-[#dbdbdb] dark:bg-[#1e1f27] shadow-2xl p-4"
+            className="w-full max-w-md max-h-[80vh] overflow-y-auto rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-2xl p-6"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 m-0">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <History className="w-5 h-5 text-amber-500" />
                 Historial del paquete
               </h3>
               <button
                 type="button"
                 onClick={() => setShowHistory(false)}
-                className="w-7 h-7 flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                title="Cerrar"
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
-                <X className="w-4 h-4 text-slate-500" />
+                <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               </button>
             </div>
 
             {history.isLoading && (
-              <p className="text-xs text-slate-500 dark:text-slate-400 m-0">Cargando historial...</p>
+              <div className="text-center py-8">
+                <div className="inline-block w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">Cargando historial...</p>
+              </div>
             )}
+            
             {history.isError && (
-              <p className="text-xs text-red-600 dark:text-red-400 m-0">
+              <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl text-red-700 dark:text-red-400 text-sm">
                 No se pudo cargar el historial: {(history.error as Error)?.message}
-              </p>
+              </div>
             )}
+            
             {!history.isLoading && !history.isError && (!history.data || history.data.length === 0) && (
-              <p className="text-xs text-slate-500 dark:text-slate-400 m-0">Sin movimientos registrados</p>
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                <Package className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+                <p className="text-sm">Sin movimientos registrados</p>
+              </div>
             )}
 
             {history.data && history.data.length > 0 && (
-              <ol className="flex flex-col gap-0">
+              <ol className="relative border-l-2 border-purple-200 dark:border-purple-800 ml-3">
                 {history.data.map((h: PackageHistoryItem, index: number) => (
-                  <li key={h.id} className="flex gap-3 items-stretch">
-                    <div className="flex flex-col items-center shrink-0">
-                      <span className={`w-2.5 h-2.5 rounded-full mt-1.5 ${index === 0 ? 'bg-purple-500' : 'bg-slate-400 dark:bg-slate-600'}`} />
-                      {index < history.data.length - 1 && (
-                        <span className="w-px flex-1 bg-slate-300 dark:bg-slate-700 min-h-6" />
-                      )}
-                    </div>
-                    <div className="pb-3 min-w-0">
-                      <p className="text-xs font-bold uppercase text-slate-800 dark:text-slate-200 m-0">
+                  <li key={h.id} className="mb-6 ml-6">
+                    <span className={`absolute -left-[9px] w-4 h-4 rounded-full border-2 ${
+                      index === 0 
+                        ? 'bg-purple-500 border-purple-500' 
+                        : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600'
+                    }`}></span>
+                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white">
                         {h.status?.name || 'Sin estado'}
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 m-0 truncate">
-                        {h.location?.name || 'Sin ubicación'}
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                        📍 {h.location?.name || 'Sin ubicación'}
                       </p>
-                      <p className="text-[11px] text-slate-400 dark:text-slate-500 m-0">
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                         {new Date(h.createdAt).toLocaleString('es-ES', {
                           day: '2-digit',
                           month: 'short',
@@ -369,7 +321,6 @@ export const PackageCard: React.FC<PackageCardProps> = ({
           </div>
         </div>
       )}
-
     </div>
   );
 };
