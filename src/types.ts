@@ -97,9 +97,9 @@ export interface PackageItem {
     province?: Province | null;
     status?: Status | null;
     location?: Location | null;
-    addressDetail?: string | null;
+    address?: string | null;
     weight?: number | null;
-    contentDescription?: string | null;
+    content?: string | null;
     arrivalDate?: string | null;
     anotations?: string | null;
     alert?: boolean | null;
