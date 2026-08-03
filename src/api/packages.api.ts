@@ -5,6 +5,7 @@ export type GuideType = 'AEREA' | 'MARITIMA';
 export interface PackageFilters {
   status?: string;
   provinceId?: string;
+  provinceIds?: string[];
   municipeId?: string;
   hbl?: string;
   recipientId?: string;

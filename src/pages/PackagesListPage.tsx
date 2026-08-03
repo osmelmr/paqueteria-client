@@ -1,3 +1,4 @@
+import { Copy, Check } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { usePackages, useUpdatePackageStatus, useDeletePackage } from '../hooks/usePackages';
@@ -30,10 +31,22 @@ export default function PackagesListPage() {
   const { data: locations = [] } = useLocations();
   const { data: agencies = [] } = useAgencies();
 
-  const [filterForm, setFilterForm] = useState({ 
+  const [filterForm, setFilterForm] = useState<{ 
+    guideId: string; 
+    statusId: string; 
+    provinceIds: string[]; 
+    municipeId: string; 
+    hbl: string; 
+    search: string; 
+    alert: string; 
+    statusDate: string; 
+    locationId: string; 
+    agencyId: string; 
+    guideType: string 
+  }>({ 
     guideId: '', 
     statusId: '', 
-    provinceId: '', 
+    provinceIds: [], 
     municipeId: '', 
     hbl: hblParam, 
     search: '', 
@@ -45,6 +58,26 @@ export default function PackagesListPage() {
   });
   const [localError, setLocalError] = useState<string | null>(null);
   const [viewMode] = useState<'card' | 'list'>('card');
+  const [copiedHbls, setCopiedHbls] = useState(false);
+
+  const allHbls = packages.flatMap((pkg: any) => pkg.hbls?.map((h: any) => h.hblCode) ?? []);
+
+  const handleCopyHbls = async () => {
+    if (allHbls.length === 0) return;
+    const text = allHbls.join(', ');
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    setCopiedHbls(true);
+    setTimeout(() => setCopiedHbls(false), 2000);
+  };
 
   useEffect(() => {
     if (!hblParam) return;
@@ -64,7 +97,7 @@ export default function PackagesListPage() {
     const f: PackageFilters = {};
     if (filterForm.guideId) f.guideId = filterForm.guideId;
     if (filterForm.statusId) f.status = filterForm.statusId;
-    if (filterForm.provinceId) f.provinceId = filterForm.provinceId;
+    if (filterForm.provinceIds.length) f.provinceIds = filterForm.provinceIds;
     if (filterForm.municipeId) f.municipeId = filterForm.municipeId;
     if (filterForm.hbl) f.hbl = filterForm.hbl;
     if (filterForm.search) f.search = filterForm.search;
@@ -174,10 +207,24 @@ export default function PackagesListPage() {
         />
 
         {/* Results Counter */}
-        <div className="mt-4 mb-3 flex items-center justify-between">
+        <div className="mt-4 mb-3 flex items-center justify-between gap-3 flex-wrap">
           <span className="text-sm text-gray-500 dark:text-gray-400">
             {packages.length} paquete{packages.length !== 1 ? 's' : ''} encontrado{packages.length !== 1 ? 's' : ''}
           </span>
+          {allHbls.length > 0 && (
+            <button
+              type="button"
+              onClick={handleCopyHbls}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                copiedHbls
+                  ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300'
+                  : 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/50'
+              }`}
+            >
+              {copiedHbls ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              {copiedHbls ? '¡Copiados!' : `Copiar HBLs (${allHbls.length})`}
+            </button>
+          )}
         </div>
 
         {/* Package List */}
