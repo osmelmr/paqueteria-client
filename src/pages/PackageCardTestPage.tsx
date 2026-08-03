@@ -3,7 +3,7 @@ import { PackageCard, type PackageData } from '../components/PackageCard';
 const samples: PackageData[] = [
   {
     id: 'pkg-1',
-    guide: { externalRef: 'G-2024-0892', agency: { name: 'Agencia Caribe' } },
+    guide: { name: 'G-2024-0892', agency: { name: 'Agencia Caribe' } },
     hbls: [
       { hblCode: 'HBL-001-ABC' },
       { hblCode: 'HBL-002-DEF' },
@@ -19,7 +19,7 @@ const samples: PackageData[] = [
   },
   {
     id: 'pkg-2',
-    guide: { externalRef: 'G-2024-0911', agency: { name: 'Agencia del Centro' } },
+    guide: { name: 'G-2024-0911', agency: { name: 'Agencia del Centro' } },
     hbls: [{ hblCode: 'HBL-004-JKL' }],
     alert: false,
     province: { name: 'Santiago de Cuba' },

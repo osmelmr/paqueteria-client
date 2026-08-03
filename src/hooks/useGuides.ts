@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { guidesApi } from '../api/guides.api';
+import { guidesApi, type CreateGuideDto, type UpdateGuideDto } from '../api/guides.api';
 
 const QUERY_KEY = 'guides';
 
@@ -10,7 +10,7 @@ export function useGuides() {
 export function useCreateGuide() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (dto: { externalRef: string; agencyId: string }) => guidesApi.create(dto),
+    mutationFn: (dto: CreateGuideDto) => guidesApi.create(dto),
     onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
   });
 }
@@ -18,7 +18,7 @@ export function useCreateGuide() {
 export function useUpdateGuide() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, dto }: { id: string; dto: { externalRef?: string; agencyId?: string } }) => guidesApi.update(id, dto),
+    mutationFn: ({ id, dto }: { id: string; dto: UpdateGuideDto }) => guidesApi.update(id, dto),
     onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
   });
 }

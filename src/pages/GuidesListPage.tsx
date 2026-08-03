@@ -29,14 +29,19 @@ export default function GuidesListPage() {
         <div className="mt-4 overflow-x-auto">
           <table className="w-full border-collapse text-sm">
             <thead>
-              <tr><th className="border border-border p-2.5 text-left bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100 font-semibold">Agencia</th><th className="border border-border p-2.5 text-left bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100 font-semibold">Referencia</th><th className="border border-border p-2.5 text-left bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100 font-semibold">Acciones</th></tr>
+              <tr><th className="border border-border p-2.5 text-left bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100 font-semibold">Agencia</th><th className="border border-border p-2.5 text-left bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100 font-semibold">Referencia</th><th className="border border-border p-2.5 text-left bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100 font-semibold">Tipo</th><th className="border border-border p-2.5 text-left bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100 font-semibold">Acciones</th></tr>
             </thead>
             <tbody>
               {guides.map((g) => (
                 <tr key={g.id}>
                   
                   <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">{g.agency?.name || '—'}</td>
-                  <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">{g.externalRef}</td>
+                  <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">{g.name}</td>
+                  <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">
+                    <span className={`text-xs font-bold uppercase px-2 py-0.5 rounded-full ${g.type === 'MARITIMA' ? 'bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300' : 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300'}`}>
+                      {g.type === 'MARITIMA' ? 'Maritima' : 'Aerea'}
+                    </span>
+                  </td>
                   <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">
                     <div className="flex gap-2 flex-wrap">
                       <button type="button" className="bg-purple-500 dark:bg-purple-400 text-white rounded-xl px-2.5 py-2 text-xs cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors" onClick={() => navigate(`/guides/${g.id}/edit`)}>Editar</button>

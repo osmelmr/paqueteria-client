@@ -15,7 +15,7 @@ export interface Agency {
 
 export interface Guide {
     id: string;
-    externalRef: string;
+    name: string;
     agencyId?: string;
     agency?: Agency | null;
     createdAt?: string;

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useAgencies, useUpdateAgency } from '../hooks/useAgencies';
 import { useNavigate, useParams } from 'react-router-dom';
-import type { Agency, GuideType } from '../api/agencies.api';
+import type { Agency } from '../api/agencies.api';
 
 export default function AgenciesEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -18,14 +18,13 @@ function AgencyEditForm({ item }: { item: Agency }) {
   const updateEntity = useUpdateAgency();
   const navigate = useNavigate();
   const [name, setName] = useState(item.name);
-  const [type, setType] = useState<GuideType>(item.type);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setError(null);
     try {
-      await updateEntity.mutateAsync({ id: item.id, dto: { name, type } });
+      await updateEntity.mutateAsync({ id: item.id, dto: { name } });
       navigate('/agencies');
     } catch (err) {
       setError((err as Error).message);
@@ -41,13 +40,6 @@ function AgencyEditForm({ item }: { item: Agency }) {
           <label className="flex flex-col gap-1.5 font-medium">
             Nombre
             <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={name} onChange={(e) => setName(e.target.value)} required />
-          </label>
-          <label className="flex flex-col gap-1.5 font-medium">
-            Tipo
-            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={type} onChange={(e) => setType(e.target.value as GuideType)} required>
-              <option value="AEREA">Aérea</option>
-              <option value="MARITIMA">Marítima</option>
-            </select>
           </label>
           <div className="flex gap-2.5 flex-wrap mt-3.5">
             <button type="submit" className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50" disabled={updateEntity.isPending}>Actualizar agencia</button>

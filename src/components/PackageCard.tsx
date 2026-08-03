@@ -18,7 +18,7 @@ import { PackageHistoryModal } from './PackageHistoryModal';
 
 export interface PackageData {
   id: string;
-  guide?: { externalRef: string; agency: { name: string } };
+  guide?: { name: string; agency: { name: string } };
   recipient?: { fullName: string | null };
   province?: { name: string };
   municipe?: { name: string };
@@ -120,7 +120,7 @@ export const PackageCard: React.FC<PackageListRowProps> = ({
             <Weight className="w-3 h-3" /> {data.weight ? `${Number(data.weight).toFixed(1)} kg` : 'Sin peso'}
           </span>
           <span className="flex items-center gap-1">
-            <FileText className="w-3 h-3" /> {data.guide?.externalRef || 'Sin guía'}
+            <FileText className="w-3 h-3" /> {data.guide?.name || 'Sin guía'}
           </span>
         </div>
       </div>

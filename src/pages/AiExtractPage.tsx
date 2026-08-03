@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
 import { useAgencies } from '../hooks/useAgencies';
 import { useStatuses } from '../hooks/useStatuses';
 import { useLocations } from '../hooks/useLocations';
 import { useProcessBulkAi } from '../hooks/useBusiness';
+import type { GuideType } from '../api/guides.api';
 
 type ExtractedPackage = {
   address?: string | null;
@@ -23,6 +24,39 @@ type BatchResult = {
   failed: Array<{ entity: any; error: string }>;
 };
 
+type AiCache = {
+  excelText: string;
+  fileName: string;
+  preview: ExtractedPackage[] | null;
+  statusId: string;
+  locationId: string;
+  agencyId: string;
+  guideName: string;
+  guideType: GuideType;
+};
+
+const CACHE_KEY = 'paqueteria_ai_extract_cache_v1';
+
+function loadCache(): AiCache | null {
+  try {
+    const raw = window.localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as AiCache;
+    if (typeof parsed.excelText !== 'string') return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function clearCache() {
+  try {
+    window.localStorage.removeItem(CACHE_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
 function AiExtractPage() {
   const { data: agencies = [] } = useAgencies();
   const { data: statuses = [] } = useStatuses();
@@ -36,9 +70,12 @@ function AiExtractPage() {
   const [statusId, setStatusId] = useState('');
   const [locationId, setLocationId] = useState('');
   const [agencyId, setAgencyId] = useState('');
-  const [externalRef, setExternalRef] = useState('');
+  const [guideName, setGuideName] = useState('');
+  const [guideType, setGuideType] = useState<GuideType>('AEREA');
   const [preview, setPreview] = useState<ExtractedPackage[] | null>(null);
   const [batchResult, setBatchResult] = useState<BatchResult | null>(null);
+
+  const resultRef = useRef<HTMLDivElement>(null);
 
   const token = useMemo(() => window.localStorage.getItem('paqueteria_token') || '', []);
   const apiHeaders = useMemo(() => {
@@ -46,6 +83,28 @@ function AiExtractPage() {
     if (token) h.Authorization = `Bearer ${token}`;
     return h;
   }, [token]);
+
+  useEffect(() => {
+    const cache = loadCache();
+    if (!cache) return;
+    setExcelText(cache.excelText);
+    setFileName(cache.fileName);
+    setPreview(cache.preview);
+    setStatusId(cache.statusId);
+    setLocationId(cache.locationId);
+    setAgencyId(cache.agencyId);
+    setGuideName(cache.guideName);
+    setGuideType(cache.guideType || 'AEREA');
+  }, []);
+
+  useEffect(() => {
+    const cache: AiCache = { excelText, fileName, preview, statusId, locationId, agencyId, guideName, guideType };
+    try {
+      window.localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+    } catch {
+      /* ignore */
+    }
+  }, [excelText, fileName, preview, statusId, locationId, agencyId, guideName, guideType]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -79,6 +138,15 @@ function AiExtractPage() {
       }
     };
     reader.readAsArrayBuffer(file);
+  };
+
+  const handleReset = () => {
+    clearCache();
+    setExcelText('');
+    setFileName('');
+    setPreview(null);
+    setBatchResult(null);
+    setError(null);
   };
 
   const handleGeneratePreview = async () => {
@@ -118,8 +186,8 @@ function AiExtractPage() {
       setError('No hay paquetes en la vista previa');
       return;
     }
-    if (!statusId || !agencyId || !externalRef.trim()) {
-      setError('Debes completar estado, agencia y referencia externa');
+    if (!statusId || !agencyId || !guideName.trim()) {
+      setError('Debes completar estado, agencia, tipo de guia y referencia externa');
       return;
     }
 
@@ -129,7 +197,8 @@ function AiExtractPage() {
       const result = await bulkMutation.mutateAsync({
         statusId,
         agencyId,
-        guide: externalRef.trim(),
+        guide: guideName.trim(),
+        guideType,
         locationId: locationId || undefined,
         packages: preview.map((pkg) => ({
           address: pkg.address ?? undefined,
@@ -145,6 +214,10 @@ function AiExtractPage() {
         })),
       });
       setBatchResult(result as BatchResult);
+      clearCache();
+      setTimeout(() => {
+        resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
     } catch (err) {
       setError((err as Error).message);
     }
@@ -159,66 +232,85 @@ function AiExtractPage() {
     );
   }
 
+  const totalSaved = batchResult ? batchResult.success.length : 0;
+  const totalFailed = batchResult ? batchResult.failed.length : 0;
+  const hasPartialResult = batchResult !== null;
+  const allOk = hasPartialResult && totalFailed === 0;
+  const allFailed = hasPartialResult && totalSaved === 0;
+
   return (
     <div className="p-[18px] border border-border rounded-xl bg-surface shadow-lg mb-[18px]" style={{ maxWidth: 1200, margin: '0 auto' }}>
-      <header style={{ marginBottom: 24 }}>
+      <header className="mb-6">
         <h2 className="text-gray-900 dark:text-gray-100 font-semibold m-0 mb-4">Extraer datos con IA (Gemini)</h2>
-        <p className="m-0 text-gray-500 dark:text-gray-400" style={{ marginTop: 4, color: '#666' }}>
+        <p className="m-0 text-gray-500 dark:text-gray-400">
           Carga un Excel &rarr; la IA extrae los campos &rarr; revisa y guarda el lote.
         </p>
       </header>
 
-      {error && <div className="mb-4 p-3.5 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl" style={{ marginBottom: 16 }}>{error}</div>}
+      {error && (
+        <div className="mb-4 p-3.5 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl">
+          {error}
+        </div>
+      )}
 
-      <section className="mt-4 overflow-x-auto" style={{ marginBottom: 24 }}>
-        <h3>1. Subir archivo Excel</h3>
-        <form className="flex flex-col gap-3.5 mb-4.5" style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-          <label className="flex flex-col gap-1.5 font-medium" style={{ flex: 1 }}>
-            <input
-              className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200"
-              type="file"
-              accept=".xlsx,.xls"
-              onChange={handleFileChange}
-              style={{ display: 'block', marginTop: 4 }}
-            />
-            {fileName && <small style={{ display: 'block', marginTop: 4 }}>&#128206; {fileName}</small>}
+      {/* 1. Upload */}
+      <section className="mb-6">
+        <h3 className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-semibold mb-3">
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-500 dark:bg-purple-400 text-white text-xs font-bold">1</span>
+          Subir archivo Excel
+        </h3>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <label className="flex flex-1 items-center justify-between gap-3 border-2 border-dashed border-border rounded-xl px-4 py-3 cursor-pointer hover:border-purple-400 dark:hover:border-purple-600 transition-colors bg-slate-50 dark:bg-slate-800/50">
+            <span className="text-sm text-gray-600 dark:text-gray-300 truncate">
+              {fileName ? `📎 ${fileName}` : 'Selecciona un archivo .xlsx o .xls'}
+            </span>
+            <input type="file" accept=".xlsx,.xls" onChange={handleFileChange} className="hidden" />
+            <span className="shrink-0 bg-purple-500 dark:bg-purple-400 text-white text-xs font-semibold rounded-lg px-3 py-2">Examinar</span>
           </label>
           <button
             type="button"
             className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50"
             onClick={handleGeneratePreview}
             disabled={generating || !excelText}
-            style={{ padding: '8px 24px' }}
           >
             {generating ? 'Extrayendo...' : 'Extraer con IA'}
           </button>
-        </form>
+          {excelText && (
+            <button
+              type="button"
+              className="bg-slate-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-border font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              onClick={handleReset}
+            >
+              Limpiar
+            </button>
+          )}
+        </div>
         {excelText && (
-          <details style={{ marginTop: 12 }}>
-            <summary>Ver texto extraido (puedes editarlo)</summary>
+          <div className="mt-3">
+            <label className="flex items-center justify-between gap-2 mb-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">
+              Texto extraido del Excel (puedes editarlo antes de extraer)
+              <span className="text-xs font-normal text-gray-400 dark:text-gray-500">{excelText.length} caracteres</span>
+            </label>
             <textarea
               value={excelText}
               onChange={(e) => setExcelText(e.target.value)}
               rows={6}
-              style={{
-                width: '100%',
-                fontFamily: 'monospace',
-                fontSize: '0.85rem',
-                marginTop: 8,
-                padding: 8,
-                border: '1px solid #ccc',
-                borderRadius: 4,
-              }}
+              spellCheck={false}
+              className="w-full font-mono text-sm rounded-xl border border-border bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 p-3 resize-y focus:outline-none focus:ring-2 focus:ring-purple-400 dark:focus:ring-purple-600"
             />
-          </details>
+          </div>
         )}
       </section>
 
       {preview && (
-        <section className="mt-4 overflow-x-auto" style={{ marginBottom: 24 }}>
-          <h3>2. Metadatos del lote</h3>
-          <form className="flex flex-col gap-3.5 mb-4.5" onSubmit={(e) => e.preventDefault()}>
-            <div className="grid grid-cols-2 gap-3.5" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <>
+          {/* 2. Batch metadata */}
+          <section className="mb-6">
+            <h3 className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-semibold mb-3">
+              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-500 dark:bg-purple-400 text-white text-xs font-bold">2</span>
+              Metadatos del lote
+            </h3>
+            <form className="grid grid-cols-1 sm:grid-cols-2 gap-3.5" onSubmit={(e) => e.preventDefault()}>
               <label className="flex flex-col gap-1.5 font-medium">
                 Estado *
                 <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={statusId} onChange={(e) => setStatusId(e.target.value)} required>
@@ -250,93 +342,144 @@ function AiExtractPage() {
                 Referencia externa *
                 <input
                   className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200"
-                  value={externalRef}
-                  onChange={(e) => setExternalRef(e.target.value)}
+                  value={guideName}
+                  onChange={(e) => setGuideName(e.target.value)}
                   placeholder="Ej: LOTE-001"
                   required
                 />
               </label>
-            </div>
-            <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
-              <button type="button" className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50" onClick={handleSaveBatch} disabled={bulkMutation.isPending}>
+              <label className="flex flex-col gap-1.5 font-medium">
+                Tipo de guia *
+                <select
+                  className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200"
+                  value={guideType}
+                  onChange={(e) => setGuideType(e.target.value as GuideType)}
+                  required
+                >
+                  <option value="AEREA">Aerea</option>
+                  <option value="MARITIMA">Maritima</option>
+                </select>
+              </label>
+            </form>
+            <div className="flex gap-3 mt-5">
+              <button
+                type="button"
+                className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50"
+                onClick={handleSaveBatch}
+                disabled={bulkMutation.isPending}
+              >
                 {bulkMutation.isPending ? 'Guardando...' : `Guardar lote (${preview.length})`}
               </button>
-              <button type="button" className="bg-slate-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-border font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={() => setPreview(null)} disabled={bulkMutation.isPending}>
+              <button
+                type="button"
+                className="bg-slate-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-border font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                onClick={() => {
+                  setPreview(null);
+                  setBatchResult(null);
+                }}
+                disabled={bulkMutation.isPending}
+              >
                 Cancelar
               </button>
             </div>
-          </form>
-        </section>
-      )}
+          </section>
 
-      {preview && (
-        <section className="mt-4 overflow-x-auto" style={{ marginBottom: 24 }}>
-          <h3>Vista previa ({preview.length} paquetes)</h3>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-              <thead>
-                <tr style={{ background: '#f5f5f5' }}>
-                  <th style={{ padding: 8, textAlign: 'left' }}>#</th>
-                  <th style={{ padding: 8, textAlign: 'left' }}>Destinatario</th>
-                  <th style={{ padding: 8, textAlign: 'left' }}>Carnet</th>
-                  <th style={{ padding: 8, textAlign: 'left' }}>Telefono</th>
-                  <th style={{ padding: 8, textAlign: 'left' }}>Provincia</th>
-                  <th style={{ padding: 8, textAlign: 'left' }}>Municipio</th>
-                  <th style={{ padding: 8, textAlign: 'left' }}>Direccion</th>
-                  <th style={{ padding: 8, textAlign: 'left' }}>Contenido</th>
-                  <th style={{ padding: 8, textAlign: 'left' }}>Peso</th>
-                  <th style={{ padding: 8, textAlign: 'left' }}>Fecha llegada</th>
-                  <th style={{ padding: 8, textAlign: 'left' }}>HBLs</th>
-                </tr>
-              </thead>
-              <tbody>
-                {preview.map((pkg, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid #eee' }}>
-                    <td style={{ padding: 8 }}>{i + 1}</td>
-                    <td style={{ padding: 8 }}>{pkg.fullName || '—'}</td>
-                    <td style={{ padding: 8 }}>{pkg.idCard || '—'}</td>
-                    <td style={{ padding: 8 }}>{pkg.phone || '—'}</td>
-                    <td style={{ padding: 8 }}>{pkg.province || '—'}</td>
-                    <td style={{ padding: 8 }}>{pkg.municipe || '—'}</td>
-                    <td style={{ padding: 8 }}>{pkg.address || '—'}</td>
-                    <td style={{ padding: 8 }}>{pkg.content || '—'}</td>
-                    <td style={{ padding: 8 }}>{pkg.weight != null ? pkg.weight : '—'}</td>
-                    <td style={{ padding: 8 }}>{pkg.arrivalDate || '—'}</td>
-                    <td style={{ padding: 8 }}>{pkg.hblCodes?.join(', ') || '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
-
-      {batchResult && (
-        <section className="mt-4 p-4 bg-purple-50 dark:bg-purple-900/30 border border-purple-400/50 dark:border-purple-800/50 rounded-xl" style={{ background: '#f8f9fa', padding: 16, borderRadius: 6 }}>
-          <h3>Resultado del guardado</h3>
-          <p>
-            Total: {batchResult.success.length + batchResult.failed.length} |
-            Guardados: {batchResult.success.length} |
-            Fallidos: {batchResult.failed.length}
-          </p>
-          {batchResult.failed.length > 0 && (
-            <details>
-              <summary style={{ cursor: 'pointer', color: '#d32f2f' }}>
-                Ver fallos ({batchResult.failed.length})
-              </summary>
-              <ul style={{ marginTop: 8, paddingLeft: 20 }}>
-                {batchResult.failed.map((f, idx) => (
-                  <li key={idx} style={{ marginBottom: 4 }}>
-                    <strong>Indice {idx}</strong>: {f.error}
-                    <pre style={{ fontSize: '0.8rem', background: '#fff', padding: 4, border: '1px solid #ddd', borderRadius: 4, marginTop: 2, whiteSpace: 'pre-wrap' }}>
-                      {JSON.stringify(f.entity, null, 2)}
-                    </pre>
-                  </li>
-                ))}
-              </ul>
-            </details>
+          {/* Save result (shown right where the user clicks, no scrolling needed) */}
+          {batchResult && (
+            <div ref={resultRef} className={`mb-6 p-4 rounded-xl border ${
+              allOk
+                ? 'bg-green-50 dark:bg-green-900/30 border-green-400/50 dark:border-green-800/50'
+                : allFailed
+                  ? 'bg-red-50 dark:bg-red-900/30 border-red-400/50 dark:border-red-800/50'
+                  : 'bg-amber-50 dark:bg-amber-900/30 border-amber-400/50 dark:border-amber-800/50'
+            }`}>
+              <div className="flex items-center gap-2 font-semibold text-gray-900 dark:text-gray-100">
+                <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-white text-xs font-bold ${
+                  allOk ? 'bg-green-500' : allFailed ? 'bg-red-500' : 'bg-amber-500'
+                }`}>
+                  {allOk ? '✓' : allFailed ? '✗' : '!'}
+                </span>
+                {allOk
+                  ? 'Lote guardado correctamente'
+                  : allFailed
+                    ? 'No se pudo guardar ningun paquete'
+                    : 'Lote guardado parcialmente'}
+              </div>
+              <div className="flex flex-wrap gap-3 mt-3 text-sm">
+                <span className="px-3 py-1 rounded-full bg-white dark:bg-slate-800 border border-border text-gray-700 dark:text-gray-300">
+                  Total: {totalSaved + totalFailed}
+                </span>
+                <span className="px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">
+                  Guardados: {totalSaved}
+                </span>
+                <span className="px-3 py-1 rounded-full bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300">
+                  Fallidos: {totalFailed}
+                </span>
+              </div>
+              {totalFailed > 0 && (
+                <details className="mt-3">
+                  <summary className="cursor-pointer text-sm font-medium text-red-600 dark:text-red-400">
+                    Ver fallos ({totalFailed})
+                  </summary>
+                  <ul className="mt-2 space-y-2 max-h-56 overflow-y-auto">
+                    {batchResult.failed.map((f, idx) => (
+                      <li key={idx} className="p-2.5 rounded-lg bg-white dark:bg-slate-800 border border-border text-sm">
+                        <strong>Indice {idx}</strong>: {f.error}
+                        <pre className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 whitespace-pre-wrap overflow-x-auto">
+                          {JSON.stringify(f.entity, null, 2)}
+                        </pre>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+            </div>
           )}
-        </section>
+
+          {/* 3. Preview */}
+          <section>
+            <h3 className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-semibold mb-3">
+              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-500 dark:bg-purple-400 text-white text-xs font-bold">3</span>
+              Vista previa ({preview.length} paquetes)
+            </h3>
+            <div className="overflow-x-auto border border-border rounded-xl">
+              <table className="w-full text-sm">
+                <thead className="sticky top-0">
+                  <tr className="bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100">
+                    <th className="p-2.5 text-left font-semibold">#</th>
+                    <th className="p-2.5 text-left font-semibold">Destinatario</th>
+                    <th className="p-2.5 text-left font-semibold">Carnet</th>
+                    <th className="p-2.5 text-left font-semibold">Telefono</th>
+                    <th className="p-2.5 text-left font-semibold">Provincia</th>
+                    <th className="p-2.5 text-left font-semibold">Municipio</th>
+                    <th className="p-2.5 text-left font-semibold">Direccion</th>
+                    <th className="p-2.5 text-left font-semibold">Contenido</th>
+                    <th className="p-2.5 text-left font-semibold">Peso</th>
+                    <th className="p-2.5 text-left font-semibold">Fecha llegada</th>
+                    <th className="p-2.5 text-left font-semibold">HBLs</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {preview.map((pkg, i) => (
+                    <tr key={i} className={`border-t border-border ${i % 2 ? 'bg-slate-50 dark:bg-slate-800/50' : 'bg-white dark:bg-slate-800'}`}>
+                      <td className="p-2.5 text-gray-500 dark:text-gray-400">{i + 1}</td>
+                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.fullName || '—'}</td>
+                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.idCard || '—'}</td>
+                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.phone || '—'}</td>
+                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.province || '—'}</td>
+                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.municipe || '—'}</td>
+                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.address || '—'}</td>
+                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.content || '—'}</td>
+                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.weight != null ? pkg.weight : '—'}</td>
+                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.arrivalDate || '—'}</td>
+                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.hblCodes?.join(', ') || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </>
       )}
     </div>
   );

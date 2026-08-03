@@ -1,4 +1,5 @@
 import api from './axios';
+import type { GuideType } from './guides.api';
 
 export interface BulkAiEntities {
   statusId: string;
@@ -7,6 +8,7 @@ export interface BulkAiEntities {
   location?: string;
   guideId?: string;
   guide?: string;
+  guideType: GuideType;
   packages: Array<{
     province?: string;
     municipe?: string;

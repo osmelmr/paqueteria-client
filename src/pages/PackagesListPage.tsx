@@ -165,7 +165,7 @@ export default function PackagesListPage() {
           filterForm={filterForm}
           setFilterForm={setFilterForm}
           onSubmit={applyFilters}
-          guides={guides.map((g) => ({ id: g.id, name: g.externalRef || g.agency?.name || 'Sin nombre' }))}
+          guides={guides.map((g) => ({ id: g.id, name: g.name || g.agency?.name || 'Sin nombre' }))}
           statuses={statuses}
           provinces={provinces}
           municipes={municipes}

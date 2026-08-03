@@ -1,16 +1,12 @@
 import api from './axios';
 
-export type GuideType = 'AEREA' | 'MARITIMA';
-
 export interface Agency {
   id: string;
   name: string;
-  type: GuideType;
 }
 
 export interface CreateAgencyDto {
   name: string;
-  type: GuideType;
 }
 
 export type UpdateAgencyDto = Partial<CreateAgencyDto>;

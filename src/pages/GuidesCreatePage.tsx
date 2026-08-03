@@ -2,12 +2,13 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateGuide } from '../hooks/useGuides';
 import { useAgencies } from '../hooks/useAgencies';
+import type { GuideType } from '../api/guides.api';
 
 export default function GuidesCreatePage() {
   const navigate = useNavigate();
   const { data: agencies = [] } = useAgencies();
   const createGuide = useCreateGuide();
-  const [form, setForm] = useState({ externalRef: '', agencyId: '' });
+  const [form, setForm] = useState<{ name: string; agencyId: string; type: GuideType }>({ name: '', agencyId: '', type: 'AEREA' });
   const [localError, setLocalError] = useState<string | null>(null);
 
   const handleSubmit = async (event: FormEvent) => {
@@ -36,7 +37,14 @@ export default function GuidesCreatePage() {
           </label>
           <label className="flex flex-col gap-1.5 font-medium">
             Referencia externa
-            <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.externalRef} onChange={(e) => setForm((prev) => ({ ...prev, externalRef: e.target.value }))} required />
+            <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.name} onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))} required />
+          </label>
+          <label className="flex flex-col gap-1.5 font-medium">
+            Tipo
+            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.type} onChange={(e) => setForm((prev) => ({ ...prev, type: e.target.value as GuideType }))} required>
+              <option value="AEREA">Aerea</option>
+              <option value="MARITIMA">Maritima</option>
+            </select>
           </label>
           <div className="flex gap-2.5 flex-wrap mt-3.5" style={{ gridColumn: '1 / -1' }}>
             <button type="submit" disabled={createGuide.isPending} className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50">Crear guia</button>

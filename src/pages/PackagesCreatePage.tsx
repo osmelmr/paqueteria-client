@@ -67,7 +67,7 @@ export default function PackagesCreatePage() {
             Guia
             <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.guideId} onChange={(e) => setForm((prev) => ({ ...prev, guideId: e.target.value }))}>
               <option value="">Sin guia</option>
-              {guides.map((g) => <option key={g.id} value={g.id}>{g.externalRef || g.agency?.name}</option>)}
+              {guides.map((g) => <option key={g.id} value={g.id}>{g.name || g.agency?.name}</option>)}
             </select>
           </label>
            <label className="flex flex-col gap-1.5 font-medium">
