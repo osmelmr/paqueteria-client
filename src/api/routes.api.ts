@@ -7,6 +7,7 @@ export interface Route {
   name: string;
   description?: string | null;
   departureDate?: string;
+  vehicleId: string;
   vehicle?: Vehicle | null;
   packages?: PackageItem[];
 }
@@ -14,7 +15,7 @@ export interface Route {
 export interface CreateRouteDto {
   name: string;
   description?: string;
-  departureDate?: string;
+  departureDate: string;
   vehicleId: string;
   hbls: string[];
 }

@@ -10,7 +10,7 @@ import { useAgencies } from '../hooks/useAgencies';
 import { PackageCard } from '../components/PackageCard.tsx';
 import { PackageFiltersForm } from '../components/PackageFiltersForm.tsx';
 import type { PackageFilters } from '../api/packages.api';
-import { Plus, X, Package as PackageIcon, LayoutGrid, List } from 'lucide-react';
+import { Plus, X, Package as PackageIcon } from 'lucide-react';
 
 export default function PackagesListPage() {
   const navigate = useNavigate();
@@ -44,7 +44,7 @@ export default function PackagesListPage() {
     guideType: '' 
   });
   const [localError, setLocalError] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
+  const [viewMode] = useState<'card' | 'list'>('card');
 
   useEffect(() => {
     if (!hblParam) return;
@@ -165,7 +165,7 @@ export default function PackagesListPage() {
           filterForm={filterForm}
           setFilterForm={setFilterForm}
           onSubmit={applyFilters}
-          guides={guides}
+          guides={guides.map((g) => ({ id: g.id, name: g.externalRef || g.agency?.name || 'Sin nombre' }))}
           statuses={statuses}
           provinces={provinces}
           municipes={municipes}

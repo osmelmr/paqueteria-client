@@ -1,4 +1,3 @@
-import type { Guide } from '../api/guides.api';
 import { 
   Filter, 
   Search, 

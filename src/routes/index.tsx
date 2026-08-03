@@ -32,6 +32,14 @@ import StatusesEditPage from '../pages/StatusesEditPage';
 import UsersListPage from '../pages/UsersListPage';
 import UsersCreatePage from '../pages/UsersCreatePage';
 import UsersEditPage from '../pages/UsersEditPage';
+import RoutesListPage from '../pages/RoutesListPage';
+import RoutesCreatePage from '../pages/RoutesCreatePage';
+import RoutesEditPage from '../pages/RoutesEditPage';
+import VehiclesListPage from '../pages/VehiclesListPage';
+import VehiclesCreatePage from '../pages/VehiclesCreatePage';
+import VehiclesEditPage from '../pages/VehiclesEditPage';
+import DriversListPage from '../pages/DriversListPage';
+import DriversCreatePage from '../pages/DriversCreatePage';
 import PackageCardTestPage from '../pages/PackageCardTestPage';
 
 export const router = createBrowserRouter([
@@ -74,6 +82,14 @@ export const router = createBrowserRouter([
           { path: 'users', element: <UsersListPage /> },
           { path: 'users/new', element: <UsersCreatePage /> },
           { path: 'users/:id/edit', element: <UsersEditPage /> },
+          { path: 'routes', element: <RoutesListPage /> },
+          { path: 'routes/new', element: <RoutesCreatePage /> },
+          { path: 'routes/:id/edit', element: <RoutesEditPage /> },
+          { path: 'vehicles', element: <VehiclesListPage /> },
+          { path: 'vehicles/new', element: <VehiclesCreatePage /> },
+          { path: 'vehicles/:id/edit', element: <VehiclesEditPage /> },
+          { path: 'drivers', element: <DriversListPage /> },
+          { path: 'drivers/new', element: <DriversCreatePage /> },
           { path: 'ai-extract', element: <AiExtractPage /> },
           { path: 'update-status-bulk', element: <UpdateStatusBulkPage /> },
           { path: 'package-card-test', element: <PackageCardTestPage /> },

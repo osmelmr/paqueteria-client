@@ -1,0 +1,40 @@
+import { useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useCreateDriver } from '../hooks/useDrivers';
+
+export default function DriversCreatePage() {
+  const navigate = useNavigate();
+  const createDriver = useCreateDriver();
+  const [name, setName] = useState('');
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    setLocalError(null);
+    try {
+      await createDriver.mutateAsync({ name });
+      navigate('/drivers');
+    } catch (err) {
+      setLocalError((err as Error).message);
+    }
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto w-full min-w-0">
+      <div className="p-[18px] border border-border rounded-xl bg-surface shadow-lg mb-[18px]">
+        <h2 className="text-gray-900 dark:text-gray-100 font-semibold m-0 mb-4">Nuevo chofer</h2>
+        {localError && <div className="mb-4 p-3.5 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl">{localError}</div>}
+        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3.5">
+          <label className="flex flex-col gap-1.5 font-medium">
+            Nombre
+            <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={name} onChange={(e) => setName(e.target.value)} required />
+          </label>
+          <div className="flex gap-2.5 flex-wrap mt-3.5" style={{ gridColumn: '1 / -1' }}>
+            <button type="submit" className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50" disabled={createDriver.isPending}>Crear chofer</button>
+            <button type="button" className="bg-slate-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-border font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={() => navigate('/drivers')}>Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

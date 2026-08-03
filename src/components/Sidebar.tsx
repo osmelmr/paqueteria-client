@@ -74,6 +74,15 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    label: 'Rutas', roles: ['ADMIN', 'STOREKEEPER'],
+    links: [
+      { label: 'Ver todas', path: '/routes' },
+      { label: 'Nueva', path: '/routes/new' },
+      { label: 'Vehiculos', path: '/vehicles' },
+      { label: 'Choferes', path: '/drivers' },
+    ],
+  },
+  {
     label: 'Test', roles: ['ADMIN', 'STOREKEEPER'],
     links: [
       { label: 'PackageCard', path: '/package-card-test' },

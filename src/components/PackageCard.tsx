@@ -13,7 +13,6 @@ import {
   Eye
 } from 'lucide-react';
 import { usePackageHistory } from '../hooks/usePackages';
-import type { PackageHistoryItem } from '../api/packages.api';
 import { PackageStatusControls } from './PackageStatusControls';
 import { PackageHistoryModal } from './PackageHistoryModal';
 

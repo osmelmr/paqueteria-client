@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Save } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 interface SelectOption {
   id: string;
