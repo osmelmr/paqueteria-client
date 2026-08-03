@@ -49,37 +49,37 @@ export const MiniStatusForm: React.FC<MiniStatusFormProps> = ({
 
   const getStatusClass = (status: string) => {
     if (status.toLowerCase() === 'entregado') {
-      return 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800';
+      return 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700 hover:bg-emerald-100 dark:hover:bg-emerald-800/40';
     }
-    return 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800';
+    return 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-800/40';
   };
 
   const getLocationClass = () => {
-    return 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800';
+    return 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-800/40';
   };
 
   return (
-    <div ref={containerRef} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 sm:gap-2.5 w-full">
+    <div ref={containerRef} className="flex flex-col md:flex-row items-stretch md:items-center gap-1.5 md:gap-2 w-full">
       
-      {/* Estado */}
-      <div className="relative flex-1 w-full max-w-30">
+      {/* Estado - Ocupa el espacio disponible */}
+      <div className="relative flex-1 min-w-0">
         <button
           type="button"
           onClick={() => setOpenDropdown(openDropdown === 'status' ? null : 'status')}
-          className={`w-full h-7 sm:h-8 flex items-center justify-between gap-1 sm:gap-2 px-2 sm:px-3 rounded-lg text-[10px] sm:text-xs font-medium transition-all border ${
+          className={`w-full h-8 flex items-center justify-between gap-1.5 px-2.5 rounded-lg text-xs font-medium transition-all border ${
             statusId 
               ? getStatusClass(currentStatusName)
-              : 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800'
+              : 'bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
           }`}
         >
-          <span className="truncate overflow-hidden whitespace-nowrap">
-            {statusId ? currentStatusName : 'Estado'}
+          <span className="truncate flex-1 text-left">
+            {statusId ? currentStatusName : 'Seleccionar estado'}
           </span>
-          <ChevronDown className="w-3 sm:w-3.5 h-3 sm:h-3.5 shrink-0 opacity-50" />
+          <ChevronDown className="w-3.5 h-3.5 shrink-0 opacity-50" />
         </button>
 
         {openDropdown === 'status' && (
-          <div className="absolute left-0 top-full mt-1 w-full min-w-[140px] sm:min-w-[160px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-30 max-h-48 overflow-y-auto py-1">
+          <div className="absolute left-0 top-full mt-1 w-full min-w-[180px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 max-h-48 overflow-y-auto py-1">
             {statuses.map((s) => (
               <button
                 key={s.id}
@@ -88,7 +88,7 @@ export const MiniStatusForm: React.FC<MiniStatusFormProps> = ({
                   onStatusChange(s.id);
                   setOpenDropdown(null);
                 }}
-                className={`w-full text-left px-2.5 sm:px-3 py-1.5 text-[10px] sm:text-xs transition-all ${
+                className={`w-full text-left px-3 py-2 text-xs transition-all ${
                   s.id === statusId 
                     ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium' 
                     : 'hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300'
@@ -101,32 +101,32 @@ export const MiniStatusForm: React.FC<MiniStatusFormProps> = ({
         )}
       </div>
 
-      {/* Ubicación */}
-      <div className="relative flex-1 w-full max-w-30">
+      {/* Ubicación - Ocupa el espacio disponible */}
+      <div className="relative flex-1 min-w-0">
         <button
           type="button"
           onClick={() => setOpenDropdown(openDropdown === 'location' ? null : 'location')}
-          className={`w-full h-7 sm:h-8 flex items-center justify-between gap-1 sm:gap-2 px-2 sm:px-3 rounded-lg text-[10px] sm:text-xs font-medium transition-all border ${
+          className={`w-full h-8 flex items-center justify-between gap-1.5 px-2.5 rounded-lg text-xs font-medium transition-all border ${
             locationId 
               ? getLocationClass()
-              : 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800'
+              : 'bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
           }`}
         >
-          <span className="truncate overflow-hidden whitespace-nowrap">
-            {locationId ? currentLocationName : 'Ubicación'}
+          <span className="truncate flex-1 text-left">
+            {locationId ? currentLocationName : 'Seleccionar ubicación'}
           </span>
-          <ChevronDown className="w-3 sm:w-3.5 h-3 sm:h-3.5 shrink-0 opacity-50" />
+          <ChevronDown className="w-3.5 h-3.5 shrink-0 opacity-50" />
         </button>
 
         {openDropdown === 'location' && (
-          <div className="absolute left-0 top-full mt-1 w-full min-w-[140px] sm:min-w-[160px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-30 max-h-48 overflow-y-auto py-1">
+          <div className="absolute left-0 top-full mt-1 w-full min-w-[180px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 max-h-48 overflow-y-auto py-1">
             <button
               type="button"
               onClick={() => {
                 onLocationChange('');
                 setOpenDropdown(null);
               }}
-              className="w-full text-left px-2.5 sm:px-3 py-1.5 text-[10px] sm:text-xs text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all"
+              className="w-full text-left px-3 py-2 text-xs text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all"
             >
               Sin ubicación
             </button>
@@ -138,7 +138,7 @@ export const MiniStatusForm: React.FC<MiniStatusFormProps> = ({
                   onLocationChange(l.id);
                   setOpenDropdown(null);
                 }}
-                className={`w-full text-left px-2.5 sm:px-3 py-1.5 text-[10px] sm:text-xs transition-all ${
+                className={`w-full text-left px-3 py-2 text-xs transition-all ${
                   l.id === locationId 
                     ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium' 
                     : 'hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300'
@@ -151,13 +151,13 @@ export const MiniStatusForm: React.FC<MiniStatusFormProps> = ({
         )}
       </div>
 
-      {/* Guardar y Pendiente - Fila inferior en móvil */}
-      <div className="flex items-center gap-2 sm:gap-2.5 w-full max-w-20">
+      {/* Guardar y Pendiente */}
+      <div className="flex items-center gap-2 shrink-0">
         <button
           type="button"
           onClick={onSave}
           disabled={!hasChanges || isUpdating}
-          className={`flex-1 sm:flex-none h-7 sm:h-8 px-3 sm:px-3.5 flex items-center justify-center sm:justify-start gap-1 sm:gap-1.5 rounded-lg text-[10px] sm:text-xs font-semibold transition-all whitespace-nowrap ${
+          className={`h-8 px-4 flex items-center justify-center rounded-lg text-xs font-semibold transition-all whitespace-nowrap min-w-[60px] ${
             hasChanges && !isUpdating
               ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 dark:from-purple-500 dark:to-indigo-500 dark:hover:from-purple-600 dark:hover:to-indigo-600 text-white shadow-md shadow-purple-500/20'
               : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
@@ -165,24 +165,20 @@ export const MiniStatusForm: React.FC<MiniStatusFormProps> = ({
         >
           {isUpdating ? (
             <>
-              <div className="w-3 sm:w-3.5 h-3 sm:h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              <span className="hidden sm:inline">Guardando</span>
-              <span className="sm:hidden">...</span>
+              <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span className="ml-1.5 hidden sm:inline">Guardando</span>
+              <span className="ml-1.5 sm:hidden">...</span>
             </>
           ) : (
-            <>
-              <Save className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
-              <span className="hidden sm:inline">Guardar</span>
-              <span className="sm:hidden">OK</span>
-            </>
+            <span>Guardar</span>
           )}
         </button>
 
         {/* Indicador de cambios */}
         {hasChanges && (
           <div className="flex items-center shrink-0">
-            <span className="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-amber-500 animate-pulse"></span>
-            <span className="ml-0.5 sm:ml-1 text-[8px] sm:text-[9px] font-medium text-amber-600 dark:text-amber-400 whitespace-nowrap overflow-hidden">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+            <span className="ml-1 text-[10px] font-medium text-amber-600 dark:text-amber-400 whitespace-nowrap">
               <span className="hidden xs:inline">Pendiente</span>
               <span className="xs:hidden">●</span>
             </span>

@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
-  AlertTriangle, 
+  AlertCircle, 
   User, 
   MapPin, 
   Package, 
@@ -9,14 +9,13 @@ import {
   Trash2, 
   FileText, 
   Building2,
-  Compass,
   History,
-  Eye,
-  X
+  Eye
 } from 'lucide-react';
 import { usePackageHistory } from '../hooks/usePackages';
 import type { PackageHistoryItem } from '../api/packages.api';
-import { MiniStatusForm } from './MiniStatusForm';
+import { PackageStatusControls } from './PackageStatusControls';
+import { PackageHistoryModal } from './PackageHistoryModal';
 
 export interface PackageData {
   id: string;
@@ -37,7 +36,7 @@ interface SelectOption {
   name: string;
 }
 
-interface PackageCardProps {
+interface PackageListRowProps {
   data: PackageData;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
@@ -48,7 +47,7 @@ interface PackageCardProps {
 }
 
 const maskName = (fullName?: string | null) => {
-  if (!fullName) return 'Sin nombre';
+  if (!fullName) return '—';
   const parts = fullName.trim().split(' ');
   if (parts.length === 1) return parts[0].length > 3 ? `${parts[0].slice(0, 3)}***` : parts[0];
   const first = parts[0];
@@ -56,7 +55,7 @@ const maskName = (fullName?: string | null) => {
   return `${first.slice(0, 3)}***${last.slice(-3)}`;
 };
 
-export const PackageCard: React.FC<PackageCardProps> = ({ 
+export const PackageCard: React.FC<PackageListRowProps> = ({ 
   data, 
   onEdit, 
   onDelete, 
@@ -72,13 +71,12 @@ export const PackageCard: React.FC<PackageCardProps> = ({
   const [statusId, setStatusId] = useState(data.status.id || '');
   const [locationId, setLocationId] = useState(data.location?.id || '');
   const [isUpdating, setIsUpdating] = useState(false);
-
   const [showHistory, setShowHistory] = useState(false);
+
   const history = usePackageHistory(data.id, showHistory);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const currentStatusName = statuses.find(s => s.id === statusId)?.name || data.status.name;
-  const currentLocationName = locations.find(l => l.id === locationId)?.name || data.location?.name || 'Sin ubicación';
+  const currentLocationName = locations.find(l => l.id === locationId)?.name || data.location?.name || 'Ubicación pendiente';
 
   const hasChanges = statusId !== (data.status.id || '') || locationId !== (data.location?.id || '');
 
@@ -92,235 +90,113 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     }
   };
 
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      'entregado': 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
-      'en tránsito': 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
-      'pendiente': 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
-      'en bodega': 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400',
-    };
-    return colors[status.toLowerCase()] || 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300';
+  const getStatusStyle = (status: string) => {
+    const s = status.toLowerCase();
+    if (s.includes('entregado')) return 'text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-500/10 ring-emerald-600/20';
+    if (s.includes('tránsito')) return 'text-blue-700 bg-blue-50 dark:text-blue-400 dark:bg-blue-500/10 ring-blue-600/20';
+    if (s.includes('bodega')) return 'text-purple-700 bg-purple-50 dark:text-purple-400 dark:bg-purple-500/10 ring-purple-600/20';
+    return 'text-amber-700 bg-amber-50 dark:text-amber-400 dark:bg-amber-500/10 ring-amber-600/20';
   };
 
   return (
-    <div ref={containerRef} className="relative group bg-white dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-300 p-4">
+    <li className="group grid grid-cols-[auto_auto_auto_1fr] items-center gap-4 p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors text-base w-full min-h-[80px]">
       
-      {/* Layout Principal */}
-      <div className="flex flex-col gap-2.5">
-        
-        {/* Fila 1: HBL y acciones rápidas (Peso, Historial, Alerta) */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="p-1 bg-purple-100 dark:bg-purple-900/30 rounded-lg shrink-0">
-              <Package className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-            </div>
-            <span className="font-mono text-base font-bold text-gray-900 dark:text-white truncate">
-              {primaryHbl}
+      {/* COL 1: IDENTIFICADOR + PESO + HBLs */}
+      <div className="flex flex-col gap-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <div className={`p-1.5 rounded-md shrink-0 ${isAlert ? 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'}`}>
+            {isAlert ? <AlertCircle className="w-4 h-4" /> : <Package className="w-4 h-4" />}
+          </div>
+          <span className="font-mono font-semibold text-gray-900 dark:text-gray-100 text-sm truncate">
+            {primaryHbl}
+          </span>
+          {extraHblCount > 0 && (
+            <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+              +{extraHblCount}
             </span>
-            {extraHblCount > 0 && (
-              <span className="text-[10px] font-semibold text-white bg-purple-500 dark:bg-purple-400 px-2 py-0.5 rounded-full shrink-0">
-                +{extraHblCount}
-              </span>
-            )}
-          </div>
-
-          {/* Grupo: Peso, Historial, Alerta */}
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Peso */}
-            <span className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg text-xs font-bold text-gray-800 dark:text-gray-200">
-              <Weight className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
-              {data.weight ? `${Number(data.weight).toFixed(1)} kg` : '--'}
-            </span>
-
-            {/* Historial */}
-            <button
-              type="button"
-              onClick={() => setShowHistory(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-800/30 border border-amber-200 dark:border-amber-800/50 text-xs font-medium text-amber-700 dark:text-amber-300 transition-all duration-200"
-              title="Ver historial"
-            >
-              <History className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Historial</span>
-            </button>
-
-            {/* Alerta */}
-            {isAlert && (
-              <div className="flex items-center gap-1 px-2.5 py-1 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                <AlertTriangle className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
-                <span className="text-[10px] font-medium text-red-700 dark:text-red-300">Alerta</span>
-              </div>
-            )}
-          </div>
+          )}
         </div>
-
-        {/* Fila 2: Guía, Agencia, Estado (como información), Provincia y Municipio */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-gray-600 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700/50 pb-2">
-          <span className="flex items-center gap-1.5">
-            <FileText className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
-            <span className="font-medium text-gray-700 dark:text-gray-300">{data.guide?.externalRef || 'Sin guía'}</span>
+        <div className="flex items-center gap-3 text-xs text-gray-500 pl-7">
+          <span className="flex items-center gap-1">
+            <Weight className="w-3 h-3" /> {data.weight ? `${Number(data.weight).toFixed(1)} kg` : 'Sin peso'}
           </span>
-          
-          <span className="flex items-center gap-1.5">
-            <Building2 className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
-            <span className="text-gray-700 dark:text-gray-300">{data.guide?.agency?.name || 'Sin agencia'}</span>
+          <span className="flex items-center gap-1">
+            <FileText className="w-3 h-3" /> {data.guide?.externalRef || 'Sin guía'}
           </span>
-
-          {/* Estado como información visual */}
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${getStatusColor(currentStatusName)}`}>
-            <div className="w-1.5 h-1.5 rounded-full bg-current opacity-60"></div>
-            {currentStatusName}
-          </span>
-
-          <span className="flex items-center gap-1.5">
-            <Compass className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
-            <span className="text-gray-700 dark:text-gray-300">{data.province?.name || '—'}</span>
-          </span>
-
-          <span className="flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
-            <span className="text-gray-700 dark:text-gray-300">{data.municipe?.name || '—'}</span>
-          </span>
-        </div>
-
-        {/* Fila 3: Destinatario y Ubicación (como información) */}
-        <div className="flex flex-wrap items-center gap-3 text-xs">
-          <span className="inline-flex items-center gap-1.5 text-gray-700 dark:text-gray-300">
-            <User className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
-            {maskName(data.recipient?.fullName)}
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
-            <MapPin className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
-            {currentLocationName}
-          </span>
-        </div>
-
-        {/* Fila 4: MiniStatusForm y acciones */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-gray-100 dark:border-gray-700/50">
-          {/* MiniStatusForm */}
-          <div className="flex-1 ">
-            <MiniStatusForm
-              statusId={statusId}
-              locationId={locationId}
-              statuses={statuses}
-              locations={locations}
-              currentStatusName={currentStatusName}
-              currentLocationName={currentLocationName}
-              onStatusChange={setStatusId}
-              onLocationChange={setLocationId}
-              onSave={handleSaveChanges}
-              isUpdating={isUpdating}
-              hasChanges={hasChanges}
-              getStatusColor={getStatusColor}
-            />
-          </div>
-
-          {/* Separador */}
-          <div className="w-px h-8 bg-gray-200 dark:bg-gray-700 shrink-0"></div>
-
-          {/* Botones de acción - CON TEXTO en md+ */}
-          <div className="flex-row sm:flex-col items-center gap-3 shrink-0">
-            
-            
-            <button
-              type="button"
-              onClick={() => onEdit(data.id)}
-              className="h-8 px-3 flex items-center md:min-w-22 gap-1.5 rounded-lg bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-800/30 text-purple-600 dark:text-purple-400 transition-all duration-200 text-xs font-medium"
-              title="Editar paquete"
-            >
-              <Edit2 className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">Editar</span>
-            </button>
-            
-            <button
-              type="button"
-              onClick={() => onDelete(data.id)}
-              className="h-8 px-3 flex items-center mt-2 gap-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-800/30 text-red-600 dark:text-red-400 transition-all duration-200 text-xs font-medium"
-              title="Eliminar paquete"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">Eliminar</span>
-            </button>
-          </div>
         </div>
       </div>
 
-      {/* Modal de historial */}
-      {showHistory && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-          onClick={() => setShowHistory(false)}
-        >
-          <div
-            className="w-full max-w-md max-h-[80vh] overflow-y-auto rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-2xl p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <History className="w-5 h-5 text-amber-500" />
-                Historial del paquete
-              </h3>
-              <button
-                type="button"
-                onClick={() => setShowHistory(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-              </button>
-            </div>
-
-            {history.isLoading && (
-              <div className="text-center py-8">
-                <div className="inline-block w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">Cargando historial...</p>
-              </div>
-            )}
-            
-            {history.isError && (
-              <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl text-red-700 dark:text-red-400 text-sm">
-                No se pudo cargar el historial: {(history.error as Error)?.message}
-              </div>
-            )}
-            
-            {!history.isLoading && !history.isError && (!history.data || history.data.length === 0) && (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                <Package className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
-                <p className="text-sm">Sin movimientos registrados</p>
-              </div>
-            )}
-
-            {history.data && history.data.length > 0 && (
-              <ol className="relative border-l-2 border-purple-200 dark:border-purple-800 ml-3">
-                {history.data.map((h: PackageHistoryItem, index: number) => (
-                  <li key={h.id} className="mb-6 ml-6">
-                    <span className={`absolute -left-[9px] w-4 h-4 rounded-full border-2 ${
-                      index === 0 
-                        ? 'bg-purple-500 border-purple-500' 
-                        : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600'
-                    }`}></span>
-                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3">
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                        {h.status?.name || 'Sin estado'}
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                        📍 {h.location?.name || 'Sin ubicación'}
-                      </p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                        {new Date(h.createdAt).toLocaleString('es-ES', {
-                          day: '2-digit',
-                          month: 'short',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            )}
-          </div>
+      {/* COL 2: ORIGEN + AGENCIA + UBICACIÓN */}
+      <div className="flex flex-col gap-1 min-w-0">
+        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+          <Building2 className="w-4 h-4 text-gray-400 shrink-0" />
+          <span className="truncate text-sm font-medium">{data.guide?.agency?.name || 'Sin agencia'}</span>
         </div>
-      )}
-    </div>
+        <div className="flex items-center gap-2 text-xs text-gray-500">
+          <MapPin className="w-3 h-3 shrink-0" />
+          <span className="truncate">{data.province?.name || '—'}, {data.municipe?.name || '—'}</span>
+        </div>
+      </div>
+
+      {/* COL 3: DESTINATARIO */}
+      <div className="flex flex-col gap-1 min-w-0">
+        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+          <User className="w-4 h-4 text-gray-400 shrink-0" />
+          <span className="truncate text-sm font-medium">{maskName(data.recipient?.fullName)}</span>
+        </div>
+        <div className="text-xs text-gray-400 pl-6">
+          {/* Espacio para más información si es necesario */}
+        </div>
+      </div>
+
+      {/* COL 4: SELECTS + BOTÓN GUARDAR + ACCIONES */}
+      <div className="flex items-center gap-3 w-full justify-end">
+        <PackageStatusControls
+          statusId={statusId}
+          locationId={locationId}
+          currentStatusName={currentStatusName}
+          currentLocationName={currentLocationName}
+          hasChanges={hasChanges}
+          isUpdating={isUpdating}
+          statuses={statuses}
+          locations={locations}
+          onStatusChange={setStatusId}
+          onLocationChange={setLocationId}
+          onSave={handleSaveChanges}
+          getStatusStyle={getStatusStyle}
+        />
+
+        {/* Separador */}
+        <div className="h-8 w-px bg-gray-300 dark:bg-gray-700 flex-shrink-0"></div>
+
+        {/* Botones de acción */}
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <button onClick={() => setShowHistory(true)} title="Ver historial" className="p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors">
+            <History className="w-4 h-4" />
+          </button>
+          
+          {onView && (
+            <button onClick={() => onView(data.id)} title="Ver detalles" className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-md transition-colors">
+              <Eye className="w-4 h-4" />
+            </button>
+          )}
+
+          <button onClick={() => onEdit(data.id)} title="Editar paquete" className="p-2 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-md transition-colors">
+            <Edit2 className="w-4 h-4" />
+          </button>
+
+          <button onClick={() => onDelete(data.id)} title="Eliminar paquete" className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md transition-colors">
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Modal Historial */}
+      <PackageHistoryModal
+        isOpen={showHistory}
+        onClose={() => setShowHistory(false)}
+        history={history}
+      />
+    </li>
   );
 };

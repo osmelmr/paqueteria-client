@@ -11,7 +11,7 @@ export function AppLayout() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <Sidebar />
-      <main className={`flex-1 pt-24 px-5 pb-5 max-w-full overflow-x-auto bg-[#b8b8b8] dark:bg-slate-950 transition-[margin] duration-200 ${sidebarOpen ? 'md:ml-[220px]' : ''}`}>
+      <main className={`flex-1 pt-24 px-5 pb-5 max-w-full overflow-x-auto bg-canvas transition-[margin] duration-200 ${sidebarOpen ? 'md:ml-[220px]' : ''}`}>
         <Outlet />
       </main>
       <Footer />

@@ -45,7 +45,7 @@ export default function UpdateStatusBulkPage() {
   };
 
   return (
-    <div className="p-[18px] border border-gray-200 dark:border-gray-700 rounded-xl bg-[#dbdbdb] dark:bg-[#1e1f27] shadow-lg mb-[18px]">
+    <div className="p-[18px] border border-border rounded-xl bg-surface shadow-lg mb-[18px]">
       <h2 className="text-gray-900 dark:text-gray-100 font-semibold m-0 mb-4">Actualizar estado por HBL (bulk)</h2>
       {error && <div className="mb-4 p-3.5 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl">{error}</div>}
       {mutation.isPending && <div className="mb-4 p-2.5 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100">Procesando...</div>}
@@ -53,7 +53,7 @@ export default function UpdateStatusBulkPage() {
       <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3.5">
         <label className="col-span-full">
           HBLs (separados por coma, punto y coma o salto de linea)
-          <textarea className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200"
+          <textarea className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200"
             value={hbls}
             onChange={(e) => setHbls(e.target.value)}
             rows={5}
@@ -63,7 +63,7 @@ export default function UpdateStatusBulkPage() {
         </label>
         <label className="flex flex-col gap-1.5 font-medium">
           Estado nuevo
-          <select className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200" value={statusId} onChange={(e) => setStatusId(e.target.value)}>
+          <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={statusId} onChange={(e) => setStatusId(e.target.value)}>
             <option value="">Sin cambio</option>
             {statuses.map((s) => (
               <option key={s.id} value={s.id}>{s.name}</option>
@@ -72,7 +72,7 @@ export default function UpdateStatusBulkPage() {
         </label>
         <label className="flex flex-col gap-1.5 font-medium">
           Ubicacion nueva
-          <select className="border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm bg-slate-50/50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200" value={locationId} onChange={(e) => setLocationId(e.target.value)}>
+          <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={locationId} onChange={(e) => setLocationId(e.target.value)}>
             <option value="">Sin cambio</option>
             {locations.map((l) => (
               <option key={l.id} value={l.id}>{l.name}</option>
@@ -96,7 +96,6 @@ export default function UpdateStatusBulkPage() {
               <thead>
                 <tr>
                   <th>HBL</th>
-                  <th>ID Paquete</th>
                   <th>Estado</th>
                   <th>Ubicacion</th>
                 </tr>
@@ -105,9 +104,8 @@ export default function UpdateStatusBulkPage() {
                 {result.success.map((item) => (
                   <tr key={item.hbl}>
                     <td>{item.hbl}</td>
-                    <td>{item.package?.id}</td>
-                    <td>{item.package?.statusId}</td>
-                    <td>{item.package?.locationId || '—'}</td>
+                    <td>{statuses.find((s) => s.id === item.package?.statusId)?.name || '—'}</td>
+                    <td>{locations.find((l) => l.id === item.package?.locationId)?.name || '—'}</td>
                   </tr>
                 ))}
               </tbody>

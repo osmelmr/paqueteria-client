@@ -32,7 +32,7 @@ export function Navbar() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 flex items-center justify-between h-[76px] px-5 bg-[#dbdbdb] dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 z-50 transition-colors">
+    <header className="fixed top-0 left-0 right-0 flex items-center justify-between h-[76px] px-5 bg-chrome border-b border-border z-50 transition-colors">
       
       {/* Sección Izquierda: Menú móvil y Título/Logo */}
       <div className="flex items-center gap-3">
@@ -49,7 +49,7 @@ export function Navbar() {
           onClick={() => navigate('/')} 
           className="flex items-center gap-2.5 cursor-pointer group"
         >
-          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 group-hover:bg-purple-500/20 transition-colors">
+          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50 transition-colors">
             <Package className="w-5 h-5" />
           </div>
           <h1 className="text-lg font-bold text-slate-900 dark:text-slate-100 m-0 tracking-tight">
@@ -64,13 +64,13 @@ export function Navbar() {
           onSubmit={handleHblSearch}
           className="hidden md:block w-full max-w-sm"
         >
-          <div className="flex items-center gap-2 h-10 px-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 focus-within:border-purple-300 dark:focus-within:border-purple-700 focus-within:ring-1 focus-within:ring-purple-500 transition-all shadow-sm">
+          <div className="flex items-center gap-2 h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700/60 focus-within:border-purple-300 dark:focus-within:border-purple-700 focus-within:ring-1 focus-within:ring-purple-500 transition-all shadow-sm">
             <Search className="w-4 h-4 text-slate-400 shrink-0" />
             <input
               value={hblSearch}
               onChange={(e) => setHblSearch(e.target.value)}
               placeholder="Buscar por HBL..."
-              className="w-full bg-transparent text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none"
+              className="w-full bg-transparent text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none border-0 p-0 shadow-none"
               aria-label="Buscar paquete por HBL"
             />
           </div>
@@ -78,7 +78,7 @@ export function Navbar() {
 
         <button
           type="button"
-          className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-200 dark:hover:border-purple-800/60 transition-all shadow-sm"
+          className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700/60 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-200 dark:hover:border-purple-800/60 transition-all shadow-sm"
           onClick={() => navigate('/update-status-bulk')}
         >
           <Truck className="w-4 h-4 text-slate-500 dark:text-slate-400" />
@@ -87,7 +87,7 @@ export function Navbar() {
         
         <button
           type="button"
-          className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-200 dark:hover:border-purple-800/60 transition-all shadow-sm"
+          className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700/60 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-200 dark:hover:border-purple-800/60 transition-all shadow-sm"
           onClick={() => navigate('/ai-extract')}
         >
           <FilePlus2 className="w-4 h-4 text-slate-500 dark:text-slate-400" />

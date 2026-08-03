@@ -45,7 +45,7 @@ const samples: PackageData[] = [
 
 export default function PackageCardTestPage() {
   return (
-    <div className="p-4 sm:p-8 bg-slate-50 dark:bg-slate-950 min-h-screen">
+    <div className="p-4 sm:p-8 bg-canvas min-h-screen">
       <div className="max-w-3xl mx-auto">
         <h2 className="text-xl font-bold mb-4 text-slate-800 dark:text-white">
           Listado de Paquetes

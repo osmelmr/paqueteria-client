@@ -96,7 +96,7 @@ export default function PackagesListPage() {
   };
 
   return (
-    <main className="flex-1 min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 p-4 sm:p-6">
+    <main className="flex-1 min-h-screen p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
@@ -152,7 +152,7 @@ export default function PackagesListPage() {
             <button
               type="button"
               onClick={clearHblSearch}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-600/10 hover:bg-purple-600/20 dark:bg-purple-400/10 dark:hover:bg-purple-400/20 text-purple-700 dark:text-purple-300 font-semibold text-sm transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-100 hover:bg-purple-200 dark:bg-purple-400/10 dark:hover:bg-purple-400/20 text-purple-700 dark:text-purple-300 font-semibold text-sm transition-all"
             >
               <X className="w-4 h-4" />
               Limpiar
@@ -183,7 +183,7 @@ export default function PackagesListPage() {
         {/* Package List */}
         <div className="mt-4">
           {packages.length === 0 && !isLoading ? (
-            <div className="text-center py-16 bg-white dark:bg-gray-800/60 rounded-2xl border border-gray-200 dark:border-gray-700">
+            <div className="text-center py-16 bg-surface dark:bg-gray-800/60 rounded-2xl border border-border">
               <PackageIcon className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">No se encontraron paquetes</p>
               <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Prueba ajustando los filtros o crea un nuevo paquete</p>
@@ -197,19 +197,19 @@ export default function PackagesListPage() {
               </button>
             </div>
           ) : (
-            <div className={`grid gap-4 ${viewMode === 'card' ? 'grid-cols-1' : 'grid-cols-1'}`}>
-              {packages.map((pkg: any) => (
-                <PackageCard
-                  key={pkg.id}
-                  data={pkg}
-                  onEdit={(id) => navigate(`/packages/${id}/edit`)}
-                  onDelete={handleDelete}
-                  onUpdateStatus={handleUpdateStatus}
-                  statuses={statuses}
-                  locations={locations}
-                />
-              ))}
-            </div>
+<div className={`grid justify-items-center max-w-6xl gap-4 mx-auto ${viewMode === 'card' ? 'grid-cols-1' : 'grid-cols-1'}`}>
+  {packages.map((pkg: any) => (
+    <PackageCard
+      key={pkg.id}
+      data={pkg}
+      onEdit={(id) => navigate(`/packages/${id}/edit`)}
+      onDelete={handleDelete}
+      onUpdateStatus={handleUpdateStatus}
+      statuses={statuses}
+      locations={locations}
+    />
+  ))}
+</div>
           )}
         </div>
       </div>

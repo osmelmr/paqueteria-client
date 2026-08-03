@@ -20,7 +20,7 @@ export function StatisticsBar() {
         {items.map((item) => (
           <div
             key={item.label}
-            className="flex items-center gap-3 p-3.5 rounded-xl bg-[#dbdbdb] dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm min-w-0"
+            className="flex items-center gap-3 p-3.5 rounded-xl bg-chrome border border-border shadow-sm min-w-0"
           >
             <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">
               <item.icon className={`w-4 h-4 ${item.iconClass}`} />
@@ -38,7 +38,7 @@ export function StatisticsBar() {
       </div>
 
       {!isLoading && !isError && data && (
-        <div className="rounded-xl bg-[#dbdbdb] dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-3.5">
+        <div className="rounded-xl bg-chrome border border-border shadow-sm p-3.5">
           <div className="flex items-center gap-2 mb-2">
             <RouteIcon className="w-4 h-4 text-purple-500" />
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 m-0">

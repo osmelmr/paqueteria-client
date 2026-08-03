@@ -1,6 +1,80 @@
 @import "tailwindcss";
 @custom-variant dark (&:where([data-theme="dark"] *));
 
+:root {
+  --canvas: #e6e8ef;
+  --surface: #f7f8fb;
+  --chrome: #f2f3f7;
+  --border: #c6cdd9;
+  --text: #1e293b;
+  --muted: #64748b;
+  --zebra: #eef0f5;
+  --row-hover: #f0edf9;
+}
+
+[data-theme="dark"] {
+  --canvas: #020617;
+  --surface: #1e1f27;
+  --chrome: #16171d;
+  --border: #374151;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --zebra: #23242c;
+  --row-hover: #2b2536;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-chrome: var(--chrome);
+  --color-border: var(--border);
+}
+
+@layer base {
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    background-color: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.9rem;
+    color: var(--text);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.05);
+    transition: border-color 150ms, box-shadow 150ms, background-color 150ms;
+  }
+
+  input:focus-visible:not([type="checkbox"]):not([type="radio"]),
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgb(139 92 246 / 0.18);
+  }
+
+  tbody tr:nth-child(even) {
+    background-color: var(--zebra);
+  }
+
+  tbody tr:hover {
+    background-color: var(--row-hover);
+  }
+
+  th {
+    font-weight: 600;
+    color: var(--text);
+  }
+}
+
 html, body {
   margin: 0;
   padding: 0;

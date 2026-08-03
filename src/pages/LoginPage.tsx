@@ -53,7 +53,7 @@ export function LoginPage() {
         {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}
-          className="absolute -top-16 right-0 p-3 rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:scale-105"
+          className="absolute -top-16 right-0 p-3 rounded-2xl bg-surface dark:bg-gray-800 shadow-lg hover:shadow-xl border border-border transition-all duration-300 hover:scale-105"
           aria-label="Toggle theme"
         >
           {isDark ? (
@@ -97,10 +97,10 @@ export function LoginPage() {
         )}
 
         {/* Login Card */}
-        <div className={`rounded-3xl shadow-2xl p-8 backdrop-blur-sm transition-all duration-300 ${
+        <div className={`rounded-3xl shadow-2xl p-8 transition-all duration-300 ${
           isDark
             ? 'bg-gray-800/90 border border-gray-700'
-            : 'bg-white/90 border border-gray-100'
+            : 'bg-surface border border-border'
         }`}>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>

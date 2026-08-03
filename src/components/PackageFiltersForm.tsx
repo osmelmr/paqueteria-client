@@ -87,7 +87,7 @@ export function PackageFiltersForm({
   }, [filterForm, onSubmit]);
 
   return (
-    <div className="bg-white dark:bg-gray-800/60 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-4">
+    <div className="bg-surface dark:bg-gray-800/60 rounded-2xl border border-border shadow-sm p-4">
       <form 
         onSubmit={(e) => { e.preventDefault(); onSubmit(); }} 
         className="space-y-4"
@@ -113,7 +113,7 @@ export function PackageFiltersForm({
               <FileText className="w-4 h-4 text-gray-400 dark:text-gray-500" />
             </div>
             <select 
-              className="w-full h-10 pl-9 pr-3 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-white dark:hover:bg-gray-700/70 appearance-none" 
+              className="w-full h-10 pl-9 pr-3 border border-border rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-surface dark:hover:bg-gray-700/70 appearance-none" 
               value={filterForm.guideId} 
               onChange={(e) => setFilterForm((prev) => ({ ...prev, guideId: e.target.value }))}
             >
@@ -128,7 +128,7 @@ export function PackageFiltersForm({
               <Activity className="w-4 h-4 text-gray-400 dark:text-gray-500" />
             </div>
             <select 
-              className="w-full h-10 pl-9 pr-3 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-white dark:hover:bg-gray-700/70 appearance-none" 
+              className="w-full h-10 pl-9 pr-3 border border-border rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-surface dark:hover:bg-gray-700/70 appearance-none" 
               value={filterForm.statusId} 
               onChange={(e) => setFilterForm((prev) => ({ ...prev, statusId: e.target.value }))}
             >
@@ -145,7 +145,7 @@ export function PackageFiltersForm({
               </div>
               <input 
                 type="date"
-                className="w-full h-10 pl-9 pr-3 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-white dark:hover:bg-gray-700/70" 
+                className="w-full h-10 pl-9 pr-3 border border-border rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-surface dark:hover:bg-gray-700/70" 
                 value={filterForm.statusDate} 
                 onChange={(e) => setFilterForm((prev) => ({ ...prev, statusDate: e.target.value }))} 
               />
@@ -158,7 +158,7 @@ export function PackageFiltersForm({
               <MapPin className="w-4 h-4 text-gray-400 dark:text-gray-500" />
             </div>
             <select 
-              className="w-full h-10 pl-9 pr-3 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-white dark:hover:bg-gray-700/70 appearance-none" 
+              className="w-full h-10 pl-9 pr-3 border border-border rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-surface dark:hover:bg-gray-700/70 appearance-none" 
               value={filterForm.locationId} 
               onChange={(e) => setFilterForm((prev) => ({ ...prev, locationId: e.target.value }))}
             >
@@ -173,7 +173,7 @@ export function PackageFiltersForm({
               <Compass className="w-4 h-4 text-gray-400 dark:text-gray-500" />
             </div>
             <select 
-              className="w-full h-10 pl-9 pr-3 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-white dark:hover:bg-gray-700/70 appearance-none" 
+              className="w-full h-10 pl-9 pr-3 border border-border rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-surface dark:hover:bg-gray-700/70 appearance-none" 
               value={filterForm.provinceId} 
               onChange={(e) => setFilterForm((prev) => ({ ...prev, provinceId: e.target.value }))}
             >
@@ -188,7 +188,7 @@ export function PackageFiltersForm({
               <MapPin className="w-4 h-4 text-gray-400 dark:text-gray-500" />
             </div>
             <select 
-              className="w-full h-10 pl-9 pr-3 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-white dark:hover:bg-gray-700/70 appearance-none" 
+              className="w-full h-10 pl-9 pr-3 border border-border rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-surface dark:hover:bg-gray-700/70 appearance-none" 
               value={filterForm.municipeId} 
               onChange={(e) => setFilterForm((prev) => ({ ...prev, municipeId: e.target.value }))}
             >
@@ -203,7 +203,7 @@ export function PackageFiltersForm({
               <Building2 className="w-4 h-4 text-gray-400 dark:text-gray-500" />
             </div>
             <select 
-              className="w-full h-10 pl-9 pr-3 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-white dark:hover:bg-gray-700/70 appearance-none" 
+              className="w-full h-10 pl-9 pr-3 border border-border rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-surface dark:hover:bg-gray-700/70 appearance-none" 
               value={filterForm.agencyId} 
               onChange={(e) => setFilterForm((prev) => ({ ...prev, agencyId: e.target.value }))}
             >
@@ -218,7 +218,7 @@ export function PackageFiltersForm({
               <Plane className="w-4 h-4 text-gray-400 dark:text-gray-500" />
             </div>
             <select 
-              className="w-full h-10 pl-9 pr-3 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-white dark:hover:bg-gray-700/70 appearance-none" 
+              className="w-full h-10 pl-9 pr-3 border border-border rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-surface dark:hover:bg-gray-700/70 appearance-none" 
               value={filterForm.guideType} 
               onChange={(e) => setFilterForm((prev) => ({ ...prev, guideType: e.target.value }))}
             >
@@ -234,7 +234,7 @@ export function PackageFiltersForm({
               <Hash className="w-4 h-4 text-gray-400 dark:text-gray-500" />
             </div>
             <input 
-              className="w-full h-10 pl-9 pr-3 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-white dark:hover:bg-gray-700/70" 
+              className="w-full h-10 pl-9 pr-3 border border-border rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-surface dark:hover:bg-gray-700/70" 
               value={filterForm.hbl} 
               onChange={(e) => setFilterForm((prev) => ({ ...prev, hbl: e.target.value }))} 
               placeholder="HBL..." 
@@ -247,7 +247,7 @@ export function PackageFiltersForm({
               <SearchIcon className="w-4 h-4 text-gray-400 dark:text-gray-500" />
             </div>
             <input 
-              className="w-full h-10 pl-9 pr-3 border border-gray-200 dark:border-gray-700 rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-white dark:hover:bg-gray-700/70" 
+              className="w-full h-10 pl-9 pr-3 border border-border rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-surface dark:hover:bg-gray-700/70" 
               value={filterForm.search} 
               onChange={(e) => setFilterForm((prev) => ({ ...prev, search: e.target.value }))} 
               placeholder="Buscar..." 
@@ -255,7 +255,7 @@ export function PackageFiltersForm({
           </div>
 
           {/* Alerta Checkbox personalizado */}
-          <label className="flex items-center gap-2 h-10 px-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700/70 transition-all cursor-pointer group">
+          <label className="flex items-center gap-2 h-10 px-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-border hover:bg-gray-100 dark:hover:bg-gray-700/70 transition-all cursor-pointer group">
             <AlertTriangle className="w-4 h-4 text-amber-500" />
             <div className="relative flex items-center">
               <input 
@@ -264,7 +264,7 @@ export function PackageFiltersForm({
                 checked={filterForm.alert === 'true'}
                 onChange={(e) => setFilterForm((prev) => ({ ...prev, alert: e.target.checked ? 'true' : '' }))}
               />
-              <div className="w-5 h-5 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 peer-checked:bg-purple-600 peer-checked:border-purple-600 dark:peer-checked:bg-purple-500 dark:peer-checked:border-purple-500 transition-all duration-200 flex items-center justify-center">
+              <div className="w-5 h-5 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-surface dark:bg-gray-800 peer-checked:bg-purple-600 peer-checked:border-purple-600 dark:peer-checked:bg-purple-500 dark:peer-checked:border-purple-500 transition-all duration-200 flex items-center justify-center">
                 <svg 
                   className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity duration-200" 
                   fill="none" 
