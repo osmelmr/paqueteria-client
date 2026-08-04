@@ -50,10 +50,10 @@ export const PackageStatusControls: React.FC<PackageStatusControlsProps> = ({
   }, []);
 
   return (
-    <div ref={containerRef} className="flex items-center gap-3">
-      <div className="flex flex-col gap-1 min-w-[140px] max-w-[160px]">
+    <div ref={containerRef} className="flex items-center gap-3 not-lg:gap-1 max-w-50">
+      <div className="flex flex-col gap-1 w-full min-w-0 sm:flex-none sm:min-w-30 sm:max-w-40">
         {/* Select Estado */}
-        <div className="relative max-w-40 min-w-40">
+        <div className="relative w-full sm:max-w-40 sm:min-w-40">
           <button
             type="button"
             onClick={() => setOpenDropdown(openDropdown === 'status' ? null : 'status')}
@@ -87,7 +87,7 @@ export const PackageStatusControls: React.FC<PackageStatusControlsProps> = ({
         </div>
 
         {/* Select Ubicación */}
-        <div className="relative max-w-40 min-w-40">
+        <div className="relative w-full sm:max-w-40 sm:min-w-30">
           <button
             type="button"
             onClick={() => setOpenDropdown(openDropdown === 'location' ? null : 'location')}
@@ -136,7 +136,7 @@ export const PackageStatusControls: React.FC<PackageStatusControlsProps> = ({
         onClick={onSave}
         disabled={!hasChanges || isUpdating}
         title={hasChanges ? "Guardar cambios" : "Sin cambios para guardar"}
-        className={`p-2 rounded-md transition-all flex-shrink-0 ${
+        className={`p-2 rounded-md transition-all shrink-0 ${
           hasChanges 
             ? 'bg-gray-900 hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900' 
             : 'bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed'
