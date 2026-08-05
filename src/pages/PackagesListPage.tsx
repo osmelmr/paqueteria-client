@@ -65,7 +65,7 @@ export default function PackagesListPage() {
   const [viewMode] = useState<'card' | 'list'>('card');
   const [copiedHbls, setCopiedHbls] = useState(false);
 
-  const allHbls = (pageData?.items ?? []).flatMap((pkg: any) => pkg.hbls?.map((h: any) => h.hblCode) ?? []);
+  const allHbls = (pageData?.hbls ?? []);
 
   const handleCopyHbls = async () => {
     if (allHbls.length === 0) return;
