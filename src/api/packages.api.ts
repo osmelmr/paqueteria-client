@@ -53,9 +53,7 @@ export interface PackageHistoryItem {
 
 export const packagesApi = {
   findAll: (filters?: PackageFilters) => {
-    console.log(filters)
     const data = api.get('/packages', { params: filters }).then((r) => r.data)
-    console.log(data)
     return data
   },
 
