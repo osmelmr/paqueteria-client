@@ -16,6 +16,8 @@ export interface PackageFilters {
   locationId?: string;
   agencyId?: string;
   guideType?: GuideType;
+  page?: string;
+  limit?: string;
 }
 
 export interface CreatePackageDto {
@@ -50,8 +52,12 @@ export interface PackageHistoryItem {
 }
 
 export const packagesApi = {
-  findAll: (filters?: PackageFilters) =>
-    api.get('/packages', { params: filters }).then((r) => r.data),
+  findAll: (filters?: PackageFilters) => {
+    console.log(filters)
+    const data = api.get('/packages', { params: filters }).then((r) => r.data)
+    console.log(data)
+    return data
+  },
 
   findById: (id: string) =>
     api.get(`/packages/${id}`).then((r) => r.data),

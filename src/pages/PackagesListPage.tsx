@@ -20,7 +20,12 @@ export default function PackagesListPage() {
   const [filters, setFilters] = useState<PackageFilters>(() =>
     hblParam ? { hbl: hblParam } : {},
   );
-  const { data: packages = [], isLoading, error: queryError } = usePackages(filters);
+  
+  // ✅ Paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  
+  const { data: pageData = { items: [], pagination: { total: 0, page: 1, totalPages: 1, limit: 10 } }, isLoading, error: queryError } = usePackages(filters);
   const updateStatus = useUpdatePackageStatus();
   const deletePackage = useDeletePackage();
 
@@ -42,7 +47,7 @@ export default function PackagesListPage() {
     statusDate: string; 
     locationId: string; 
     agencyId: string; 
-    guideType: string 
+    guideType: string;
   }>({ 
     guideId: '', 
     statusId: '', 
@@ -54,13 +59,13 @@ export default function PackagesListPage() {
     statusDate: '', 
     locationId: '', 
     agencyId: '', 
-    guideType: '' 
+    guideType: '',
   });
   const [localError, setLocalError] = useState<string | null>(null);
   const [viewMode] = useState<'card' | 'list'>('card');
   const [copiedHbls, setCopiedHbls] = useState(false);
 
-  const allHbls = packages.flatMap((pkg: any) => pkg.hbls?.map((h: any) => h.hblCode) ?? []);
+  const allHbls = (pageData?.items ?? []).flatMap((pkg: any) => pkg.hbls?.map((h: any) => h.hblCode) ?? []);
 
   const handleCopyHbls = async () => {
     if (allHbls.length === 0) return;
@@ -82,18 +87,30 @@ export default function PackagesListPage() {
   useEffect(() => {
     if (!hblParam) return;
     setFilterForm((prev) => ({ ...prev, hbl: hblParam }));
-    setFilters({ hbl: hblParam });
+    setFilters({ hbl: hblParam, page: 1, limit: itemsPerPage });
   }, [hblParam]);
+
+  // ✅ Efecto para cambiar de página
+  useEffect(() => {
+    if (Object.keys(filters).length === 0 && currentPage === 1) return;
+    
+    const f: PackageFilters = { ...filters };
+    f.page = currentPage;
+    f.limit = itemsPerPage;
+    setFilters(f);
+  }, [currentPage]);
 
   const clearHblSearch = () => {
     setFilterForm((prev) => ({ ...prev, hbl: '' }));
     setFilters({});
+    setCurrentPage(1);
     setSearchParams({}, { replace: true });
   };
 
   const error = queryError ? (queryError as Error).message : localError;
 
   const applyFilters = () => {
+    setCurrentPage(1); // ✅ Resetear página
     const f: PackageFilters = {};
     if (filterForm.guideId) f.guideId = filterForm.guideId;
     if (filterForm.statusId) f.status = filterForm.statusId;
@@ -106,6 +123,8 @@ export default function PackagesListPage() {
     if (filterForm.locationId) f.locationId = filterForm.locationId;
     if (filterForm.agencyId) f.agencyId = filterForm.agencyId;
     if (filterForm.guideType) f.guideType = filterForm.guideType as 'AEREA' | 'MARITIMA';
+    f.page = 1;
+    f.limit = itemsPerPage;
     setFilters(f);
   };
 
@@ -189,7 +208,7 @@ export default function PackagesListPage() {
               <PackageIcon className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               <span className="text-sm text-gray-700 dark:text-gray-300">
                 Buscando por <span className="font-mono font-bold text-purple-700 dark:text-purple-400">{filters.hbl}</span> —{' '}
-                {isLoading ? '...' : `${packages.length} resultado${packages.length !== 1 ? 's' : ''}`}
+                {isLoading ? '...' : `${pageData?.items?.length ?? 0} resultado${pageData?.items?.length !== 1 ? 's' : ''}`}
               </span>
             </div>
             <button
@@ -219,7 +238,7 @@ export default function PackagesListPage() {
         {/* Results Counter */}
         <div className="mt-4 mb-3 flex items-center justify-between gap-3 flex-wrap">
           <span className="text-sm text-gray-500 dark:text-gray-400">
-            {packages.length} paquete{packages.length !== 1 ? 's' : ''} encontrado{packages.length !== 1 ? 's' : ''}
+            {pageData.pagination.total} encontrado{pageData.pagination.total > 1 ? 's' : ''}
           </span>
           {allHbls.length > 0 && (
             <button
@@ -239,7 +258,7 @@ export default function PackagesListPage() {
 
         {/* Package List */}
         <div className="mt-4">
-          {packages.length === 0 && !isLoading ? (
+          {(pageData?.items ?? []).length === 0 && !isLoading ? (
             <div className="text-center py-16 bg-surface dark:bg-gray-800/60 rounded-2xl border border-border">
               <PackageIcon className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
               <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">No se encontraron paquetes</p>
@@ -254,21 +273,95 @@ export default function PackagesListPage() {
               </button>
             </div>
           ) : (
-<div className={`grid justify-items-center max-w-6xl gap-4 mx-auto ${viewMode === 'card' ? 'grid-cols-1' : 'grid-cols-1'}`}>
-  {packages.map((pkg: any) => (
-    <PackageCard
-      key={pkg.id}
-      data={pkg}
-      onEdit={(id) => navigate(`/packages/${id}/edit`)}
-      onDelete={handleDelete}
-      onUpdateStatus={handleUpdateStatus}
-      statuses={statuses}
-      locations={locations}
-    />
-  ))}
-</div>
+            <div className={`grid justify-items-center max-w-6xl gap-4 mx-auto ${viewMode === 'card' ? 'grid-cols-1' : 'grid-cols-1'}`}>
+              {(pageData?.items ?? []).map((pkg: any) => (
+                <PackageCard
+                  key={pkg.id}
+                  data={pkg}
+                  onEdit={(id) => navigate(`/packages/${id}/edit`)}
+                  onDelete={handleDelete}
+                  onUpdateStatus={handleUpdateStatus}
+                  statuses={statuses}
+                  locations={locations}
+                />
+              ))}
+            </div>
           )}
         </div>
+
+        {/* ✅ Pagination Controls */}
+        {pageData?.pagination && pageData.pagination.totalPages > 1 && (
+          <div className="mt-8 flex items-center justify-between gap-4 flex-wrap">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              Mostrando {((pageData.pagination.page - 1) * pageData.pagination.limit) + 1} -{' '}
+              {Math.min(pageData.pagination.page * pageData.pagination.limit, pageData.pagination.total)}{' '}
+                | { pageData?.items?.length ?? 0} paquete{pageData?.items?.length !== 1 ? 's' : ''} paquetes en esta pagina
+            </span>
+            
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={!pageData.pagination.hasPreviousPage}
+                className="px-4 py-2 rounded-xl bg-surface dark:bg-gray-800 border border-border text-gray-700 dark:text-gray-300 font-medium text-sm transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-surface dark:disabled:hover:bg-gray-800"
+              >
+                Anterior
+              </button>
+              
+              <div className="flex items-center gap-1">
+                {Array.from({ length: pageData.pagination.totalPages }, (_, i) => i + 1).map((pageNum) => {
+                  const totalPages = pageData.pagination.totalPages;
+                  const currentPageNum = pageData.pagination.page;
+                  
+                  if (
+                    pageNum === 1 ||
+                    pageNum === totalPages ||
+                    Math.abs(pageNum - currentPageNum) <= 1 ||
+                    (pageNum <= 3 && currentPageNum <= 3) ||
+                    (pageNum >= totalPages - 2 && currentPageNum >= totalPages - 2)
+                  ) {
+                    return (
+                      <button
+                        key={pageNum}
+                        type="button"
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`min-w-[40px] h-10 rounded-xl font-medium text-sm transition-all duration-200 ${
+                          pageNum === currentPageNum
+                            ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/20'
+                            : 'bg-surface dark:bg-gray-800 border border-border text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  }
+                  
+                  if (
+                    (pageNum === 2 && currentPageNum > 4) ||
+                    (pageNum === totalPages - 1 && currentPageNum < totalPages - 3)
+                  ) {
+                    return (
+                      <span key={pageNum} className="min-w-[40px] h-10 flex items-center justify-center text-gray-400 dark:text-gray-600">
+                        …
+                      </span>
+                    );
+                  }
+                  
+                  return null;
+                })}
+              </div>
+              
+              <button
+                type="button"
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, pageData.pagination.totalPages))}
+                disabled={!pageData.pagination.hasNextPage}
+                className="px-4 py-2 rounded-xl bg-surface dark:bg-gray-800 border border-border text-gray-700 dark:text-gray-300 font-medium text-sm transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-surface dark:disabled:hover:bg-gray-800"
+              >
+                Siguiente
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );
