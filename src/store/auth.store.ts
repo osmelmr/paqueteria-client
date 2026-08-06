@@ -113,9 +113,13 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'paqueteria-auth',
+      version: 2,
+      migrate: (persisted) => {
+        const state = persisted as Partial<AuthState> | undefined;
+        return { user: state?.user ?? null };
+      },
       partialize: (state) => ({
         user: state.user,
-        isAuthenticated: state.isAuthenticated,
       }),
     },
   ),
