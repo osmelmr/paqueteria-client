@@ -16,8 +16,55 @@ export interface PackageFilters {
   locationId?: string;
   agencyId?: string;
   guideType?: GuideType;
-  page?: string;
-  limit?: string;
+}
+
+export interface PaginationParams {
+  page: number;
+  limit: number;
+}
+
+export interface PackageQueryParams extends PackageFilters, Partial<PaginationParams> {}
+
+export interface PackagePagination {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface PaginatedPackages<T> {
+  items: T[];
+  hbls: string[];
+  pagination: PackagePagination;
+}
+
+export interface Package {
+  id: string;
+  guide?: { name: string; agency: { name: string } } | null;
+  recipient?: { fullName: string | null } | null;
+  province?: { name: string } | null;
+  municipe?: { name: string } | null;
+  weight?: number | string | null;
+  status: { name: string; id?: string };
+  location?: { name: string; id?: string } | null;
+  alert?: boolean | null;
+  alertDescription?: string | null;
+  hbls: { hblCode: string }[];
+  address?: string | null;
+  content?: string | null;
+  arrivalDate?: string | null;
+  anotations?: string | null;
+  statusId?: string;
+  provinceId?: string;
+  municipeId?: string;
+  locationId?: string;
+  agencyId?: string;
+  guideId?: string;
+  recipientId?: string;
+  createdAt?: string;
+  statuses?: PackageHistoryItem[];
 }
 
 export interface CreatePackageDto {
@@ -52,10 +99,10 @@ export interface PackageHistoryItem {
 }
 
 export const packagesApi = {
-  findAll: (filters?: PackageFilters) => {
-    const data = api.get('/packages', { params: filters }).then((r) => r.data)
-    return data
-  },
+  findAll: (params?: PackageQueryParams) =>
+    api
+      .get<PaginatedPackages<Package>>('/packages', { params })
+      .then((r) => r.data),
 
   findById: (id: string) =>
     api.get(`/packages/${id}`).then((r) => r.data),

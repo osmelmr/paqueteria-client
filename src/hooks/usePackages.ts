@@ -1,12 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { packagesApi, type PackageFilters, type CreatePackageDto, type UpdatePackageDto } from '../api/packages.api';
+import { packagesApi, type PackageFilters, type PaginationParams, type CreatePackageDto, type UpdatePackageDto } from '../api/packages.api';
 
 const QUERY_KEY = 'packages';
 
-export function usePackages(filters?: PackageFilters) {
+export function usePackages(filters?: PackageFilters, pagination?: PaginationParams) {
   return useQuery({
-    queryKey: [QUERY_KEY, filters],
-    queryFn: () => packagesApi.findAll(filters),
+    queryKey: [QUERY_KEY, filters, pagination],
+    queryFn: () => packagesApi.findAll({ ...filters, ...pagination }),
   });
 }
 

@@ -291,185 +291,213 @@ function AiExtractPage() {
         )}
       </section>
 
-      {preview && (
-        <>
-          {/* 2. Batch metadata */}
-          <section className="mb-6">
-            <h3 className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-semibold mb-3">
-              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-500 dark:bg-purple-400 text-white text-xs font-bold">2</span>
-              Metadatos del lote
-            </h3>
-            <form className="grid grid-cols-1 sm:grid-cols-2 gap-3.5" onSubmit={(e) => e.preventDefault()}>
-              <label className="flex flex-col gap-1.5 font-medium">
-                Estado *
-                <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={statusId} onChange={(e) => setStatusId(e.target.value)} required>
-                  <option value="">Seleccionar</option>
-                  {statuses.map((s) => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="flex flex-col gap-1.5 font-medium">
-                Ubicacion
-                <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={locationId} onChange={(e) => setLocationId(e.target.value)}>
-                  <option value="">Sin ubicacion</option>
-                  {locations.map((l) => (
-                    <option key={l.id} value={l.id}>{l.name}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="flex flex-col gap-1.5 font-medium">
-                Agencia *
-                <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={agencyId} onChange={(e) => setAgencyId(e.target.value)} required>
-                  <option value="">Seleccionar</option>
-                  {agencies.map((a) => (
-                    <option key={a.id} value={a.id}>{a.name}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="flex flex-col gap-1.5 font-medium">
-                Referencia externa *
-                <input
-                  className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200"
-                  value={guideName}
-                  onChange={(e) => setGuideName(e.target.value)}
-                  placeholder="Ej: LOTE-001"
-                  required
-                />
-              </label>
-              <label className="flex flex-col gap-1.5 font-medium">
-                Tipo de guia *
-                <select
-                  className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200"
-                  value={guideType}
-                  onChange={(e) => setGuideType(e.target.value as GuideType)}
-                  required
-                >
-                  <option value="AEREA">Aerea</option>
-                  <option value="MARITIMA">Maritima</option>
-                </select>
-              </label>
-            </form>
-            <div className="flex gap-3 mt-5">
-              <button
-                type="button"
-                className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50"
-                onClick={handleSaveBatch}
-                disabled={bulkMutation.isPending}
-              >
-                {bulkMutation.isPending ? 'Guardando...' : `Guardar lote (${preview.length})`}
-              </button>
-              <button
-                type="button"
-                className="bg-slate-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-border font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                onClick={() => {
-                  setPreview(null);
-                  setBatchResult(null);
-                }}
-                disabled={bulkMutation.isPending}
-              >
-                Cancelar
-              </button>
-            </div>
-          </section>
+      {/* ✅ 2. Batch metadata - SIEMPRE VISIBLE */}
+      <section className="mb-6">
+        <h3 className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-semibold mb-3">
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-500 dark:bg-purple-400 text-white text-xs font-bold">2</span>
+          Metadatos del lote
+        </h3>
+        <form className="grid grid-cols-1 sm:grid-cols-2 gap-3.5" onSubmit={(e) => e.preventDefault()}>
+          <label className="flex flex-col gap-1.5 font-medium">
+            Estado *
+            <select 
+              className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" 
+              value={statusId} 
+              onChange={(e) => setStatusId(e.target.value)} 
+              required
+            >
+              <option value="">Seleccionar</option>
+              {statuses.map((s) => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1.5 font-medium">
+            Ubicacion
+            <select 
+              className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" 
+              value={locationId} 
+              onChange={(e) => setLocationId(e.target.value)}
+            >
+              <option value="">Sin ubicacion</option>
+              {locations.map((l) => (
+                <option key={l.id} value={l.id}>{l.name}</option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1.5 font-medium">
+            Agencia *
+            <select 
+              className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" 
+              value={agencyId} 
+              onChange={(e) => setAgencyId(e.target.value)} 
+              required
+            >
+              <option value="">Seleccionar</option>
+              {agencies.map((a) => (
+                <option key={a.id} value={a.id}>{a.name}</option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1.5 font-medium">
+            Referencia externa *
+            <input
+              className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200"
+              value={guideName}
+              onChange={(e) => setGuideName(e.target.value)}
+              placeholder="Ej: LOTE-001"
+              required
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 font-medium">
+            Tipo de guia *
+            <select
+              className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200"
+              value={guideType}
+              onChange={(e) => setGuideType(e.target.value as GuideType)}
+              required
+            >
+              <option value="AEREA">Aerea</option>
+              <option value="MARITIMA">Maritima</option>
+            </select>
+          </label>
+        </form>
+        {/* ✅ Botones de acción siempre visibles */}
+        <div className="flex gap-3 mt-5">
+          <button
+            type="button"
+            className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50"
+            onClick={handleSaveBatch}
+            disabled={bulkMutation.isPending || !preview || preview.length === 0}
+          >
+            {bulkMutation.isPending ? 'Guardando...' : `Guardar lote (${preview?.length ?? 0})`}
+          </button>
+          <button
+            type="button"
+            className="bg-slate-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-border font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            onClick={() => {
+              setPreview(null);
+              setBatchResult(null);
+            }}
+            disabled={bulkMutation.isPending}
+          >
+            Cancelar
+          </button>
+        </div>
+      </section>
 
-          {/* Save result (shown right where the user clicks, no scrolling needed) */}
-          {batchResult && (
-            <div ref={resultRef} className={`mb-6 p-4 rounded-xl border ${
-              allOk
-                ? 'bg-green-50 dark:bg-green-900/30 border-green-400/50 dark:border-green-800/50'
-                : allFailed
-                  ? 'bg-red-50 dark:bg-red-900/30 border-red-400/50 dark:border-red-800/50'
-                  : 'bg-amber-50 dark:bg-amber-900/30 border-amber-400/50 dark:border-amber-800/50'
+      {/* Save result */}
+      {batchResult && (
+        <div ref={resultRef} className={`mb-6 p-4 rounded-xl border ${
+          allOk
+            ? 'bg-green-50 dark:bg-green-900/30 border-green-400/50 dark:border-green-800/50'
+            : allFailed
+              ? 'bg-red-50 dark:bg-red-900/30 border-red-400/50 dark:border-red-800/50'
+              : 'bg-amber-50 dark:bg-amber-900/30 border-amber-400/50 dark:border-amber-800/50'
+        }`}>
+          <div className="flex items-center gap-2 font-semibold text-gray-900 dark:text-gray-100">
+            <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-white text-xs font-bold ${
+              allOk ? 'bg-green-500' : allFailed ? 'bg-red-500' : 'bg-amber-500'
             }`}>
-              <div className="flex items-center gap-2 font-semibold text-gray-900 dark:text-gray-100">
-                <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-white text-xs font-bold ${
-                  allOk ? 'bg-green-500' : allFailed ? 'bg-red-500' : 'bg-amber-500'
-                }`}>
-                  {allOk ? '✓' : allFailed ? '✗' : '!'}
-                </span>
-                {allOk
-                  ? 'Lote guardado correctamente'
-                  : allFailed
-                    ? 'No se pudo guardar ningun paquete'
-                    : 'Lote guardado parcialmente'}
-              </div>
-              <div className="flex flex-wrap gap-3 mt-3 text-sm">
-                <span className="px-3 py-1 rounded-full bg-white dark:bg-slate-800 border border-border text-gray-700 dark:text-gray-300">
-                  Total: {totalSaved + totalFailed}
-                </span>
-                <span className="px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">
-                  Guardados: {totalSaved}
-                </span>
-                <span className="px-3 py-1 rounded-full bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300">
-                  Fallidos: {totalFailed}
-                </span>
-              </div>
-              {totalFailed > 0 && (
-                <details className="mt-3">
-                  <summary className="cursor-pointer text-sm font-medium text-red-600 dark:text-red-400">
-                    Ver fallos ({totalFailed})
-                  </summary>
-                  <ul className="mt-2 space-y-2 max-h-56 overflow-y-auto">
-                    {batchResult.failed.map((f, idx) => (
-                      <li key={idx} className="p-2.5 rounded-lg bg-white dark:bg-slate-800 border border-border text-sm">
-                        <strong>Indice {idx}</strong>: {f.error}
-                        <pre className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 whitespace-pre-wrap overflow-x-auto">
-                          {JSON.stringify(f.entity, null, 2)}
-                        </pre>
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              )}
-            </div>
+              {allOk ? '✓' : allFailed ? '✗' : '!'}
+            </span>
+            {allOk
+              ? 'Lote guardado correctamente'
+              : allFailed
+                ? 'No se pudo guardar ningun paquete'
+                : 'Lote guardado parcialmente'}
+          </div>
+          <div className="flex flex-wrap gap-3 mt-3 text-sm">
+            <span className="px-3 py-1 rounded-full bg-white dark:bg-slate-800 border border-border text-gray-700 dark:text-gray-300">
+              Total: {totalSaved + totalFailed}
+            </span>
+            <span className="px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">
+              Guardados: {totalSaved}
+            </span>
+            <span className="px-3 py-1 rounded-full bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300">
+              Fallidos: {totalFailed}
+            </span>
+          </div>
+          {totalFailed > 0 && (
+            <details className="mt-3">
+              <summary className="cursor-pointer text-sm font-medium text-red-600 dark:text-red-400">
+                Ver fallos ({totalFailed})
+              </summary>
+              <ul className="mt-2 space-y-2 max-h-56 overflow-y-auto">
+                {batchResult.failed.map((f, idx) => (
+                  <li key={idx} className="p-2.5 rounded-lg bg-white dark:bg-slate-800 border border-border text-sm">
+                    <strong>Indice {idx}</strong>: {f.error}
+                    <pre className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 whitespace-pre-wrap overflow-x-auto">
+                      {JSON.stringify(f.entity, null, 2)}
+                    </pre>
+                  </li>
+                ))}
+              </ul>
+            </details>
           )}
-
-          {/* 3. Preview */}
-          <section>
-            <h3 className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-semibold mb-3">
-              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-500 dark:bg-purple-400 text-white text-xs font-bold">3</span>
-              Vista previa ({preview.length} paquetes)
-            </h3>
-            <div className="overflow-x-auto border border-border rounded-xl">
-              <table className="w-full text-sm">
-                <thead className="sticky top-0">
-                  <tr className="bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100">
-                    <th className="p-2.5 text-left font-semibold">#</th>
-                    <th className="p-2.5 text-left font-semibold">Destinatario</th>
-                    <th className="p-2.5 text-left font-semibold">Carnet</th>
-                    <th className="p-2.5 text-left font-semibold">Telefono</th>
-                    <th className="p-2.5 text-left font-semibold">Provincia</th>
-                    <th className="p-2.5 text-left font-semibold">Municipio</th>
-                    <th className="p-2.5 text-left font-semibold">Direccion</th>
-                    <th className="p-2.5 text-left font-semibold">Contenido</th>
-                    <th className="p-2.5 text-left font-semibold">Peso</th>
-                    <th className="p-2.5 text-left font-semibold">Fecha llegada</th>
-                    <th className="p-2.5 text-left font-semibold">HBLs</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {preview.map((pkg, i) => (
-                    <tr key={i} className={`border-t border-border ${i % 2 ? 'bg-slate-50 dark:bg-slate-800/50' : 'bg-white dark:bg-slate-800'}`}>
-                      <td className="p-2.5 text-gray-500 dark:text-gray-400">{i + 1}</td>
-                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.fullName || '—'}</td>
-                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.idCard || '—'}</td>
-                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.phone || '—'}</td>
-                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.province || '—'}</td>
-                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.municipe || '—'}</td>
-                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.address || '—'}</td>
-                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.content || '—'}</td>
-                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.weight != null ? pkg.weight : '—'}</td>
-                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.arrivalDate || '—'}</td>
-                      <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.hblCodes?.join(', ') || '—'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </>
+        </div>
       )}
+
+
+      {/* ✅ 3. Preview - SIEMPRE VISIBLE (con mensaje cuando está vacío) */}
+      <section>
+        <h3 className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-semibold mb-3">
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-500 dark:bg-purple-400 text-white text-xs font-bold">3</span>
+          Vista previa ({preview?.length ?? 0} paquetes)
+        </h3>
+        <div className="overflow-x-auto border border-border rounded-xl">
+          <table className="w-full text-sm">
+            <thead className="sticky top-0">
+              <tr className="bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100">
+                <th className="p-2.5 text-left font-semibold">#</th>
+                <th className="p-2.5 text-left font-semibold">Destinatario</th>
+                <th className="p-2.5 text-left font-semibold">Carnet</th>
+                <th className="p-2.5 text-left font-semibold">Telefono</th>
+                <th className="p-2.5 text-left font-semibold">Provincia</th>
+                <th className="p-2.5 text-left font-semibold">Municipio</th>
+                <th className="p-2.5 text-left font-semibold">Direccion</th>
+                <th className="p-2.5 text-left font-semibold">Contenido</th>
+                <th className="p-2.5 text-left font-semibold">Peso</th>
+                {/* ✅ Fecha llegada ELIMINADA */}
+                <th className="p-2.5 text-left font-semibold">HBLs</th>
+              </tr>
+            </thead>
+            <tbody>
+              {preview && preview.length > 0 ? (
+                preview.map((pkg, i) => (
+                  <tr key={i} className={`border-t border-border ${i % 2 ? 'bg-slate-50 dark:bg-slate-800/50' : 'bg-white dark:bg-slate-800'}`}>
+                    <td className="p-2.5 text-gray-500 dark:text-gray-400">{i + 1}</td>
+                    <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.fullName || '—'}</td>
+                    <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.idCard || '—'}</td>
+                    <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.phone || '—'}</td>
+                    <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.province || '—'}</td>
+                    <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.municipe || '—'}</td>
+                    <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.address || '—'}</td>
+                    <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.content || '—'}</td>
+                    <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.weight != null ? pkg.weight : '—'}</td>
+                    {/* ✅ Fecha llegada ELIMINADA */}
+                    <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.hblCodes?.join(', ') || '—'}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  {/* ✅ colSpan cambiado de 11 a 10 */}
+                  <td colSpan={10} className="p-8 text-center text-gray-400 dark:text-gray-500">
+                    {generating ? (
+                      <div className="flex items-center justify-center gap-3">
+                        <div className="inline-block w-5 h-5 border-3 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                        <span>Extrayendo datos con IA...</span>
+                      </div>
+                    ) : (
+                      'Carga un archivo Excel y presiona "Extraer con IA" para ver los datos aquí'
+                    )}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   );
 }
