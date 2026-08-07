@@ -11,6 +11,7 @@ interface AuthState {
   token: string;
   isAuthenticated: boolean;
   isLoading: boolean;
+  sessionChecked: boolean;
   error: string | null;
   login: (dto: LoginDto) => Promise<void>;
   logout: () => void;
@@ -29,6 +30,7 @@ export const useAuthStore = create<AuthState>()(
       token: '',
       isAuthenticated: false,
       isLoading: false,
+      sessionChecked: false,
       error: null,
 
       login: async (dto: LoginDto) => {
@@ -42,6 +44,7 @@ export const useAuthStore = create<AuthState>()(
             token: result.accessToken,
             isAuthenticated: true,
             isLoading: false,
+            sessionChecked: true,
             error: null,
           });
         } catch (err: any) {
@@ -59,12 +62,12 @@ export const useAuthStore = create<AuthState>()(
       setAuth: (user: User, token: string) => {
         setToken(token);
         setUser(user);
-        set({ user, token, isAuthenticated: true });
+        set({ user, token, isAuthenticated: true, sessionChecked: true });
       },
 
       applyToken: (token: string) => {
         setToken(token);
-        set({ token, isAuthenticated: true });
+        set({ token, isAuthenticated: true, sessionChecked: true });
       },
 
       refreshSession: async () => {
@@ -77,6 +80,7 @@ export const useAuthStore = create<AuthState>()(
             token: result.accessToken,
             isAuthenticated: true,
             isLoading: false,
+            sessionChecked: true,
           });
           return true;
         } catch {
@@ -88,6 +92,7 @@ export const useAuthStore = create<AuthState>()(
         if (get().isAuthenticated) return true;
         set({ isLoading: true });
         const ok = await get().refreshSession();
+        set({ sessionChecked: true });
         if (!ok) get().clearSession();
         return ok;
       },
@@ -105,6 +110,7 @@ export const useAuthStore = create<AuthState>()(
           token: '',
           isAuthenticated: false,
           isLoading: false,
+          sessionChecked: true,
           error: null,
         });
       },
