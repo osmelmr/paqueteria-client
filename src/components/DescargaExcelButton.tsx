@@ -1,13 +1,15 @@
 // DescargaExcelButton.jsx
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { FileSpreadsheet, Loader2 } from 'lucide-react';
 import { useRouteExcel } from '../hooks/useRoutes';
 
 export function DescargaExcelButton({ routeId }: { routeId: string }) {
   const { data, refetch, isFetching } = useRouteExcel(routeId);
+  const pendingDownload = useRef(false);
 
   useEffect(() => {
-    if (data) {
+    if (data && pendingDownload.current) {
+      pendingDownload.current = false;
       const url = window.URL.createObjectURL(data);
       const link = document.createElement('a');
       link.href = url;
@@ -21,6 +23,7 @@ export function DescargaExcelButton({ routeId }: { routeId: string }) {
 
   const handleDownload = async () => {
     try {
+      pendingDownload.current = true;
       await refetch();
     } catch (error) {
       console.error('Error:', error);
