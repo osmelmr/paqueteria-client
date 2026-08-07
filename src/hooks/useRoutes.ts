@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import api from '../api/axios';
 import {
   routesApi,
   type CreateRouteDto,
@@ -36,5 +37,18 @@ export function useDeleteRoute() {
   return useMutation({
     mutationFn: (id: string) => routesApi.delete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
+  });
+}
+
+export function useRouteExcel(routeId: string) {
+  return useQuery({
+    queryKey: ['route-excel', routeId],
+    queryFn: async () => {
+      const response = await api.get(`/generate/excel/${routeId}`, {
+        responseType: 'blob',
+      });
+      return response.data as Blob;
+    },
+    enabled: false,
   });
 }
