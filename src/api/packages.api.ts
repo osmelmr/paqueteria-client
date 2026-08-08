@@ -7,6 +7,7 @@ export interface PackageFilters {
   provinceId?: string;
   provinceIds?: string[];
   municipeId?: string;
+  header?: boolean;
   hbl?: string;
   recipientId?: string;
   guideId?: string;
@@ -76,6 +77,7 @@ export interface CreatePackageDto {
   weight?: number;
   content?: string;
   arrivalDate?: string;
+  statusDate?: string;
   statusId: string;
   locationId: string;
   anotations?: string;
@@ -116,8 +118,8 @@ export const packagesApi = {
   update: (id: string, dto: UpdatePackageDto) =>
     api.patch(`/packages/${id}`, dto).then((r) => r.data),
 
-  updateStatus: (id: string, statusId: string, locationId?: string) =>
-    api.patch(`/packages/${id}/status`, { statusId, locationId }).then((r) => r.data),
+  updateStatus: (id: string, statusId: string, locationId?: string, statusDate?: string) =>
+    api.patch(`/packages/${id}/status`, { statusId, locationId, statusDate }).then((r) => r.data),
 
   getHistory: (id: string) =>
     api.get<PackageHistoryItem[]>(`/packages/${id}/history`).then((r) => r.data),

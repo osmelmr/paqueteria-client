@@ -45,8 +45,8 @@ export function useUpdatePackage() {
 export function useUpdatePackageStatus() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, statusId, locationId }: { id: string; statusId: string; locationId?: string }) =>
-      packagesApi.updateStatus(id, statusId, locationId),
+    mutationFn: ({ id, statusId, locationId, statusDate }: { id: string; statusId: string; locationId?: string; statusDate?: string }) =>
+      packagesApi.updateStatus(id, statusId, locationId, statusDate),
     onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
   });
 }

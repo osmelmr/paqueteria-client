@@ -284,7 +284,7 @@ export function PackageFiltersForm({
             )}
           </div>
 
-          {/* Municipio */}
+          {/* Municipio / Cabecera */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <MapPin className="w-4 h-4 text-gray-400 dark:text-gray-500" />
@@ -295,6 +295,7 @@ export function PackageFiltersForm({
               onChange={(e) => setFilterForm((prev) => ({ ...prev, municipeId: e.target.value }))}
             >
               <option value="">Municipio</option>
+              <option value="__header__">Cabecera</option>
               {municipes?.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
             </select>
           </div>

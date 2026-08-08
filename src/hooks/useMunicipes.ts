@@ -10,7 +10,7 @@ export function useMunicipes() {
 export function useCreateMunicipe() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (dto: { name: string }) => municipesApi.create(dto),
+    mutationFn: (dto: { name: string; header?: boolean }) => municipesApi.create(dto),
     onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
   });
 }
@@ -18,7 +18,7 @@ export function useCreateMunicipe() {
 export function useUpdateMunicipe() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, dto }: { id: string; dto: { name: string } }) => municipesApi.update(id, dto),
+    mutationFn: ({ id, dto }: { id: string; dto: { name: string; header?: boolean } }) => municipesApi.update(id, dto),
     onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
   });
 }

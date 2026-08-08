@@ -1,12 +1,14 @@
-import { useState, type FormEvent, useEffect } from 'react';
+import { useState, type FormEvent, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { usePackage, useUpdatePackage } from '../hooks/usePackages';
 import { useGuides } from '../hooks/useGuides';
 import { useRecipients } from '../hooks/useRecipients';
 import { useProvinces } from '../hooks/useProvinces';
+import { useMunicipes } from '../hooks/useMunicipes';
 import { useStatuses } from '../hooks/useStatuses';
 import { useLocations } from '../hooks/useLocations';
 import type { UpdatePackageDto } from '../api/packages.api';
+import { toLocalDateInput, dateInputToIso } from '../utils/date';
 
 export default function PackagesEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -16,26 +18,33 @@ export default function PackagesEditPage() {
   const { data: guides = [] } = useGuides();
   const { data: recipients = [] } = useRecipients();
   const { data: provinces = [] } = useProvinces();
+  const { data: municipes = [] } = useMunicipes();
   const { data: statuses = [] } = useStatuses();
   const { data: locations = [] } = useLocations();
 
   const [form, setForm] = useState({
-    guideId: '', recipientId: '', provinceId: '', address: '', weight: '',
-    content: '', arrivalDate: '', statusId: '', locationId: '',
+    guideId: '', recipientId: '', provinceId: '', municipeId: '', address: '', weight: '',
+    content: '', arrivalDate: '', statusDate: '', statusId: '', locationId: '',
     anotations: '', alert: false, alertDescription: '', hbls: '',
   });
   const [localError, setLocalError] = useState<string | null>(null);
+  const initializedIdRef = useRef<string | null>(null);
+  const [statusDateTouched, setStatusDateTouched] = useState(false);
 
   useEffect(() => {
-    if (pkg) {
+    if (pkg && initializedIdRef.current !== id) {
+      initializedIdRef.current = id ?? null;
+      setStatusDateTouched(false);
       setForm({
         guideId: pkg.guide?.id || '',
         recipientId: pkg.recipient?.id || '',
         provinceId: pkg.province?.id || '',
+        municipeId: pkg.municipe?.id || '',
         address: pkg.address || '',
         weight: pkg.weight != null ? String(pkg.weight) : '',
         content: pkg.content || '',
         arrivalDate: pkg.arrivalDate || '',
+        statusDate: pkg.statuses?.[0]?.createdAt ? toLocalDateInput(pkg.statuses[0].createdAt) : '',
         statusId: pkg.status?.id || '',
         locationId: pkg.location?.id || '',
         anotations: pkg.anotations || '',
@@ -44,7 +53,7 @@ export default function PackagesEditPage() {
         hbls: pkg.hbls ? pkg.hbls.map((h: { hblCode: string }) => h.hblCode).join(', ') : '',
       });
     }
-  }, [pkg]);
+  }, [pkg, id]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -55,10 +64,12 @@ export default function PackagesEditPage() {
         guideId: form.guideId || undefined,
         recipientId: form.recipientId || undefined,
         provinceId: form.provinceId || undefined,
+        municipeId: form.municipeId || undefined,
         address: form.address || undefined,
         weight: form.weight ? Number(form.weight) : undefined,
         content: form.content || undefined,
         arrivalDate: form.arrivalDate || undefined,
+        statusDate: statusDateTouched ? dateInputToIso(form.statusDate) : undefined,
         statusId: form.statusId,
         locationId: form.locationId || undefined,
         anotations: form.anotations || undefined,
@@ -125,6 +136,14 @@ export default function PackagesEditPage() {
           </label>
            <label className="flex flex-col gap-1.5 font-medium">
 
+            Municipio
+            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.municipeId} onChange={(e) => setForm((prev) => ({ ...prev, municipeId: e.target.value }))}>
+              <option value="">Seleccionar</option>
+              {municipes.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+            </select>
+          </label>
+           <label className="flex flex-col gap-1.5 font-medium">
+
             Direccion
             <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.address} onChange={(e) => setForm((prev) => ({ ...prev, address: e.target.value }))} />
           </label>
@@ -140,13 +159,25 @@ export default function PackagesEditPage() {
           </label>
            <label className="flex flex-col gap-1.5 font-medium">
 
-            Fecha llegada
-            <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" type="date" value={form.arrivalDate} onChange={(e) => setForm((prev) => ({ ...prev, arrivalDate: e.target.value }))} />
+            Fecha cambio de estado
+            <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" type="date" max={toLocalDateInput(new Date().toISOString())} value={form.statusDate} onChange={(e) => {
+              setStatusDateTouched(true);
+              setForm((prev) => ({ ...prev, statusDate: e.target.value }));
+            }} />
           </label>
            <label className="flex flex-col gap-1.5 font-medium">
 
             Estado
-            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.statusId} onChange={(e) => setForm((prev) => ({ ...prev, statusId: e.target.value }))} required>
+            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.statusId} onChange={(e) => setForm((prev) => {
+              const newStatusId = e.target.value;
+              return {
+                ...prev,
+                statusId: newStatusId,
+                statusDate: !statusDateTouched && newStatusId !== (pkg?.status?.id || '')
+                  ? toLocalDateInput(new Date().toISOString())
+                  : prev.statusDate,
+              };
+            })} required>
               <option value="">Seleccionar</option>
               {statuses.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>

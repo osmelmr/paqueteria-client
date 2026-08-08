@@ -4,6 +4,7 @@ import { useCreatePackage } from '../hooks/usePackages';
 import { useGuides } from '../hooks/useGuides';
 import { useRecipients } from '../hooks/useRecipients';
 import { useProvinces } from '../hooks/useProvinces';
+import { useMunicipes } from '../hooks/useMunicipes';
 import { useStatuses } from '../hooks/useStatuses';
 import { useLocations } from '../hooks/useLocations';
 import type { CreatePackageDto } from '../api/packages.api';
@@ -14,11 +15,12 @@ export default function PackagesCreatePage() {
   const { data: guides = [] } = useGuides();
   const { data: recipients = [] } = useRecipients();
   const { data: provinces = [] } = useProvinces();
+  const { data: municipes = [] } = useMunicipes();
   const { data: statuses = [] } = useStatuses();
   const { data: locations = [] } = useLocations();
 
   const [form, setForm] = useState({
-    guideId: '', recipientId: '', provinceId: '', address: '', weight: '',
+    guideId: '', recipientId: '', provinceId: '', municipeId: '', address: '', weight: '',
     content: '', arrivalDate: '', statusId: '', locationId: '',
     anotations: '', alert: false, alertDescription: '', hbls: '',
   });
@@ -38,6 +40,7 @@ export default function PackagesCreatePage() {
         guideId: form.guideId || undefined,
         recipientId: form.recipientId || undefined,
         provinceId: form.provinceId || undefined,
+        municipeId: form.municipeId || undefined,
         address: form.address || undefined,
         weight: form.weight ? Number(form.weight) : undefined,
         content: form.content || undefined,
@@ -88,6 +91,14 @@ export default function PackagesCreatePage() {
           </label>
            <label className="flex flex-col gap-1.5 font-medium">
 
+            Municipio
+            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.municipeId} onChange={(e) => setForm((prev) => ({ ...prev, municipeId: e.target.value }))}>
+              <option value="">Seleccionar</option>
+              {municipes.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+            </select>
+          </label>
+           <label className="flex flex-col gap-1.5 font-medium">
+
             Direccion
             <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.address} onChange={(e) => setForm((prev) => ({ ...prev, address: e.target.value }))} />
           </label>
@@ -100,11 +111,6 @@ export default function PackagesCreatePage() {
 
             Contenido
             <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.content} onChange={(e) => setForm((prev) => ({ ...prev, content: e.target.value }))} />
-          </label>
-           <label className="flex flex-col gap-1.5 font-medium">
-
-            Fecha llegada
-            <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" type="date" value={form.arrivalDate} onChange={(e) => setForm((prev) => ({ ...prev, arrivalDate: e.target.value }))} />
           </label>
            <label className="flex flex-col gap-1.5 font-medium">
 

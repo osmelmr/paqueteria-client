@@ -118,7 +118,11 @@ export default function PackagesListPage() {
     if (filterForm.guideId) f.guideId = filterForm.guideId;
     if (filterForm.statusId) f.status = filterForm.statusId;
     if (filterForm.provinceIds.length) f.provinceIds = filterForm.provinceIds;
-    if (filterForm.municipeId) f.municipeId = filterForm.municipeId;
+    if (filterForm.municipeId === '__header__') {
+      f.header = true;
+    } else if (filterForm.municipeId) {
+      f.municipeId = filterForm.municipeId;
+    }
     if (filterForm.hbl) f.hbl = filterForm.hbl;
     if (filterForm.search) f.search = filterForm.search;
     if (filterForm.alert) f.alert = true;
@@ -137,10 +141,10 @@ export default function PackagesListPage() {
     setCurrentPage(1);
   };
 
-  const handleUpdateStatus = async (pkgId: string, statusId: string, locationId: string) => {
+  const handleUpdateStatus = async (pkgId: string, statusId: string, locationId: string, statusDate?: string) => {
     setLocalError(null);
     try {
-      await updateStatus.mutateAsync({ id: pkgId, statusId, locationId: locationId || undefined });
+      await updateStatus.mutateAsync({ id: pkgId, statusId, locationId: locationId || undefined, statusDate });
     } catch (err) {
       setLocalError((err as Error).message);
     }
@@ -285,7 +289,7 @@ export default function PackagesListPage() {
             <div className={`grid justify-items-center max-w-6xl gap-4 mx-auto ${viewMode === 'card' ? 'grid-cols-1' : 'grid-cols-1'}`}>
               {packages.map((pkg: any) => (
                 <PackageCard
-                  key={pkg.id}
+                  key={`${pkg.id}-${pkg.statuses?.[0]?.id || ''}-${pkg.statuses?.[0]?.createdAt || ''}`}
                   data={pkg}
                   onEdit={(id) => navigate(`/packages/${id}/edit`)}
                   onDelete={handleDelete}

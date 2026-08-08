@@ -27,6 +27,7 @@ export interface BulkStatusUpdate {
   hbls: string[];
   statusId?: string;
   locationId?: string;
+  statusDate?: string;
 }
 
 export interface ResolveAlertDto {
