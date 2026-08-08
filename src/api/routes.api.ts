@@ -9,6 +9,7 @@ export interface Route {
   departureDate?: string;
   vehicleId: string;
   vehicle?: Vehicle | null;
+  drivers?: Array<{ id: string; driverId: string; driver: { id: string; name: string } }>;
   packages?: PackageItem[];
 }
 
@@ -18,6 +19,7 @@ export interface CreateRouteDto {
   departureDate: string;
   vehicleId: string;
   hbls: string[];
+  driverIds?: string[];
 }
 
 export interface UpdateRouteDto {
@@ -26,6 +28,7 @@ export interface UpdateRouteDto {
   departureDate?: string;
   vehicleId?: string;
   hbls?: string[];
+  driverIds?: string[];
 }
 
 export const routesApi = {
