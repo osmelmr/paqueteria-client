@@ -17,14 +17,28 @@ export interface LoginResult {
   refreshToken?: string;
 }
 
+interface RefreshResult {
+  accessToken: string;
+  user?: LoginResult['user'];
+}
+
+let refreshPromise: Promise<RefreshResult> | null = null;
+
 export const authApi = {
   login: (dto: LoginDto) =>
     api.post<LoginResult>('/auth/login', dto).then((r) => r.data),
 
-  refresh: () =>
-    api
-      .post<{ accessToken: string; user?: LoginResult['user'] }>('/auth/refresh')
-      .then((r) => r.data),
+  refresh: () => {
+    if (!refreshPromise) {
+      refreshPromise = api
+        .post<RefreshResult>('/auth/refresh')
+        .then((r) => r.data)
+        .finally(() => {
+          refreshPromise = null;
+        });
+    }
+    return refreshPromise;
+  },
 
   logout: () => api.post('/auth/logout'),
 };

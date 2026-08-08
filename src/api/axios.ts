@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getToken, setToken, clearToken, clearUser } from './storage';
+import { authApi } from './auth.api';
 import { useAuthStore } from '../store/auth.store';
 
 declare module 'axios' {
@@ -38,28 +39,16 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-let refreshPromise: Promise<string | null> | null = null;
-
 async function refreshAccessToken(): Promise<string | null> {
-  if (!refreshPromise) {
-    refreshPromise = axios
-      .post(`${BASE_URL}/auth/refresh`, null, { withCredentials: true })
-      .then(({ data }) => {
-        const token: string | undefined = data?.accessToken;
-        if (!token) throw new Error('No accessToken in refresh response');
-        setToken(token);
-        return token;
-      })
-      .catch(() => {
-        clearToken();
-        clearUser();
-        return null;
-      })
-      .finally(() => {
-        refreshPromise = null;
-      });
+  try {
+    const { accessToken } = await authApi.refresh();
+    setToken(accessToken);
+    return accessToken;
+  } catch {
+    clearToken();
+    clearUser();
+    return null;
   }
-  return refreshPromise;
 }
 
 api.interceptors.response.use(

@@ -11,7 +11,10 @@ export function useUpdateStatusBulk() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (dto: BulkStatusUpdate) => businessApi.updateStatusBulk(dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['packages'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['packages'] });
+      qc.invalidateQueries({ queryKey: ['package-history'] });
+    },
   });
 }
 
@@ -20,6 +23,9 @@ export function useResolveAlert() {
   return useMutation({
     mutationFn: ({ packageId, dto }: { packageId: string; dto: ResolveAlertDto }) =>
       businessApi.resolveAlert(packageId, dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['packages'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['packages'] });
+      qc.invalidateQueries({ queryKey: ['package-history'] });
+    },
   });
 }

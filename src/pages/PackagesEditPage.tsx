@@ -8,7 +8,7 @@ import { useMunicipes } from '../hooks/useMunicipes';
 import { useStatuses } from '../hooks/useStatuses';
 import { useLocations } from '../hooks/useLocations';
 import type { UpdatePackageDto } from '../api/packages.api';
-import { toLocalDateInput, dateInputToIso } from '../utils/date';
+import { toLocalDateInput, dateInputToIso, todayDateInput } from '../utils/date';
 
 export default function PackagesEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -30,6 +30,9 @@ export default function PackagesEditPage() {
   const [localError, setLocalError] = useState<string | null>(null);
   const initializedIdRef = useRef<string | null>(null);
   const [statusDateTouched, setStatusDateTouched] = useState(false);
+  const minStatusDate = pkg?.statuses?.[0]?.createdAt
+    ? toLocalDateInput(pkg.statuses[0].createdAt)
+    : undefined;
 
   useEffect(() => {
     if (pkg && initializedIdRef.current !== id) {
@@ -44,7 +47,7 @@ export default function PackagesEditPage() {
         weight: pkg.weight != null ? String(pkg.weight) : '',
         content: pkg.content || '',
         arrivalDate: pkg.arrivalDate || '',
-        statusDate: pkg.statuses?.[0]?.createdAt ? toLocalDateInput(pkg.statuses[0].createdAt) : '',
+        statusDate: todayDateInput(),
         statusId: pkg.status?.id || '',
         locationId: pkg.location?.id || '',
         anotations: pkg.anotations || '',
@@ -160,7 +163,7 @@ export default function PackagesEditPage() {
            <label className="flex flex-col gap-1.5 font-medium">
 
             Fecha cambio de estado
-            <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" type="date" max={toLocalDateInput(new Date().toISOString())} value={form.statusDate} onChange={(e) => {
+            <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" type="date" min={minStatusDate} max={todayDateInput()} value={form.statusDate} onChange={(e) => {
               setStatusDateTouched(true);
               setForm((prev) => ({ ...prev, statusDate: e.target.value }));
             }} />
@@ -174,7 +177,7 @@ export default function PackagesEditPage() {
                 ...prev,
                 statusId: newStatusId,
                 statusDate: !statusDateTouched && newStatusId !== (pkg?.status?.id || '')
-                  ? toLocalDateInput(new Date().toISOString())
+                  ? todayDateInput()
                   : prev.statusDate,
               };
             })} required>

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Save } from 'lucide-react';
-import { toLocalDateInput } from '../utils/date';
+import { todayDateInput } from '../utils/date';
 
 interface SelectOption {
   id: string;
@@ -11,6 +11,7 @@ interface PackageStatusControlsProps {
   statusId: string;
   locationId: string;
   statusDate: string;
+  minStatusDate?: string;
   currentStatusName: string;
   currentLocationName: string;
   hasChanges: boolean;
@@ -28,6 +29,7 @@ export const PackageStatusControls: React.FC<PackageStatusControlsProps> = ({
   statusId,
   locationId,
   statusDate,
+  minStatusDate,
   currentStatusName,
   currentLocationName,
   hasChanges,
@@ -139,7 +141,8 @@ export const PackageStatusControls: React.FC<PackageStatusControlsProps> = ({
           <input
             type="date"
             value={statusDate}
-            max={toLocalDateInput(new Date().toISOString())}
+            min={minStatusDate || undefined}
+            max={todayDateInput()}
             onChange={(e) => onStatusDateChange(e.target.value)}
             title="Fecha del cambio de estado"
             className="w-full h-8 px-2 rounded-md text-sm bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 transition-colors"

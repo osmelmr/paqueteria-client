@@ -15,7 +15,7 @@ import {
 import { usePackageHistory } from '../hooks/usePackages';
 import { PackageStatusControls } from './PackageStatusControls';
 import { PackageHistoryModal } from './PackageHistoryModal';
-import { toLocalDateInput, dateInputToIso } from '../utils/date';
+import { toLocalDateInput, dateInputToIso, todayDateInput } from '../utils/date';
 import type { PackageHistoryItem } from '../api/packages.api';
 
 export interface PackageData {
@@ -70,15 +70,18 @@ export const PackageCard: React.FC<PackageListRowProps> = ({
   const extraHblCount = data.hbls.length > 1 ? data.hbls.length - 1 : 0;
   const isAlert = data.alert === true;
 
-  const lastChange = data.statuses?.[0];
-  const baselineStatusId = lastChange?.status?.id ?? (data.status.id || '');
-  const baselineLocationId = lastChange?.location?.id ?? (data.location?.id || '');
+  const lastChange = data.statuses?.length
+    ? [...data.statuses].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )[0]
+    : undefined;
+  const baselineStatusId = data.status.id || '';
+  const baselineLocationId = data.location?.id || '';
+  const minStatusDate = toLocalDateInput(lastChange?.createdAt);
 
   const [statusId, setStatusId] = useState(baselineStatusId);
   const [locationId, setLocationId] = useState(baselineLocationId);
-  const [statusDate, setStatusDate] = useState(
-    toLocalDateInput(lastChange?.createdAt) || toLocalDateInput(new Date().toISOString()),
-  );
+  const [statusDate, setStatusDate] = useState(todayDateInput());
   const [isUpdating, setIsUpdating] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [statusDateTouched, setStatusDateTouched] = useState(false);
@@ -181,6 +184,7 @@ export const PackageCard: React.FC<PackageListRowProps> = ({
           statusId={statusId}
           locationId={locationId}
           statusDate={statusDate}
+          minStatusDate={minStatusDate}
           currentStatusName={currentStatusName}
           currentLocationName={currentLocationName}
           hasChanges={hasChanges}
@@ -189,7 +193,7 @@ export const PackageCard: React.FC<PackageListRowProps> = ({
           locations={locations}
           onStatusChange={(id) => {
             if (!statusDateTouched && id !== baselineStatusId) {
-              setStatusDate(toLocalDateInput(new Date().toISOString()));
+              setStatusDate(todayDateInput());
             }
             setStatusId(id);
           }}

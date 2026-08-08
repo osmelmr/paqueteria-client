@@ -2,6 +2,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { packagesApi, type PackageFilters, type PaginationParams, type CreatePackageDto, type UpdatePackageDto } from '../api/packages.api';
 
 const QUERY_KEY = 'packages';
+const HISTORY_KEY = 'package-history';
+
+function invalidatePackageQueries(qc: ReturnType<typeof useQueryClient>) {
+  qc.invalidateQueries({ queryKey: [QUERY_KEY] });
+  qc.invalidateQueries({ queryKey: [HISTORY_KEY] });
+}
 
 export function usePackages(filters?: PackageFilters, pagination?: PaginationParams) {
   return useQuery({
@@ -30,7 +36,7 @@ export function useCreatePackage() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (dto: CreatePackageDto) => packagesApi.create(dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
+    onSuccess: () => invalidatePackageQueries(qc),
   });
 }
 
@@ -38,7 +44,7 @@ export function useUpdatePackage() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, dto }: { id: string; dto: UpdatePackageDto }) => packagesApi.update(id, dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
+    onSuccess: () => invalidatePackageQueries(qc),
   });
 }
 
@@ -47,7 +53,7 @@ export function useUpdatePackageStatus() {
   return useMutation({
     mutationFn: ({ id, statusId, locationId, statusDate }: { id: string; statusId: string; locationId?: string; statusDate?: string }) =>
       packagesApi.updateStatus(id, statusId, locationId, statusDate),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
+    onSuccess: () => invalidatePackageQueries(qc),
   });
 }
 
@@ -55,6 +61,6 @@ export function useDeletePackage() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => packagesApi.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
+    onSuccess: () => invalidatePackageQueries(qc),
   });
 }

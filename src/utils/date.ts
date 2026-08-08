@@ -12,3 +12,7 @@ export function dateInputToIso(dateInput?: string): string | undefined {
   if (Number.isNaN(d.getTime())) return undefined;
   return d.toISOString();
 }
+
+export function todayDateInput(): string {
+  return toLocalDateInput(new Date().toISOString());
+}

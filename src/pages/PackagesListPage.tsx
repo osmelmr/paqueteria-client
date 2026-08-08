@@ -289,7 +289,7 @@ export default function PackagesListPage() {
             <div className={`grid justify-items-center max-w-6xl gap-4 mx-auto ${viewMode === 'card' ? 'grid-cols-1' : 'grid-cols-1'}`}>
               {packages.map((pkg: any) => (
                 <PackageCard
-                  key={`${pkg.id}-${pkg.statuses?.[0]?.id || ''}-${pkg.statuses?.[0]?.createdAt || ''}`}
+                  key={`${pkg.id}-${pkg.status?.id ?? ''}:${pkg.location?.id ?? ''}-${(pkg.statuses || []).map((s: { id?: string; createdAt?: string }) => `${s.id}:${s.createdAt}`).join('|')}`}
                   data={pkg}
                   onEdit={(id) => navigate(`/packages/${id}/edit`)}
                   onDelete={handleDelete}

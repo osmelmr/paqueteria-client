@@ -2,10 +2,10 @@ import { useState, type FormEvent } from 'react';
 import { useUpdateStatusBulk } from '../hooks/useBusiness';
 import { useStatuses } from '../hooks/useStatuses';
 import { useLocations } from '../hooks/useLocations';
-import { dateInputToIso, toLocalDateInput } from '../utils/date';
+import { dateInputToIso, todayDateInput } from '../utils/date';
 
 type BulkResult = {
-  success: Array<{ hbl: string; package: any }>;
+  success: Array<{ hbl: string; package: { statusId?: string; locationId?: string | null } | null }>;
   failed: string[];
 };
 
@@ -84,7 +84,7 @@ export default function UpdateStatusBulkPage() {
         </label>
         <label className="flex flex-col gap-1.5 font-medium">
           Fecha cambio de estado
-          <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" type="date" max={toLocalDateInput(new Date().toISOString())} value={statusDate} onChange={(e) => setStatusDate(e.target.value)} />
+          <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" type="date" max={todayDateInput()} value={statusDate} onChange={(e) => setStatusDate(e.target.value)} />
         </label>
         <button type="submit" className="col-span-full bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50" disabled={mutation.isPending}>
           Actualizar
