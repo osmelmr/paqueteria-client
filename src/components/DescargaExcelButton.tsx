@@ -10,10 +10,10 @@ export function DescargaExcelButton({ routeId }: { routeId: string }) {
   useEffect(() => {
     if (data && pendingDownload.current) {
       pendingDownload.current = false;
-      const url = window.URL.createObjectURL(data);
+      const url = window.URL.createObjectURL(data.blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'paquetes.xlsx'; // nombre del archivo descargado
+      link.download = data.filename;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

@@ -47,7 +47,12 @@ export function useRouteExcel(routeId: string) {
       const response = await api.get(`/generate/excel/${routeId}`, {
         responseType: 'blob',
       });
-      return response.data as Blob;
+      const disposition = response.headers['content-disposition'] ?? '';
+      const match = /filename="?([^"]+)"?/.exec(disposition);
+      return {
+        blob: response.data as Blob,
+        filename: match?.[1] ?? 'paquetes.xlsx',
+      };
     },
     enabled: false,
   });
