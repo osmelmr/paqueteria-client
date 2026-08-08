@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Save } from 'lucide-react';
+import { toLocalDateInput } from '../utils/date';
 
 interface SelectOption {
   id: string;
@@ -9,6 +10,7 @@ interface SelectOption {
 interface PackageStatusControlsProps {
   statusId: string;
   locationId: string;
+  statusDate: string;
   currentStatusName: string;
   currentLocationName: string;
   hasChanges: boolean;
@@ -17,6 +19,7 @@ interface PackageStatusControlsProps {
   locations: SelectOption[];
   onStatusChange: (id: string) => void;
   onLocationChange: (id: string) => void;
+  onStatusDateChange: (date: string) => void;
   onSave: () => void;
   getStatusStyle: (status: string) => string;
 }
@@ -24,6 +27,7 @@ interface PackageStatusControlsProps {
 export const PackageStatusControls: React.FC<PackageStatusControlsProps> = ({
   statusId,
   locationId,
+  statusDate,
   currentStatusName,
   currentLocationName,
   hasChanges,
@@ -32,6 +36,7 @@ export const PackageStatusControls: React.FC<PackageStatusControlsProps> = ({
   locations,
   onStatusChange,
   onLocationChange,
+  onStatusDateChange,
   onSave,
   getStatusStyle,
 }) => {
@@ -128,6 +133,17 @@ export const PackageStatusControls: React.FC<PackageStatusControlsProps> = ({
               ))}
             </div>
           )}
+        </div>
+        {/* Fecha del cambio de estado */}
+        <div className="relative w-full sm:max-w-40 sm:min-w-30">
+          <input
+            type="date"
+            value={statusDate}
+            max={toLocalDateInput(new Date().toISOString())}
+            onChange={(e) => onStatusDateChange(e.target.value)}
+            title="Fecha del cambio de estado"
+            className="w-full h-8 px-2 rounded-md text-sm bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 transition-colors"
+          />
         </div>
       </div>
 

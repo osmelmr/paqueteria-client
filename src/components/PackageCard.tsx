@@ -15,6 +15,8 @@ import {
 import { usePackageHistory } from '../hooks/usePackages';
 import { PackageStatusControls } from './PackageStatusControls';
 import { PackageHistoryModal } from './PackageHistoryModal';
+import { toLocalDateInput, dateInputToIso } from '../utils/date';
+import type { PackageHistoryItem } from '../api/packages.api';
 
 export interface PackageData {
   id: string;
@@ -28,6 +30,7 @@ export interface PackageData {
   alert?: boolean | null;
   alertDescription?: string;
   hbls: { hblCode: string }[];
+  statuses?: PackageHistoryItem[];
 }
 
 interface SelectOption {
@@ -40,7 +43,7 @@ interface PackageListRowProps {
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onView?: (id: string) => void;
-  onUpdateStatus?: (id: string, statusId: string, locationId: string) => void;
+  onUpdateStatus?: (id: string, statusId: string, locationId: string, statusDate?: string) => void;
   statuses?: SelectOption[];
   locations?: SelectOption[];
 }
@@ -67,23 +70,31 @@ export const PackageCard: React.FC<PackageListRowProps> = ({
   const extraHblCount = data.hbls.length > 1 ? data.hbls.length - 1 : 0;
   const isAlert = data.alert === true;
 
-  const [statusId, setStatusId] = useState(data.status.id || '');
-  const [locationId, setLocationId] = useState(data.location?.id || '');
+  const lastChange = data.statuses?.[0];
+  const baselineStatusId = lastChange?.status?.id ?? (data.status.id || '');
+  const baselineLocationId = lastChange?.location?.id ?? (data.location?.id || '');
+
+  const [statusId, setStatusId] = useState(baselineStatusId);
+  const [locationId, setLocationId] = useState(baselineLocationId);
+  const [statusDate, setStatusDate] = useState(
+    toLocalDateInput(lastChange?.createdAt) || toLocalDateInput(new Date().toISOString()),
+  );
   const [isUpdating, setIsUpdating] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [statusDateTouched, setStatusDateTouched] = useState(false);
 
   const history = usePackageHistory(data.id, showHistory);
 
-  const currentStatusName = statuses.find(s => s.id === statusId)?.name || data.status.name;
-  const currentLocationName = locations.find(l => l.id === locationId)?.name || data.location?.name || 'Ubicación pendiente';
+  const currentStatusName = statuses.find(s => s.id === statusId)?.name || lastChange?.status?.name || data.status.name;
+  const currentLocationName = locations.find(l => l.id === locationId)?.name || lastChange?.location?.name || data.location?.name || 'Ubicación pendiente';
 
-  const hasChanges = statusId !== (data.status.id || '') || locationId !== (data.location?.id || '');
+  const hasChanges = statusId !== baselineStatusId || locationId !== baselineLocationId;
 
   const handleSaveChanges = async () => {
     if (!onUpdateStatus || !hasChanges) return;
     setIsUpdating(true);
     try {
-      await onUpdateStatus(data.id, statusId, locationId);
+      await onUpdateStatus(data.id, statusId, locationId, dateInputToIso(statusDate));
     } finally {
       setIsUpdating(false);
     }
@@ -169,14 +180,24 @@ export const PackageCard: React.FC<PackageListRowProps> = ({
         <PackageStatusControls
           statusId={statusId}
           locationId={locationId}
+          statusDate={statusDate}
           currentStatusName={currentStatusName}
           currentLocationName={currentLocationName}
           hasChanges={hasChanges}
           isUpdating={isUpdating}
           statuses={statuses}
           locations={locations}
-          onStatusChange={setStatusId}
+          onStatusChange={(id) => {
+            if (!statusDateTouched && id !== baselineStatusId) {
+              setStatusDate(toLocalDateInput(new Date().toISOString()));
+            }
+            setStatusId(id);
+          }}
           onLocationChange={setLocationId}
+          onStatusDateChange={(d) => {
+            setStatusDateTouched(true);
+            setStatusDate(d);
+          }}
           onSave={handleSaveChanges}
           getStatusStyle={getStatusStyle}
         />
