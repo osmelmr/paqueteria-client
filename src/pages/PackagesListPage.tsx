@@ -11,7 +11,6 @@ import { useAgencies } from '../hooks/useAgencies';
 import { PackageCard } from '../components/PackageCard.tsx';
 import { PackageFiltersForm } from '../components/PackageFiltersForm.tsx';
 import { PaginationControls } from '../components/PaginationControls.tsx';
-import { generateApi } from '../api/generate.api';
 import type { PackageFilters } from '../api/packages.api';
 import { Plus, X, Package as PackageIcon } from 'lucide-react';
 

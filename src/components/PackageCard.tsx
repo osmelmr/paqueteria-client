@@ -13,6 +13,7 @@ import {
   Eye
 } from 'lucide-react';
 import { usePackageHistory } from '../hooks/usePackages';
+import { useDownloadPackagePdf } from '../hooks/useDownloadPackagePdf';
 import { PackageStatusControls } from './PackageStatusControls';
 import { PackageHistoryModal } from './PackageHistoryModal';
 import { toLocalDateInput, dateInputToIso, todayDateInput } from '../utils/date';
@@ -41,7 +42,6 @@ interface SelectOption {
 interface PackageListRowProps {
   data: PackageData;
   onEdit: (id: string) => void;
-  onDownloadPdf: (id: string) => void;
   onView?: (id: string) => void;
   onUpdateStatus?: (id: string, statusId: string, locationId: string, statusDate?: string) => void;
   statuses?: SelectOption[];
@@ -60,7 +60,6 @@ const maskName = (fullName?: string | null) => {
 export const PackageCard: React.FC<PackageListRowProps> = ({ 
   data, 
   onEdit, 
-  onDownloadPdf, 
   onView,
   onUpdateStatus, 
   statuses = [], 
@@ -87,6 +86,7 @@ export const PackageCard: React.FC<PackageListRowProps> = ({
   const [statusDateTouched, setStatusDateTouched] = useState(false);
 
   const history = usePackageHistory(data.id, showHistory);
+  const { downloadPdf, loading } = useDownloadPackagePdf();
 
   const currentStatusName = statuses.find(s => s.id === statusId)?.name || lastChange?.status?.name || data.status.name;
   const currentLocationName = locations.find(l => l.id === locationId)?.name || lastChange?.location?.name || data.location?.name || 'Ubicación pendiente';
@@ -226,7 +226,7 @@ export const PackageCard: React.FC<PackageListRowProps> = ({
             <Edit2 className="w-4 h-4" />
           </button>
 
-          <button onClick={() => onDownloadPdf(data.id)} title="Descargar PDF" className="p-2 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-500/10 rounded-md transition-colors">
+          <button onClick={() => downloadPdf(data.id)} title="Descargar PDF" className="p-2 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-500/10 rounded-md transition-colors" disabled={loading}>
             <Download className="w-4 h-4" />
           </button>
         </div>
