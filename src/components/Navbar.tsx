@@ -52,7 +52,7 @@ export function Navbar() {
           <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50 transition-colors">
             <Package className="w-5 h-5" />
           </div>
-          <h1 className="text-lg font-bold text-slate-900 dark:text-slate-100 m-0 tracking-tight">
+          <h1 className="hidden sm:block text-lg font-bold text-slate-900 dark:text-slate-100 m-0 tracking-tight">
             Paquetería
           </h1>
         </div>
@@ -78,19 +78,23 @@ export function Navbar() {
 
         <button
           type="button"
-          className="flex items-center gap-2 px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700/60 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-200 dark:hover:border-purple-800/60 transition-all shadow-sm"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700/60 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-200 dark:hover:border-purple-800/60 transition-all shadow-sm"
           onClick={() => navigate('/update-status-bulk')}
         >
-          <Truck className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+          <span className="hidden sm:inline-flex">
+            <Truck className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+          </span>
           Recepción
         </button>
         
         <button
           type="button"
-          className="flex items-center gap-2 px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700/60 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-200 dark:hover:border-purple-800/60 transition-all shadow-sm"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700/60 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-200 dark:hover:border-purple-800/60 transition-all shadow-sm"
           onClick={() => navigate('/ai-extract')}
         >
-          <FilePlus2 className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+          <span className="hidden sm:inline-flex">
+            <FilePlus2 className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+          </span>
           Add Manifiesto
         </button>
       </div>
