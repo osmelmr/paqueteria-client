@@ -11,6 +11,7 @@ import { useAgencies } from '../hooks/useAgencies';
 import { PackageCard } from '../components/PackageCard.tsx';
 import { PackageFiltersForm } from '../components/PackageFiltersForm.tsx';
 import { PaginationControls } from '../components/PaginationControls.tsx';
+import { generateApi } from '../api/generate.api';
 import type { PackageFilters } from '../api/packages.api';
 import { Plus, X, Package as PackageIcon } from 'lucide-react';
 
@@ -292,7 +293,22 @@ export default function PackagesListPage() {
                   key={`${pkg.id}-${pkg.status?.id ?? ''}:${pkg.location?.id ?? ''}-${(pkg.statuses || []).map((s: { id?: string; createdAt?: string }) => `${s.id}:${s.createdAt}`).join('|')}`}
                   data={pkg}
                   onEdit={(id) => navigate(`/packages/${id}/edit`)}
-                  onDelete={handleDelete}
+                  onDownloadPdf={async (id) => {
+                    try {
+                      const { blob, filename } = await generateApi.downloadPackagePdf(id);
+                      const url = window.URL.createObjectURL(blob);
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.download = filename;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      window.URL.revokeObjectURL(url);
+                    } catch (error) {
+                      console.error('Error al descargar PDF:', error);
+                      alert('No se pudo descargar el PDF del paquete.');
+                    }
+                  }}
                   onUpdateStatus={handleUpdateStatus}
                   statuses={statuses}
                   locations={locations}

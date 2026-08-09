@@ -6,7 +6,7 @@ import {
   Package, 
   Weight, 
   Edit2, 
-  Trash2, 
+  Download, 
   FileText, 
   Building2,
   History,
@@ -41,7 +41,7 @@ interface SelectOption {
 interface PackageListRowProps {
   data: PackageData;
   onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
+  onDownloadPdf: (id: string) => void;
   onView?: (id: string) => void;
   onUpdateStatus?: (id: string, statusId: string, locationId: string, statusDate?: string) => void;
   statuses?: SelectOption[];
@@ -60,7 +60,7 @@ const maskName = (fullName?: string | null) => {
 export const PackageCard: React.FC<PackageListRowProps> = ({ 
   data, 
   onEdit, 
-  onDelete, 
+  onDownloadPdf, 
   onView,
   onUpdateStatus, 
   statuses = [], 
@@ -226,8 +226,8 @@ export const PackageCard: React.FC<PackageListRowProps> = ({
             <Edit2 className="w-4 h-4" />
           </button>
 
-          <button onClick={() => onDelete(data.id)} title="Eliminar paquete" className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md transition-colors">
-            <Trash2 className="w-4 h-4" />
+          <button onClick={() => onDownloadPdf(data.id)} title="Descargar PDF" className="p-2 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-500/10 rounded-md transition-colors">
+            <Download className="w-4 h-4" />
           </button>
         </div>
         </div>
