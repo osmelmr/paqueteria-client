@@ -1,7 +1,7 @@
 import { Copy, Check, Route as RouteIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { usePackages, useUpdatePackageStatus, useDeletePackage } from '../hooks/usePackages';
+import { usePackages, useUpdatePackageStatus } from '../hooks/usePackages';
 import { useGuides } from '../hooks/useGuides';
 import { useProvinces } from '../hooks/useProvinces';
 import { useMunicipes } from '../hooks/useMunicipes';
@@ -42,7 +42,6 @@ export default function PackagesListPage() {
     hasPreviousPage: false,
   };
   const updateStatus = useUpdatePackageStatus();
-  const deletePackage = useDeletePackage();
 
   const { data: guides = [] } = useGuides();
   const { data: provinces = [] } = useProvinces();
@@ -145,16 +144,6 @@ export default function PackagesListPage() {
     setLocalError(null);
     try {
       await updateStatus.mutateAsync({ id: pkgId, statusId, locationId: locationId || undefined, statusDate });
-    } catch (err) {
-      setLocalError((err as Error).message);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm('¿Estás seguro de eliminar este paquete?')) return;
-    setLocalError(null);
-    try {
-      await deletePackage.mutateAsync(id);
     } catch (err) {
       setLocalError((err as Error).message);
     }
@@ -292,22 +281,6 @@ export default function PackagesListPage() {
                   key={`${pkg.id}-${pkg.status?.id ?? ''}:${pkg.location?.id ?? ''}-${(pkg.statuses || []).map((s: { id?: string; createdAt?: string }) => `${s.id}:${s.createdAt}`).join('|')}`}
                   data={pkg}
                   onEdit={(id) => navigate(`/packages/${id}/edit`)}
-                  onDownloadPdf={async (id) => {
-                    try {
-                      const { blob, filename } = await generateApi.downloadPackagePdf(id);
-                      const url = window.URL.createObjectURL(blob);
-                      const link = document.createElement('a');
-                      link.href = url;
-                      link.download = filename;
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                      window.URL.revokeObjectURL(url);
-                    } catch (error) {
-                      console.error('Error al descargar PDF:', error);
-                      alert('No se pudo descargar el PDF del paquete.');
-                    }
-                  }}
                   onUpdateStatus={handleUpdateStatus}
                   statuses={statuses}
                   locations={locations}
