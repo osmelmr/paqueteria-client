@@ -121,7 +121,7 @@ export const PackageCard: React.FC<PackageListRowProps> = ({
           <div className={`p-1.5 rounded-md shrink-0 ${isAlert ? 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'}`}>
             {isAlert ? <AlertCircle className="w-4 h-4" /> : <Package className="w-4 h-4" />}
           </div>
-          <span className="font-mono font-semibold text-gray-900 dark:text-gray-100 text-sm truncate">
+          <span className="selectable-text font-mono font-semibold text-gray-900 dark:text-gray-100 text-sm truncate">
             {primaryHbl}
           </span>
           {extraHblCount > 0 && (
@@ -144,7 +144,7 @@ export const PackageCard: React.FC<PackageListRowProps> = ({
       <div className="flex flex-col gap-1 min-w-0">
         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
           <Building2 className="w-4 h-4 text-gray-400 shrink-0" />
-          <span className="truncate text-sm font-medium">{data.guide?.agency?.name || 'Sin agencia'}</span>
+          <span className="selectable-text truncate text-sm font-medium">{data.guide?.agency?.name || 'Sin agencia'}</span>
         </div>
         <div className="flex items-center gap-2 text-xs text-gray-500">
           <MapPin className="w-3 h-3 shrink-0" />
@@ -156,7 +156,7 @@ export const PackageCard: React.FC<PackageListRowProps> = ({
         <div className="flex flex-col gap-1 min-w-0 not-lg:block hidden">
         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
           <User className="w-4 h-4 text-gray-400 shrink-0" />
-          <span className="truncate text-sm font-medium">{maskName(data.recipient?.fullName)}</span>
+          <span className="selectable-text truncate text-sm font-medium">{maskName(data.recipient?.fullName)}</span>
         </div>
         <div className="text-xs text-gray-400 pl-6">
           {/* Espacio para más información si es necesario */}
@@ -168,7 +168,7 @@ export const PackageCard: React.FC<PackageListRowProps> = ({
       <div className="flex flex-col gap-1 min-w-0 not-lg:hidden">
         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
           <User className="w-4 h-4 text-gray-400 shrink-0" />
-          <span className="truncate text-sm font-medium">{maskName(data.recipient?.fullName)}</span>
+          <span className="selectable-text truncate text-sm font-medium">{maskName(data.recipient?.fullName)}</span>
         </div>
         <div className="text-xs text-gray-400 pl-6">
           {/* Espacio para más información si es necesario */}

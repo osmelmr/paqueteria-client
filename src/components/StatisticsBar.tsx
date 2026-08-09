@@ -1,10 +1,13 @@
+import { useState } from 'react';
 import { Clock, FileText, PackageCheck, Route as RouteIcon, Truck, Warehouse } from 'lucide-react';
 import { useStatistics } from '../hooks/useStatistics';
+import { RouteDetailsModal } from './RouteDetailsModal';
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
 
 export function StatisticsBar() {
+  const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
   const { data, isLoading, isError } = useStatistics();
 
   const items = [
@@ -50,24 +53,37 @@ export function StatisticsBar() {
           ) : (
             <ul className="flex flex-col divide-y divide-slate-100 dark:divide-slate-800">
               {data.ultimasRutas.map((r) => (
-                <li key={r.id} className="flex items-center justify-between gap-3 py-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Truck className="w-4 h-4 text-slate-400 shrink-0" />
-                    <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">{r.name}</span>
-                    <span className="text-xs text-slate-400 hidden sm:inline">{r.vehicle?.name}</span>
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-xs text-slate-500 dark:text-slate-400">{formatDate(r.departureDate)}</span>
-                    <span className="text-xs font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 px-2 py-0.5 rounded-full">
-                      {r._count.packages} paq.
-                    </span>
-                  </div>
+                <li key={r.id} className="py-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRouteId(r.id)}
+                    className="w-full text-left rounded-xl px-3 py-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800/60"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Truck className="w-4 h-4 text-slate-400 shrink-0" />
+                        <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">{r.name}</span>
+                        <span className="text-xs text-slate-400 hidden sm:inline">{r.vehicle?.name}</span>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className="text-xs text-slate-500 dark:text-slate-400">{formatDate(r.departureDate)}</span>
+                        <span className="text-xs font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 px-2 py-0.5 rounded-full">
+                          {r._count.packages} paq.
+                        </span>
+                      </div>
+                    </div>
+                  </button>
                 </li>
               ))}
             </ul>
           )}
         </div>
       )}
+      <RouteDetailsModal
+        isOpen={Boolean(selectedRouteId)}
+        routeId={selectedRouteId}
+        onClose={() => setSelectedRouteId(null)}
+      />
     </div>
   );
 }

@@ -79,6 +79,20 @@ html, body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  user-select: none;
+}
+
+input,
+textarea,
+select,
+button,
+a,
+label {
+  user-select: text;
+}
+
+.selectable-text {
+  user-select: text;
 }
 
 #root {
