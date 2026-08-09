@@ -41,6 +41,7 @@ import VehiclesEditPage from '../pages/VehiclesEditPage';
 import DriversListPage from '../pages/DriversListPage';
 import DriversCreatePage from '../pages/DriversCreatePage';
 import DriversEditPage from '../pages/DriversEditPage';
+import TestPage from '../pages/TestPage';
 
 export const router = createBrowserRouter([
   {
@@ -91,6 +92,7 @@ export const router = createBrowserRouter([
           { path: 'drivers', element: <DriversListPage /> },
           { path: 'drivers/new', element: <DriversCreatePage /> },
           { path: 'drivers/:id/edit', element: <DriversEditPage /> },
+          { path: 'test', element: <TestPage /> },
           { path: 'ai-extract', element: <AiExtractPage /> },
           { path: 'update-status-bulk', element: <UpdateStatusBulkPage /> },
         ],
