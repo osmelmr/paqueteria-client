@@ -9,8 +9,8 @@ import {
   Moon, 
   LogOut, 
   Package, 
-  Truck, 
-  FilePlus2, 
+  Download, 
+  FileText, 
   Search,
   User as UserIcon 
 } from 'lucide-react';
@@ -59,7 +59,7 @@ export function Navbar() {
       </div>
 
       {/* Sección Central: Búsqueda por HBL y Acciones Rápidas */}
-      <div className="flex flex-wrap flex-1 items-center justify-center gap-2 px-2.5 sm:gap-2.5 sm:px-4">
+      <div className="flex flex-1 items-center justify-center gap-2 px-2.5 sm:gap-2.5 sm:px-4">
         <form
           onSubmit={handleHblSearch}
           className="hidden md:block w-full max-w-sm"
@@ -78,24 +78,22 @@ export function Navbar() {
 
         <button
           type="button"
-          className="flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700/60 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-200 dark:hover:border-purple-800/60 transition-all shadow-sm"
+          className="flex items-center justify-center gap-0 px-3 py-2 rounded-xl text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700/60 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-200 dark:hover:border-purple-800/60 transition-all shadow-sm"
           onClick={() => navigate('/update-status-bulk')}
+          aria-label="Recepción"
         >
-          <span className="hidden sm:inline-flex">
-            <Truck className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-          </span>
-          Recepción
+          <Download className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+          <span className="sr-only">Recepción</span>
         </button>
-        
+
         <button
           type="button"
-          className="flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700/60 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-200 dark:hover:border-purple-800/60 transition-all shadow-sm"
+          className="flex items-center justify-center gap-0 px-3 py-2 rounded-xl text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700/60 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-200 dark:hover:border-purple-800/60 transition-all shadow-sm"
           onClick={() => navigate('/ai-extract')}
+          aria-label="Agregar guía"
         >
-          <span className="hidden sm:inline-flex">
-            <FilePlus2 className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-          </span>
-          Add Manifiesto
+          <FileText className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+          <span className="sr-only">Agregar guía</span>
         </button>
       </div>
 
