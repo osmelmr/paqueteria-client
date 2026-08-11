@@ -76,8 +76,8 @@ export function RouteDetailsModal({ isOpen, routeId, onClose }: RouteDetailsModa
                   Paquetes en la ruta
                 </div>
                 {data.packages?.length ? (
-                  <div className="space-y-3">
-                    {data.packages.slice(0, 8).map((pkg) => (
+                  <div className="max-h-64 overflow-y-auto pr-1 space-y-3">
+                    {data.packages.map((pkg) => (
                       <div key={pkg.id} className="rounded-xl bg-white dark:bg-gray-950 border border-border p-3">
                         <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
                           {pkg.hbls?.[0]?.hblCode || 'HBL no disponible'}
@@ -87,11 +87,6 @@ export function RouteDetailsModal({ isOpen, routeId, onClose }: RouteDetailsModa
                         </p>
                       </div>
                     ))}
-                    {data.packages.length > 8 && (
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        y {data.packages.length - 8} paquete{data.packages.length - 8 !== 1 ? 's' : ''} más...
-                      </p>
-                    )}
                   </div>
                 ) : (
                   <p className="text-sm text-slate-500 dark:text-slate-400">No hay paquetes asociados a esta ruta.</p>
