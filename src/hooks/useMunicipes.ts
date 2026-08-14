@@ -1,10 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { municipesApi } from '../api/municipes.api';
+import { sortByName } from '../utils/sort';
 
 const QUERY_KEY = 'municipes';
 
 export function useMunicipes() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: () => municipesApi.findAll() });
+  return useQuery({
+    queryKey: [QUERY_KEY],
+    queryFn: async () => sortByName(await municipesApi.findAll(), (m) => m.name),
+  });
 }
 
 export function useCreateMunicipe() {

@@ -1,10 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { guidesApi, type CreateGuideDto, type UpdateGuideDto } from '../api/guides.api';
+import { sortByName } from '../utils/sort';
 
 const QUERY_KEY = 'guides';
 
 export function useGuides() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: () => guidesApi.findAll() });
+  return useQuery({
+    queryKey: [QUERY_KEY],
+    queryFn: async () => sortByName(await guidesApi.findAll(), (g) => g.name || ''),
+  });
 }
 
 export function useCreateGuide() {

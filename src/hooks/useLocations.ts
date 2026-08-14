@@ -1,10 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { locationsApi } from '../api/locations.api';
+import { sortByName } from '../utils/sort';
 
 const QUERY_KEY = 'locations';
 
 export function useLocations() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: () => locationsApi.findAll() });
+  return useQuery({
+    queryKey: [QUERY_KEY],
+    queryFn: async () => sortByName(await locationsApi.findAll(), (l) => l.name),
+  });
 }
 
 export function useCreateLocation() {

@@ -85,6 +85,8 @@ function AiExtractPage() {
 
   const token = useAuthStore((s) => s.token);
 
+  const selectedGuide = guides.find((g) => g.id === guideId) || null;
+
   useEffect(() => {
     const cache = loadCache();
     if (!cache) return;
@@ -244,7 +246,7 @@ function AiExtractPage() {
       </header>
 
       {error && (
-        <div className="mb-4 p-3.5 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl">
+        <div className="mb-4 p-3.5 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl selectable-text">
           {error}
         </div>
       )}
@@ -334,10 +336,11 @@ function AiExtractPage() {
           </label>
           <label className="flex flex-col gap-1.5 font-medium">
             Agencia *
-            <select 
-              className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" 
-              value={agencyId} 
-              onChange={(e) => setAgencyId(e.target.value)} 
+            <select
+              className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              value={selectedGuide ? selectedGuide.agencyId || '' : agencyId}
+              onChange={(e) => setAgencyId(e.target.value)}
+              disabled={!!selectedGuide}
               required
             >
               <option value="">Seleccionar</option>
@@ -345,6 +348,11 @@ function AiExtractPage() {
                 <option key={a.id} value={a.id}>{a.name}</option>
               ))}
             </select>
+            {selectedGuide && (
+              <span className="text-xs font-normal text-gray-500 dark:text-gray-400">
+                La agencia se hereda de la guia seleccionada
+              </span>
+            )}
           </label>
           <label className="flex flex-col gap-1.5 font-medium">
             Guia *
@@ -355,7 +363,10 @@ function AiExtractPage() {
                 const selected = e.target.value;
                 setGuideId(selected);
                 const guide = guides.find((g) => g.id === selected);
-                if (guide) setGuideType(guide.type);
+                if (guide) {
+                  setGuideType(guide.type);
+                  setAgencyId(guide.agencyId || '');
+                }
               }}
               required
             >
@@ -382,9 +393,10 @@ function AiExtractPage() {
           <label className="flex flex-col gap-1.5 font-medium">
             Tipo de guia *
             <select
-              className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200"
+              className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
               value={guideType}
               onChange={(e) => setGuideType(e.target.value as GuideType)}
+              disabled={!!selectedGuide}
               required
             >
               <option value="AEREA">Aerea</option>
@@ -453,11 +465,25 @@ function AiExtractPage() {
               <summary className="cursor-pointer text-sm font-medium text-red-600 dark:text-red-400">
                 Ver fallos ({totalFailed})
               </summary>
+              <div className="flex justify-end mt-2">
+                <button
+                  type="button"
+                  className="bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 font-semibold rounded-lg px-3 py-1.5 text-xs cursor-pointer transition-colors"
+                  onClick={() => {
+                    const text = batchResult.failed
+                      .map((f, idx) => `Indice ${idx}: ${f.error}\n\n${JSON.stringify(f.entity, null, 2)}`)
+                      .join('\n\n========================================\n\n');
+                    navigator.clipboard.writeText(text);
+                  }}
+                >
+                  Copiar todos los fallos
+                </button>
+              </div>
               <ul className="mt-2 space-y-2 max-h-56 overflow-y-auto">
                 {batchResult.failed.map((f, idx) => (
                   <li key={idx} className="p-2.5 rounded-lg bg-white dark:bg-slate-800 border border-border text-sm">
-                    <strong>Indice {idx}</strong>: {f.error}
-                    <pre className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 whitespace-pre-wrap overflow-x-auto">
+                    <strong className="selectable-text">Indice {idx}</strong>: <span className="selectable-text">{f.error}</span>
+                    <pre className="selectable-text cursor-text text-xs text-gray-500 dark:text-gray-400 mt-1.5 whitespace-pre-wrap overflow-x-auto">
                       {JSON.stringify(f.entity, null, 2)}
                     </pre>
                   </li>

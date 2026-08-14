@@ -1,12 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { vehiclesApi, type Vehicle } from '../api/vehicles.api';
+import { sortByName } from '../utils/sort';
 
 const QUERY_KEY = 'vehicles';
 
 export function useVehicles() {
   return useQuery({
     queryKey: [QUERY_KEY],
-    queryFn: () => vehiclesApi.findAll(),
+    queryFn: async () => sortByName(await vehiclesApi.findAll(), (v) => v.name),
   });
 }
 

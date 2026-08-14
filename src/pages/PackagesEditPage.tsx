@@ -2,7 +2,7 @@ import { useState, type FormEvent, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { usePackage, useUpdatePackage } from '../hooks/usePackages';
 import { useGuides } from '../hooks/useGuides';
-import { useRecipients } from '../hooks/useRecipients';
+import { useRecipients, useUpdateRecipient, useCreateRecipient } from '../hooks/useRecipients';
 import { useProvinces } from '../hooks/useProvinces';
 import { useMunicipes } from '../hooks/useMunicipes';
 import { useStatuses } from '../hooks/useStatuses';
@@ -15,6 +15,8 @@ export default function PackagesEditPage() {
   const navigate = useNavigate();
   const { data: pkg, isLoading: pkgLoading, error: pkgError } = usePackage(id || '');
   const updatePackage = useUpdatePackage();
+  const updateRecipient = useUpdateRecipient();
+  const createRecipient = useCreateRecipient();
   const { data: guides = [] } = useGuides();
   const { data: recipients = [] } = useRecipients();
   const { data: provinces = [] } = useProvinces();
@@ -23,7 +25,7 @@ export default function PackagesEditPage() {
   const { data: locations = [] } = useLocations();
 
   const [form, setForm] = useState({
-    guideId: '', recipientId: '', provinceId: '', municipeId: '', address: '', weight: '',
+    guideId: '', recipientId: '', recipientName: '', recipientIdCard: '', recipientPhone: '', provinceId: '', municipeId: '', address: '', weight: '',
     content: '', arrivalDate: '', statusDate: '', statusId: '', locationId: '',
     anotations: '', alert: false, alertDescription: '', hbls: '',
   });
@@ -41,6 +43,9 @@ export default function PackagesEditPage() {
       setForm({
         guideId: pkg.guide?.id || '',
         recipientId: pkg.recipient?.id || '',
+        recipientName: pkg.recipient?.fullName || '',
+        recipientIdCard: pkg.recipient?.idCard || '',
+        recipientPhone: pkg.recipient?.phone || '',
         provinceId: pkg.province?.id || '',
         municipeId: pkg.municipe?.id || '',
         address: pkg.address || '',
@@ -63,9 +68,36 @@ export default function PackagesEditPage() {
     if (!id) return;
     setLocalError(null);
     try {
+      let finalRecipientId = form.recipientId;
+      const name = form.recipientName.trim();
+      const idCard = form.recipientIdCard.trim();
+      const phone = form.recipientPhone.trim() || undefined;
+      const hasRecipientData = Boolean(name || idCard || phone);
+
+      if (finalRecipientId) {
+        const original = pkg?.recipient;
+        const changed =
+          name !== (original?.fullName ?? '') ||
+          idCard !== (original?.idCard ?? '') ||
+          phone !== (original?.phone ?? undefined);
+        if (changed && hasRecipientData) {
+          await updateRecipient.mutateAsync({
+            id: finalRecipientId,
+            dto: { fullName: name, idCard, phone },
+          });
+        }
+      } else if (hasRecipientData) {
+        const created = await createRecipient.mutateAsync({
+          fullName: name,
+          idCard,
+          phone,
+        });
+        finalRecipientId = created.id;
+      }
+
       const dto: UpdatePackageDto = {
         guideId: form.guideId || undefined,
-        recipientId: form.recipientId || undefined,
+        recipientId: finalRecipientId || undefined,
         provinceId: form.provinceId || undefined,
         municipeId: form.municipeId || undefined,
         address: form.address || undefined,
@@ -124,10 +156,35 @@ export default function PackagesEditPage() {
            <label className="flex flex-col gap-1.5 font-medium">
 
             Destinatario
-            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.recipientId} onChange={(e) => setForm((prev) => ({ ...prev, recipientId: e.target.value }))}>
+            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.recipientId} onChange={(e) => {
+              const recipientId = e.target.value;
+              const selected = recipients.find((r) => r.id === recipientId);
+              setForm((prev) => ({
+                ...prev,
+                recipientId,
+                recipientName: selected?.fullName ?? '',
+                recipientIdCard: selected?.idCard ?? '',
+                recipientPhone: selected?.phone ?? '',
+              }));
+            }}>
               <option value="">Seleccionar</option>
               {recipients.map((r) => <option key={r.id} value={r.id}>{r.fullName}</option>)}
             </select>
+          </label>
+           <label className="flex flex-col gap-1.5 font-medium">
+
+            Nombre del cliente
+            <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.recipientName} onChange={(e) => setForm((prev) => ({ ...prev, recipientName: e.target.value }))} />
+          </label>
+           <label className="flex flex-col gap-1.5 font-medium">
+
+            Carnet del cliente
+            <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.recipientIdCard} onChange={(e) => setForm((prev) => ({ ...prev, recipientIdCard: e.target.value }))} />
+          </label>
+           <label className="flex flex-col gap-1.5 font-medium">
+
+            Telefono del cliente
+            <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.recipientPhone} onChange={(e) => setForm((prev) => ({ ...prev, recipientPhone: e.target.value }))} />
           </label>
            <label className="flex flex-col gap-1.5 font-medium">
 

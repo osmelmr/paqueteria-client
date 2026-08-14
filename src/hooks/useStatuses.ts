@@ -1,10 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { statusesApi } from '../api/statuses.api';
+import { sortByName } from '../utils/sort';
 
 const QUERY_KEY = 'statuses';
 
 export function useStatuses() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: () => statusesApi.findAll() });
+  return useQuery({
+    queryKey: [QUERY_KEY],
+    queryFn: async () => sortByName(await statusesApi.findAll(), (s) => s.name),
+  });
 }
 
 export function useCreateStatus() {

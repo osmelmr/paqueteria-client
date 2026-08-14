@@ -1,10 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { provincesApi } from '../api/provinces.api';
+import { sortByName } from '../utils/sort';
 
 const QUERY_KEY = 'provinces';
 
 export function useProvinces() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: () => provincesApi.findAll() });
+  return useQuery({
+    queryKey: [QUERY_KEY],
+    queryFn: async () => sortByName(await provincesApi.findAll(), (p) => p.name),
+  });
 }
 
 export function useCreateProvince() {

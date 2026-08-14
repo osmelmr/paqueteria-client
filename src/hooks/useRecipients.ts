@@ -1,12 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { recipientsApi } from '../api/recipients.api';
+import { sortByName } from '../utils/sort';
 
 const QUERY_KEY = 'recipients';
 
 export function useRecipients() {
   return useQuery({
     queryKey: [QUERY_KEY],
-    queryFn: () => recipientsApi.findAll({ page: 1, limit: 100 }),
+    queryFn: async () =>
+      sortByName(
+        await recipientsApi.findAll({ page: 1, limit: 100 }),
+        (r) => r.fullName || '',
+      ),
   });
 }
 

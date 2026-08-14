@@ -1,10 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { agenciesApi, type CreateAgencyDto, type UpdateAgencyDto } from '../api/agencies.api';
+import { sortByName } from '../utils/sort';
 
 const QUERY_KEY = 'agencies';
 
 export function useAgencies() {
-  return useQuery({ queryKey: [QUERY_KEY], queryFn: () => agenciesApi.findAll() });
+  return useQuery({
+    queryKey: [QUERY_KEY],
+    queryFn: async () => sortByName(await agenciesApi.findAll(), (a) => a.name),
+  });
 }
 
 export function useCreateAgency() {

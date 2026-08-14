@@ -1,12 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { driversApi, type Driver } from '../api/drivers.api';
+import { sortByName } from '../utils/sort';
 
 const QUERY_KEY = 'drivers';
 
 export function useDrivers() {
   return useQuery({
     queryKey: [QUERY_KEY],
-    queryFn: () => driversApi.findAll(),
+    queryFn: async () => sortByName(await driversApi.findAll(), (d) => d.name),
   });
 }
 
