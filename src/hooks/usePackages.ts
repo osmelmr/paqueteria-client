@@ -16,11 +16,11 @@ export function usePackages(filters?: PackageFilters, pagination?: PaginationPar
   });
 }
 
-export function usePackage(id: string) {
+export function usePackage(id: string, enabled = true) {
   return useQuery({
     queryKey: [QUERY_KEY, id],
     queryFn: () => packagesApi.findById(id),
-    enabled: !!id,
+    enabled: !!id && enabled,
   });
 }
 

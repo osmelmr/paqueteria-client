@@ -16,8 +16,9 @@ import { usePackageHistory } from '../hooks/usePackages';
 import { useDownloadPackagePdf } from '../hooks/useDownloadPackagePdf';
 import { PackageStatusControls } from './PackageStatusControls';
 import { PackageHistoryModal } from './PackageHistoryModal';
+import { PackageDetailsModal } from './PackageDetailsModal';
 import { toLocalDateInput, dateInputToIso, todayDateInput } from '../utils/date';
-import type { PackageHistoryItem } from '../api/packages.api';
+import type { Package as PackageDetailsData, PackageHistoryItem } from '../api/packages.api';
 
 export interface PackageData {
   id: string;
@@ -42,7 +43,6 @@ interface SelectOption {
 interface PackageListRowProps {
   data: PackageData;
   onEdit: (id: string) => void;
-  onView?: (id: string) => void;
   onUpdateStatus?: (id: string, statusId: string, locationId: string, statusDate?: string) => void;
   statuses?: SelectOption[];
   locations?: SelectOption[];
@@ -60,7 +60,6 @@ const maskName = (fullName?: string | null) => {
 export const PackageCard: React.FC<PackageListRowProps> = ({ 
   data, 
   onEdit, 
-  onView,
   onUpdateStatus, 
   statuses = [], 
   locations = [] 
@@ -83,6 +82,7 @@ export const PackageCard: React.FC<PackageListRowProps> = ({
   const [statusDate, setStatusDate] = useState(todayDateInput());
   const [isUpdating, setIsUpdating] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   const [statusDateTouched, setStatusDateTouched] = useState(false);
 
   const history = usePackageHistory(data.id, showHistory);
@@ -216,11 +216,9 @@ export const PackageCard: React.FC<PackageListRowProps> = ({
             <History className="w-4 h-4" />
           </button>
           
-          {onView && (
-            <button onClick={() => onView(data.id)} title="Ver detalles" className="md:p-2 not-sm:p-2 not-lg:p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-md transition-colors">
-              <Eye className="w-4 h-4" />
-            </button>
-          )}
+          <button onClick={() => setShowDetails(true)} title="Ver detalles" className="md:p-2 not-sm:p-2 not-lg:p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-md transition-colors">
+            <Eye className="w-4 h-4" />
+          </button>
 
           <button onClick={() => onEdit(data.id)} title="Editar paquete" className="md:p-2 not-sm:p-2 not-lg:p-1 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-md transition-colors">
             <Edit2 className="w-4 h-4" />
@@ -238,6 +236,14 @@ export const PackageCard: React.FC<PackageListRowProps> = ({
         isOpen={showHistory}
         onClose={() => setShowHistory(false)}
         history={history}
+      />
+
+      {/* Modal Detalles */}
+      <PackageDetailsModal
+        isOpen={showDetails}
+        packageId={data.id}
+        initialData={data as Partial<PackageDetailsData>}
+        onClose={() => setShowDetails(false)}
       />
     </li>
   );

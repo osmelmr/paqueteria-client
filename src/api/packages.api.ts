@@ -41,12 +41,32 @@ export interface PaginatedPackages<T> {
   pagination: PackagePagination;
 }
 
+export interface PackageGuide {
+  id: string;
+  name: string;
+  type: GuideType;
+  agencyId?: string | null;
+  agency?: { id: string; name: string } | null;
+}
+
+export interface PackageRecipient {
+  id: string;
+  fullName: string | null;
+  idCard: string | null;
+  phone: string | null;
+}
+
+export interface PackageReference {
+  id: string;
+  name: string;
+}
+
 export interface Package {
   id: string;
-  guide?: { name: string; agency: { name: string } } | null;
-  recipient?: { fullName: string | null } | null;
-  province?: { name: string } | null;
-  municipe?: { name: string } | null;
+  guide?: PackageGuide | null;
+  recipient?: PackageRecipient | null;
+  province?: PackageReference | null;
+  municipe?: PackageReference | null;
   weight?: number | string | null;
   status: { name: string; id?: string };
   location?: { name: string; id?: string } | null;
@@ -65,6 +85,7 @@ export interface Package {
   guideId?: string;
   recipientId?: string;
   createdAt?: string;
+  updatedAt?: string;
   statuses?: PackageHistoryItem[];
 }
 
@@ -107,7 +128,7 @@ export const packagesApi = {
       .then((r) => r.data),
 
   findById: (id: string) =>
-    api.get(`/packages/${id}`).then((r) => r.data),
+    api.get<Package>(`/packages/${id}`).then((r) => r.data),
 
   findByHbl: (hbl: string) =>
     api.get(`/packages/by-hbl/${hbl}`).then((r) => r.data),

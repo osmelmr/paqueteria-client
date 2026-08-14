@@ -4,6 +4,7 @@ import api from '../api/axios';
 import { useAgencies } from '../hooks/useAgencies';
 import { useStatuses } from '../hooks/useStatuses';
 import { useLocations } from '../hooks/useLocations';
+import { useGuides } from '../hooks/useGuides';
 import { useProcessBulkAi } from '../hooks/useBusiness';
 import { useAuthStore } from '../store/auth.store';
 import type { GuideType } from '../api/guides.api';
@@ -33,6 +34,7 @@ type AiCache = {
   statusId: string;
   locationId: string;
   agencyId: string;
+  guideId: string;
   guideName: string;
   guideType: GuideType;
 };
@@ -63,6 +65,7 @@ function AiExtractPage() {
   const { data: agencies = [] } = useAgencies();
   const { data: statuses = [] } = useStatuses();
   const { data: locations = [] } = useLocations();
+  const { data: guides = [] } = useGuides();
   const bulkMutation = useProcessBulkAi();
 
   const [error, setError] = useState<string | null>(null);
@@ -72,6 +75,7 @@ function AiExtractPage() {
   const [statusId, setStatusId] = useState('');
   const [locationId, setLocationId] = useState('');
   const [agencyId, setAgencyId] = useState('');
+  const [guideId, setGuideId] = useState('');
   const [guideName, setGuideName] = useState('');
   const [guideType, setGuideType] = useState<GuideType>('AEREA');
   const [preview, setPreview] = useState<ExtractedPackage[] | null>(null);
@@ -90,18 +94,19 @@ function AiExtractPage() {
     setStatusId(cache.statusId);
     setLocationId(cache.locationId);
     setAgencyId(cache.agencyId);
+    setGuideId(cache.guideId);
     setGuideName(cache.guideName);
     setGuideType(cache.guideType || 'AEREA');
   }, []);
 
   useEffect(() => {
-    const cache: AiCache = { excelText, fileName, preview, statusId, locationId, agencyId, guideName, guideType };
+    const cache: AiCache = { excelText, fileName, preview, statusId, locationId, agencyId, guideId, guideName, guideType };
     try {
       window.localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
     } catch {
       /* ignore */
     }
-  }, [excelText, fileName, preview, statusId, locationId, agencyId, guideName, guideType]);
+  }, [excelText, fileName, preview, statusId, locationId, agencyId, guideId, guideName, guideType]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -123,11 +128,12 @@ function AiExtractPage() {
 
         const textLines = rows
           .filter((row) => row.some((cell) => cell !== null && cell !== undefined && cell !== ''))
-          .map((row) =>
-            row
+          .map((row) => {
+            const cells = row
               .map((cell) => (cell !== null && cell !== undefined ? String(cell).trim() : ''))
-              .join('\t'),
-          );
+              .join('\t');
+            return `<INICIO_FILA>\n${cells}\n<FIN_FILA>`;
+          });
 
         setExcelText(textLines.join('\n'));
       } catch {
@@ -175,8 +181,8 @@ function AiExtractPage() {
       setError('No hay paquetes en la vista previa');
       return;
     }
-    if (!statusId || !agencyId || !guideName.trim()) {
-      setError('Debes completar estado, agencia, tipo de guia y referencia externa');
+    if (!statusId || !agencyId || (!guideId && !guideName.trim())) {
+      setError('Debes completar estado, agencia y guia (seleccionada o nueva)');
       return;
     }
 
@@ -186,7 +192,8 @@ function AiExtractPage() {
       const result = await bulkMutation.mutateAsync({
         statusId,
         agencyId,
-        guide: guideName.trim(),
+        guideId: guideId || undefined,
+        guide: guideId ? undefined : guideName.trim(),
         guideType,
         locationId: locationId || undefined,
         packages: preview.map((pkg) => ({
@@ -340,15 +347,38 @@ function AiExtractPage() {
             </select>
           </label>
           <label className="flex flex-col gap-1.5 font-medium">
-            Referencia externa *
-            <input
+            Guia *
+            <select
               className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200"
-              value={guideName}
-              onChange={(e) => setGuideName(e.target.value)}
-              placeholder="Ej: LOTE-001"
+              value={guideId}
+              onChange={(e) => {
+                const selected = e.target.value;
+                setGuideId(selected);
+                const guide = guides.find((g) => g.id === selected);
+                if (guide) setGuideType(guide.type);
+              }}
               required
-            />
+            >
+              <option value="">Crear guia nueva...</option>
+              {guides.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.name}{g.agency?.name ? ` (${g.agency.name})` : ''} — {g.type}
+                </option>
+              ))}
+            </select>
           </label>
+          {!guideId && (
+            <label className="flex flex-col gap-1.5 font-medium">
+              Referencia externa (guia nueva) *
+              <input
+                className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200"
+                value={guideName}
+                onChange={(e) => setGuideName(e.target.value)}
+                placeholder="Ej: LOTE-001"
+                required
+              />
+            </label>
+          )}
           <label className="flex flex-col gap-1.5 font-medium">
             Tipo de guia *
             <select
