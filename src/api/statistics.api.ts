@@ -16,6 +16,9 @@ export interface Statistics {
   totalGuiasActivas: number;
   totalEnEspera: number;
   ultimasRutas: RouteStats[];
+  idAlmacenado?: string | null;
+  idEntregado?: string | null;
+  idEnEspera?: string | null;
 }
 
 export const statisticsApi = {

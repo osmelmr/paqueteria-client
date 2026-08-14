@@ -18,6 +18,8 @@ export default function PackagesListPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const hblParam = searchParams.get('hbl') || '';
+  const statusParam = searchParams.get('status') || '';
+  const statusIdParam = searchParams.get('statusId') || '';
   const [filters, setFilters] = useState<PackageFilters>(() =>
     hblParam ? { hbl: hblParam } : {},
   );
@@ -102,6 +104,39 @@ export default function PackagesListPage() {
     setFilters({ hbl: hblParam });
     setCurrentPage(1);
   }, [hblParam]);
+
+  useEffect(() => {
+    // if statusId is present prefer it over name-based status
+    if (statusIdParam) return;
+    if (!statusParam || statuses.length === 0) return;
+    const q = statusParam.trim();
+    // If the status param looks like an id (uuid-ish), treat it as id
+    const isUuid = /^[0-9a-fA-F-]{20,}$/.test(q);
+    if (isUuid) {
+      setFilterForm((prev) => ({ ...prev, statusId: q }));
+      setFilters({ status: q });
+      setCurrentPage(1);
+      return;
+    }
+    const lower = q.toLowerCase();
+    const status = statuses.find((s) => {
+      const name = (s.name ?? '').toLowerCase();
+      return name.includes(lower) || lower.includes(name);
+    });
+    if (!status) return;
+    setFilterForm((prev) => ({ ...prev, statusId: status.id }));
+    setFilters({ status: status.id });
+    setCurrentPage(1);
+  }, [statusParam, statuses]);
+
+  useEffect(() => {
+    // support statusId query param (preferred)
+    if (!statusIdParam) return;
+    // apply directly even if statuses not yet loaded
+    setFilterForm((prev) => ({ ...prev, statusId: statusIdParam }));
+    setFilters({ status: statusIdParam });
+    setCurrentPage(1);
+  }, [statusIdParam]);
 
   const clearHblSearch = () => {
     setFilterForm((prev) => ({ ...prev, hbl: '' }));

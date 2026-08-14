@@ -1,43 +1,89 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Clock, FileText, PackageCheck, Route as RouteIcon, Truck, Warehouse } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useStatistics } from '../hooks/useStatistics';
 import { RouteDetailsModal } from './RouteDetailsModal';
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
 
+interface StatItem {
+  label: string;
+  value?: number;
+  icon: LucideIcon;
+  iconClass: string;
+  // path can be a static string or a function that receives the statistics data
+  path?: string | ((data: any) => string | undefined);
+}
+
 export function StatisticsBar() {
+  const navigate = useNavigate();
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
   const { data, isLoading, isError } = useStatistics();
 
-  const items = [
-    { label: 'Almacenados', value: data?.totalAlmacenados, icon: Warehouse, iconClass: 'text-amber-500' },
-    { label: 'Entregados', value: data?.totalEntregados, icon: PackageCheck, iconClass: 'text-emerald-500' },
+  const items: StatItem[] = [
+    {
+      label: 'Almacenados',
+      value: data?.totalAlmacenados,
+      icon: Warehouse,
+      iconClass: 'text-amber-500',
+      path: (s) => (s?.idAlmacenado ? `/packages?status=${s.idAlmacenado}` : '/packages?status=almacenado'),
+    },
+    {
+      label: 'Entregados',
+      value: data?.totalEntregados,
+      icon: PackageCheck,
+      iconClass: 'text-emerald-500',
+      path: (s) => (s?.idEntregado ? `/packages?status=${s.idEntregado}` : '/packages?status=entregado'),
+    },
     { label: 'Guías activas', value: data?.totalGuiasActivas, icon: FileText, iconClass: 'text-sky-500' },
-    { label: 'En espera', value: data?.totalEnEspera, icon: Clock, iconClass: 'text-purple-500' },
+    {
+      label: 'En espera',
+      value: data?.totalEnEspera,
+      icon: Clock,
+      iconClass: 'text-purple-500',
+      path: (s) => (s?.idEnEspera ? `/packages?status=${s.idEnEspera}` : '/packages?status=espera'),
+    },
   ];
 
   return (
     <div className="mb-4 flex flex-col gap-3">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {items.map((item) => (
-          <div
-            key={item.label}
-            className="flex items-center gap-3 p-3.5 rounded-xl bg-chrome border border-border shadow-sm min-w-0"
-          >
-            <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">
-              <item.icon className={`w-4 h-4 ${item.iconClass}`} />
+        {items.map((item) => {
+          const card = (
+            <>
+              <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">
+                <item.icon className={`w-4 h-4 ${item.iconClass}`} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 m-0 truncate">
+                  {item.label}
+                </p>
+                <p className="text-xl font-bold text-slate-900 dark:text-slate-100 m-0 leading-tight">
+                  {isLoading ? '—' : (item.value ?? 0)}
+                </p>
+              </div>
+            </>
+          );
+          const className =
+            'flex items-center gap-3 p-3.5 rounded-xl bg-chrome border border-border shadow-sm min-w-0 w-full text-left transition-colors';
+          const resolvedPath = typeof item.path === 'function' ? item.path(data) : item.path;
+          return resolvedPath ? (
+            <button
+              key={item.label}
+              type="button"
+              onClick={() => navigate(resolvedPath!)}
+              className={`${className} cursor-pointer hover:bg-slate-100 dark:hover:bg-gray-900`}
+            >
+              {card}
+            </button>
+          ) : (
+            <div key={item.label} className={className}>
+              {card}
             </div>
-            <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 m-0 truncate">
-                {item.label}
-              </p>
-              <p className="text-xl font-bold text-slate-900 dark:text-slate-100 m-0 leading-tight">
-                {isLoading ? '—' : (item.value ?? 0)}
-              </p>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {!isLoading && !isError && data && (
