@@ -4,12 +4,12 @@ import { sortByName } from '../utils/sort';
 
 const QUERY_KEY = 'recipients';
 
-export function useRecipients() {
+export function useRecipients(params?: { search?: string }) {
   return useQuery({
-    queryKey: [QUERY_KEY],
+    queryKey: [QUERY_KEY, params?.search ?? ''],
     queryFn: async () =>
       sortByName(
-        await recipientsApi.findAll({ page: 1, limit: 100 }),
+        await recipientsApi.findAll({ page: 1, limit: 100, search: params?.search }),
         (r) => r.fullName || '',
       ),
   });
