@@ -9,6 +9,7 @@ import { useStatuses } from '../hooks/useStatuses';
 import { useLocations } from '../hooks/useLocations';
 import type { CreatePackageDto } from '../api/packages.api';
 import { CustomSelect } from '../components/CustomSelect';
+import { RecipientsCustomSelect } from '../components/RecipientsCustomSelect';
 
 export default function PackagesCreatePage() {
   const navigate = useNavigate();
@@ -74,7 +75,7 @@ export default function PackagesCreatePage() {
            <label className="flex flex-col gap-1.5 font-medium">
 
             Destinatario
-            <CustomSelect value={form.recipientId} onChange={(id) => setForm((prev) => ({ ...prev, recipientId: id }))} options={recipients.map((r) => ({ id: r.id, name: r.fullName }))} placeholder="Seleccionar" />
+            <RecipientsCustomSelect value={form.recipientId} onChange={(id) => setForm((prev) => ({ ...prev, recipientId: id }))} recipients={recipients} placeholder="Seleccionar" />
           </label>
            <label className="flex flex-col gap-1.5 font-medium">
 
