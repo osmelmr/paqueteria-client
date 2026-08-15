@@ -91,8 +91,6 @@ function AiExtractPage() {
 
   const token = useAuthStore((s) => s.token);
 
-  const selectedGuide = guides.find((g) => g.id === guideId) || null;
-
   useEffect(() => {
     const cache = loadCache();
     if (!cache) return;
@@ -327,11 +325,9 @@ function AiExtractPage() {
           </label>
           <label className="flex flex-col gap-1.5 font-medium">
             Guia *
-            <select
-              className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200"
+            <CustomSelect
               value={guideId}
-              onChange={(e) => {
-                const selected = e.target.value;
+              onChange={(selected) => {
                 setGuideId(selected);
                 const guide = guides.find((g) => g.id === selected);
                 if (guide) {
@@ -339,15 +335,12 @@ function AiExtractPage() {
                   setAgencyId(guide.agencyId || '');
                 }
               }}
-              required
-            >
-              <option value="">Crear guia nueva...</option>
-              {guides.map((g) => (
-                <option key={g.id} value={g.id}>
-                  {g.name}{g.agency?.name ? ` (${g.agency.name})` : ''} — {g.type}
-                </option>
-              ))}
-            </select>
+              options={guides.map((g) => ({
+                id: g.id,
+                name: `${g.name}${g.agency?.name ? ` (${g.agency.name})` : ''} — ${g.type}`,
+              }))}
+              placeholder="Crear guia nueva..."
+            />
           </label>
           {!guideId && (
             <label className="flex flex-col gap-1.5 font-medium">

@@ -8,7 +8,7 @@ import { useMunicipes } from '../hooks/useMunicipes';
 import { useStatuses } from '../hooks/useStatuses';
 import { useLocations } from '../hooks/useLocations';
 import type { UpdatePackageDto } from '../api/packages.api';
-import { toLocalDateInput, dateInputToIso } from '../utils/date';
+import { toLocalDateInput, dateInputToIso, todayDateInput } from '../utils/date';
 import { CustomSelect } from '../components/CustomSelect';
 
 export default function PackagesEditPage() {

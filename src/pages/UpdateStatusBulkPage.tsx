@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useUpdateStatusBulk } from '../hooks/useBusiness';
 import { useStatuses } from '../hooks/useStatuses';
 import { useLocations } from '../hooks/useLocations';
-import { dateInputToIso, toLocalDateInput } from '../utils/date';
+import { dateInputToIso, todayDateInput } from '../utils/date';
 import { CustomSelect } from '../components/CustomSelect';
 
 type BulkResult = {
