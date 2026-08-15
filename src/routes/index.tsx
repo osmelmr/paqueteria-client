@@ -7,6 +7,7 @@ import PackagesListPage from '../pages/PackagesListPage';
 import PackagesCreatePage from '../pages/PackagesCreatePage';
 import PackagesEditPage from '../pages/PackagesEditPage';
 import AiExtractPage from '../pages/AiExtractPage';
+import ExcelImportPage from '../pages/ExcelImportPage';
 import UpdateStatusBulkPage from '../pages/UpdateStatusBulkPage';
 import AgenciesListPage from '../pages/AgenciesListPage';
 import AgenciesCreatePage from '../pages/AgenciesCreatePage';
@@ -94,6 +95,7 @@ export const router = createBrowserRouter([
           { path: 'drivers/:id/edit', element: <DriversEditPage /> },
           { path: 'test', element: <TestPage /> },
           { path: 'ai-extract', element: <AiExtractPage /> },
+          { path: 'excel-import', element: <ExcelImportPage /> },
           { path: 'update-status-bulk', element: <UpdateStatusBulkPage /> },
         ],
       },
