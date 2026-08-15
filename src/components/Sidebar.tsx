@@ -11,41 +11,36 @@ interface NavLink {
 interface NavGroup {
   label: string;
   roles: string[];
-  links: NavLink[];
+  links?: NavLink[];
   groups?: NavGroup[];
+  path?: string;
 }
 
 const NAV_GROUPS: NavGroup[] = [
   {
+    label: 'Inicio', roles: ['ADMIN', 'STOREKEEPER'],
+    path: '/',
+  },
+  {
     label: 'Paquetes', roles: ['ADMIN', 'STOREKEEPER'],
-    links: [
-      { label: 'Ver todos', path: '/packages' },
-      { label: 'Nuevo', path: '/packages/new' },
-    ],
+    path: '/packages',
   },
   
   {
     label: 'Rutas', roles: ['ADMIN', 'STOREKEEPER'],
     links: [
-      { label: 'Ver todas', path: '/routes' },
-      { label: 'Nueva', path: '/routes/new' },
+      { label: 'Rutas', path: '/routes' },
       { label: 'Vehiculos', path: '/vehicles' },
       { label: 'Choferes', path: '/drivers' },
     ],
   },
   {
     label: 'Guias', roles: ['ADMIN', 'STOREKEEPER'],
-    links: [
-      { label: 'Ver todos', path: '/guides' },
-      { label: 'Nueva', path: '/guides/new' },
-    ],
+    path: '/guides',
   },
   {
     label: 'Agencias', roles: ['ADMIN', 'STOREKEEPER'],
-    links: [
-      { label: 'Ver todos', path: '/agencies' },
-      { label: 'Nueva', path: '/agencies/new' },
-    ],
+    path: '/agencies',
   },
   {
     label: 'Destino', roles: ['ADMIN', 'STOREKEEPER'],
@@ -53,47 +48,29 @@ const NAV_GROUPS: NavGroup[] = [
     groups: [
       {
         label: 'Destinatarios', roles: ['ADMIN', 'STOREKEEPER'],
-        links: [
-          { label: 'Ver todos', path: '/recipients' },
-          { label: 'Nuevo', path: '/recipients/new' },
-        ],
+        path: '/recipients',
       },
       {
         label: 'Provincias', roles: ['ADMIN', 'STOREKEEPER'],
-        links: [
-          { label: 'Ver todos', path: '/provinces' },
-          { label: 'Nueva', path: '/provinces/new' },
-        ],
+        path: '/provinces',
       },
       {
         label: 'Municipios', roles: ['ADMIN', 'STOREKEEPER'],
-        links: [
-          { label: 'Ver todos', path: '/municipes' },
-          { label: 'Nuevo', path: '/municipes/new' },
-        ],
+        path: '/municipes',
       },
     ],
   },
   {
     label: 'Ubicaciones', roles: ['ADMIN', 'STOREKEEPER'],
-    links: [
-      { label: 'Ver todos', path: '/locations' },
-      { label: 'Nueva', path: '/locations/new' },
-    ],
+    path: '/locations',
   },
   {
     label: 'Estados', roles: ['ADMIN', 'STOREKEEPER'],
-    links: [
-      { label: 'Ver todos', path: '/statuses' },
-      { label: 'Nuevo', path: '/statuses/new' },
-    ],
+    path: '/statuses',
   },
   {
     label: 'Usuarios', roles: ['ADMIN'],
-    links: [
-      { label: 'Ver todos', path: '/users' },
-      { label: 'Nuevo', path: '/users/new' },
-    ],
+    path: '/users',
   },
 ];
 
@@ -120,7 +97,8 @@ export function Sidebar() {
   const findActivePath = (groups: NavGroup[], prefix = ''): string | null => {
     for (const g of groups) {
       const path = prefix ? `${prefix}::${g.label}` : g.label;
-      if (g.links.some((l) => isActive(l.path))) return path;
+      if (g.path && isActive(g.path)) return path;
+      if (g.links?.some((l) => isActive(l.path))) return path;
       if (g.groups) {
         const nested = findActivePath(g.groups, path);
         if (nested) return nested;
@@ -158,6 +136,20 @@ export function Sidebar() {
     ));
 
   const renderGroup = (group: NavGroup, path: string, depth = 0) => {
+    if (group.path) {
+      return (
+        <div key={path} className="flex flex-col">
+          <button
+            type="button"
+            className={`flex items-center justify-between w-full text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 ${depth > 0 ? 'pl-6 pr-4' : 'px-4'} py-2.5 cursor-pointer bg-transparent border-none text-left hover:text-gray-900 dark:hover:text-gray-100 transition-colors ${isActive(group.path) ? 'text-purple-500 dark:text-purple-400' : ''}`}
+            onClick={() => navigate(group.path!)}
+          >
+            {group.label}
+          </button>
+        </div>
+      );
+    }
+
     const open = isOpen(path);
     const visibleSubs = group.groups?.filter((g) => user && g.roles.includes(user.role)) ?? [];
     return (
@@ -171,7 +163,7 @@ export function Sidebar() {
           <span className={`text-[0.6rem] transition-transform duration-200 ${open ? 'rotate-90' : ''}`}>&#9656;</span>
         </button>
         <div className={`overflow-hidden transition-all duration-200 ${open ? 'max-h-96' : 'max-h-0'}`}>
-          {renderLinks(group.links)}
+          {renderLinks(group.links ?? [])}
           {visibleSubs.map((sub) => renderGroup(sub, `${path}::${sub.label}`, depth + 1))}
         </div>
       </div>
