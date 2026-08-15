@@ -2,7 +2,8 @@ import { useState, type FormEvent } from 'react';
 import { useUpdateStatusBulk } from '../hooks/useBusiness';
 import { useStatuses } from '../hooks/useStatuses';
 import { useLocations } from '../hooks/useLocations';
-import { dateInputToIso, todayDateInput } from '../utils/date';
+import { dateInputToIso, toLocalDateInput } from '../utils/date';
+import { CustomSelect } from '../components/CustomSelect';
 
 type BulkResult = {
   success: Array<{ hbl: string; package: { statusId?: string; locationId?: string | null } | null }>;
@@ -66,21 +67,11 @@ export default function UpdateStatusBulkPage() {
         </label>
         <label className="flex flex-col gap-1.5 font-medium">
           Estado nuevo
-          <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={statusId} onChange={(e) => setStatusId(e.target.value)}>
-            <option value="">Sin cambio</option>
-            {statuses.map((s) => (
-              <option key={s.id} value={s.id}>{s.name}</option>
-            ))}
-          </select>
+          <CustomSelect value={statusId} onChange={setStatusId} options={statuses} placeholder="Sin cambio" />
         </label>
         <label className="flex flex-col gap-1.5 font-medium">
           Ubicacion nueva
-          <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={locationId} onChange={(e) => setLocationId(e.target.value)}>
-            <option value="">Sin cambio</option>
-            {locations.map((l) => (
-              <option key={l.id} value={l.id}>{l.name}</option>
-            ))}
-          </select>
+          <CustomSelect value={locationId} onChange={setLocationId} options={locations} placeholder="Sin cambio" />
         </label>
         <label className="flex flex-col gap-1.5 font-medium">
           Fecha cambio de estado

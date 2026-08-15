@@ -8,6 +8,12 @@ import { useGuides } from '../hooks/useGuides';
 import { useProcessBulkAi } from '../hooks/useBusiness';
 import { useAuthStore } from '../store/auth.store';
 import type { GuideType } from '../api/guides.api';
+import { CustomSelect } from '../components/CustomSelect';
+
+const GUIDE_TYPE_OPTIONS = [
+  { id: 'AEREA', name: 'Aerea' },
+  { id: 'MARITIMA', name: 'Maritima' },
+];
 
 type ExtractedPackage = {
   address?: string | null;
@@ -309,50 +315,15 @@ function AiExtractPage() {
         <form className="grid grid-cols-1 sm:grid-cols-2 gap-3.5" onSubmit={(e) => e.preventDefault()}>
           <label className="flex flex-col gap-1.5 font-medium">
             Estado *
-            <select 
-              className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" 
-              value={statusId} 
-              onChange={(e) => setStatusId(e.target.value)} 
-              required
-            >
-              <option value="">Seleccionar</option>
-              {statuses.map((s) => (
-                <option key={s.id} value={s.id}>{s.name}</option>
-              ))}
-            </select>
+            <CustomSelect value={statusId} onChange={setStatusId} options={statuses} placeholder="Seleccionar" />
           </label>
           <label className="flex flex-col gap-1.5 font-medium">
             Ubicacion
-            <select 
-              className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" 
-              value={locationId} 
-              onChange={(e) => setLocationId(e.target.value)}
-            >
-              <option value="">Sin ubicacion</option>
-              {locations.map((l) => (
-                <option key={l.id} value={l.id}>{l.name}</option>
-              ))}
-            </select>
+            <CustomSelect value={locationId} onChange={setLocationId} options={locations} placeholder="Sin ubicacion" />
           </label>
           <label className="flex flex-col gap-1.5 font-medium">
             Agencia *
-            <select
-              className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              value={selectedGuide ? selectedGuide.agencyId || '' : agencyId}
-              onChange={(e) => setAgencyId(e.target.value)}
-              disabled={!!selectedGuide}
-              required
-            >
-              <option value="">Seleccionar</option>
-              {agencies.map((a) => (
-                <option key={a.id} value={a.id}>{a.name}</option>
-              ))}
-            </select>
-            {selectedGuide && (
-              <span className="text-xs font-normal text-gray-500 dark:text-gray-400">
-                La agencia se hereda de la guia seleccionada
-              </span>
-            )}
+            <CustomSelect value={agencyId} onChange={setAgencyId} options={agencies} placeholder="Seleccionar" />
           </label>
           <label className="flex flex-col gap-1.5 font-medium">
             Guia *
@@ -392,16 +363,7 @@ function AiExtractPage() {
           )}
           <label className="flex flex-col gap-1.5 font-medium">
             Tipo de guia *
-            <select
-              className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              value={guideType}
-              onChange={(e) => setGuideType(e.target.value as GuideType)}
-              disabled={!!selectedGuide}
-              required
-            >
-              <option value="AEREA">Aerea</option>
-              <option value="MARITIMA">Maritima</option>
-            </select>
+            <CustomSelect value={guideType} onChange={(id) => setGuideType(id as GuideType)} options={GUIDE_TYPE_OPTIONS} placeholder="Seleccionar" />
           </label>
         </form>
         {/* ✅ Botones de acción siempre visibles */}

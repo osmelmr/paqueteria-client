@@ -8,7 +8,8 @@ import { useMunicipes } from '../hooks/useMunicipes';
 import { useStatuses } from '../hooks/useStatuses';
 import { useLocations } from '../hooks/useLocations';
 import type { UpdatePackageDto } from '../api/packages.api';
-import { toLocalDateInput, dateInputToIso, todayDateInput } from '../utils/date';
+import { toLocalDateInput, dateInputToIso } from '../utils/date';
+import { CustomSelect } from '../components/CustomSelect';
 
 export default function PackagesEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -148,28 +149,12 @@ export default function PackagesEditPage() {
            <label className="flex flex-col gap-1.5 font-medium">
 
             Guia
-            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.guideId} onChange={(e) => setForm((prev) => ({ ...prev, guideId: e.target.value }))}>
-              <option value="">Sin guia</option>
-              {guides.map((g) => <option key={g.id} value={g.id}>{g.name || g.agency?.name}</option>)}
-            </select>
+            <CustomSelect value={form.guideId} onChange={(id) => setForm((prev) => ({ ...prev, guideId: id }))} options={guides.map((g) => ({ id: g.id, name: g.name || g.agency?.name || 'Sin nombre' }))} placeholder="Sin guia" />
           </label>
            <label className="flex flex-col gap-1.5 font-medium">
 
             Destinatario
-            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.recipientId} onChange={(e) => {
-              const recipientId = e.target.value;
-              const selected = recipients.find((r) => r.id === recipientId);
-              setForm((prev) => ({
-                ...prev,
-                recipientId,
-                recipientName: selected?.fullName ?? '',
-                recipientIdCard: selected?.idCard ?? '',
-                recipientPhone: selected?.phone ?? '',
-              }));
-            }}>
-              <option value="">Seleccionar</option>
-              {recipients.map((r) => <option key={r.id} value={r.id}>{r.fullName}</option>)}
-            </select>
+            <CustomSelect value={form.recipientId} onChange={(id) => setForm((prev) => ({ ...prev, recipientId: id }))} options={recipients.map((r) => ({ id: r.id, name: r.fullName }))} placeholder="Seleccionar" />
           </label>
            <label className="flex flex-col gap-1.5 font-medium">
 
@@ -189,18 +174,12 @@ export default function PackagesEditPage() {
            <label className="flex flex-col gap-1.5 font-medium">
 
             Provincia
-            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.provinceId} onChange={(e) => setForm((prev) => ({ ...prev, provinceId: e.target.value }))}>
-              <option value="">Seleccionar</option>
-              {provinces.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
+            <CustomSelect value={form.provinceId} onChange={(id) => setForm((prev) => ({ ...prev, provinceId: id }))} options={provinces} placeholder="Seleccionar" />
           </label>
            <label className="flex flex-col gap-1.5 font-medium">
 
             Municipio
-            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.municipeId} onChange={(e) => setForm((prev) => ({ ...prev, municipeId: e.target.value }))}>
-              <option value="">Seleccionar</option>
-              {municipes.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-            </select>
+            <CustomSelect value={form.municipeId} onChange={(id) => setForm((prev) => ({ ...prev, municipeId: id }))} options={municipes} placeholder="Seleccionar" />
           </label>
            <label className="flex flex-col gap-1.5 font-medium">
 
@@ -228,27 +207,25 @@ export default function PackagesEditPage() {
            <label className="flex flex-col gap-1.5 font-medium">
 
             Estado
-            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.statusId} onChange={(e) => setForm((prev) => {
-              const newStatusId = e.target.value;
-              return {
-                ...prev,
-                statusId: newStatusId,
-                statusDate: !statusDateTouched && newStatusId !== (pkg?.status?.id || '')
-                  ? todayDateInput()
-                  : prev.statusDate,
-              };
-            })} required>
-              <option value="">Seleccionar</option>
-              {statuses.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
+            <CustomSelect
+              value={form.statusId}
+              onChange={(newStatusId) =>
+                setForm((prev) => ({
+                  ...prev,
+                  statusId: newStatusId,
+                  statusDate: !statusDateTouched && newStatusId !== (pkg?.status?.id || '')
+                    ? toLocalDateInput(new Date().toISOString())
+                    : prev.statusDate,
+                }))
+              }
+              options={statuses}
+              placeholder="Seleccionar"
+            />
           </label>
            <label className="flex flex-col gap-1.5 font-medium">
 
             Ubicacion
-            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.locationId} onChange={(e) => setForm((prev) => ({ ...prev, locationId: e.target.value }))}>
-              <option value="">Sin ubicacion</option>
-              {locations.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
-            </select>
+            <CustomSelect value={form.locationId} onChange={(id) => setForm((prev) => ({ ...prev, locationId: id }))} options={locations} placeholder="Sin ubicacion" />
           </label>
           <label className="col-span-full">
             Anotaciones

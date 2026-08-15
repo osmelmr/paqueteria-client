@@ -3,6 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useGuides, useUpdateGuide } from '../hooks/useGuides';
 import { useAgencies } from '../hooks/useAgencies';
 import type { GuideType } from '../api/guides.api';
+import { CustomSelect } from '../components/CustomSelect';
+
+const GUIDE_TYPE_OPTIONS = [
+  { id: 'AEREA', name: 'Aerea' },
+  { id: 'MARITIMA', name: 'Maritima' },
+];
 
 export default function GuidesEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -61,10 +67,7 @@ export default function GuidesEditPage() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-3.5 mb-4.5 grid grid-cols-2 gap-3.5">
           <label className="flex flex-col gap-1.5 font-medium">
             Agencia
-            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.agencyId} onChange={(e) => setForm((prev) => ({ ...prev, agencyId: e.target.value }))} required>
-              <option value="">Seleccionar agencia</option>
-              {agencies.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-            </select>
+            <CustomSelect value={form.agencyId} onChange={(id) => setForm((prev) => ({ ...prev, agencyId: id }))} options={agencies} placeholder="Seleccionar agencia" />
           </label>
           <label className="flex flex-col gap-1.5 font-medium">
             Referencia externa
@@ -72,10 +75,7 @@ export default function GuidesEditPage() {
           </label>
           <label className="flex flex-col gap-1.5 font-medium">
             Tipo
-            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.type} onChange={(e) => setForm((prev) => ({ ...prev, type: e.target.value as GuideType }))} required>
-              <option value="AEREA">Aerea</option>
-              <option value="MARITIMA">Maritima</option>
-            </select>
+            <CustomSelect value={form.type} onChange={(id) => setForm((prev) => ({ ...prev, type: id as GuideType }))} options={GUIDE_TYPE_OPTIONS} placeholder="Seleccionar" />
           </label>
           <div className="flex gap-2.5 flex-wrap mt-3.5" style={{ gridColumn: '1 / -1' }}>
             <button type="submit" className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50" disabled={updateGuide.isPending}>Actualizar guia</button>

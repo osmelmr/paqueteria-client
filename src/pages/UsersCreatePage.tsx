@@ -1,6 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateUser } from '../hooks/useUsers';
+import { CustomSelect } from '../components/CustomSelect';
+
+const ROLE_OPTIONS = [
+  { id: 'STOREKEEPER', name: 'Almacenero' },
+  { id: 'ADMIN', name: 'Admin' },
+];
 
 export default function UsersCreatePage() {
   const navigate = useNavigate();
@@ -45,10 +51,7 @@ export default function UsersCreatePage() {
           </label>
           <label className="flex flex-col gap-1.5 font-medium">
             Rol
-            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.role} onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value }))}>
-              <option value="STOREKEEPER">Almacenero</option>
-              <option value="ADMIN">Admin</option>
-            </select>
+            <CustomSelect value={form.role} onChange={(id) => setForm((prev) => ({ ...prev, role: id }))} options={ROLE_OPTIONS} placeholder="Seleccionar" />
           </label>
           <div className="flex gap-2.5 flex-wrap mt-3.5" style={{ gridColumn: '1 / -1' }}>
             <button type="submit" disabled={createUser.isPending} className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50">Crear usuario</button>

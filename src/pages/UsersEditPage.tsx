@@ -2,6 +2,12 @@ import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUsers, useUpdateUser } from '../hooks/useUsers';
 import { usersApi, type User } from '../api/users.api';
+import { CustomSelect } from '../components/CustomSelect';
+
+const ROLE_OPTIONS = [
+  { id: 'STOREKEEPER', name: 'Almacenero' },
+  { id: 'ADMIN', name: 'Admin' },
+];
 
 export default function UsersEditPage() {
   const navigate = useNavigate();
@@ -100,10 +106,7 @@ export default function UsersEditPage() {
           </label>
           <label className="flex flex-col gap-1.5 font-medium">
             Rol
-            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.role} onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value }))}>
-              <option value="STOREKEEPER">Almacenero</option>
-              <option value="ADMIN">Admin</option>
-            </select>
+            <CustomSelect value={form.role} onChange={(id) => setForm((prev) => ({ ...prev, role: id }))} options={ROLE_OPTIONS} placeholder="Seleccionar" />
           </label>
           <div className="flex gap-2.5 flex-wrap mt-3.5" style={{ gridColumn: '1 / -1' }}>
             <button type="submit" className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50" disabled={updateUser.isPending}>Actualizar usuario</button>

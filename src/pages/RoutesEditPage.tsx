@@ -2,7 +2,7 @@ import { useState, type FormEvent, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useRoutes, useUpdateRoute } from '../hooks/useRoutes';
 import { useVehicles } from '../hooks/useVehicles';
-import { useDrivers } from '../hooks/useDrivers';
+import { CustomSelect } from '../components/CustomSelect';
 
 export default function RoutesEditPage() {
   const { id } = useParams();
@@ -102,10 +102,7 @@ export default function RoutesEditPage() {
           </label>
           <label className="flex flex-col gap-1.5 font-medium">
             Vehiculo
-            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.vehicleId} onChange={(e) => handleVehicleChange(e.target.value)} required>
-              <option value="">Seleccionar</option>
-              {vehicles.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
-            </select>
+            <CustomSelect value={form.vehicleId} onChange={(id) => setForm((prev) => ({ ...prev, vehicleId: id }))} options={vehicles} placeholder="Seleccionar" />
           </label>
           <label className="flex flex-col gap-1.5 font-medium">
             Choferes

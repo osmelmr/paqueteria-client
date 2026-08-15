@@ -16,6 +16,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { CustomSelect } from './CustomSelect';
 
 interface FilterFormState {
   guideId: string;
@@ -144,34 +145,22 @@ export function PackageFiltersForm({
         {/* Grid de filtros */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           {/* Guía */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FileText className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-            </div>
-            <select 
-              className="w-full h-10 pl-9 pr-3 border border-border rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-surface dark:hover:bg-gray-700/70 appearance-none" 
-              value={filterForm.guideId} 
-              onChange={(e) => setFilterForm((prev) => ({ ...prev, guideId: e.target.value }))}
-            >
-              <option value="">Guía</option>
-              {guides?.map((g) => <option key={g.id} value={g.id}>{g.name || 'Sin nombre'}</option>)}
-            </select>
-          </div>
+          <CustomSelect
+            value={filterForm.guideId}
+            onChange={(id) => setFilterForm((prev) => ({ ...prev, guideId: id }))}
+            options={guides}
+            placeholder="Guía"
+            icon={FileText}
+          />
 
           {/* Estado */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Activity className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-            </div>
-            <select 
-              className="w-full h-10 pl-9 pr-3 border border-border rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-surface dark:hover:bg-gray-700/70 appearance-none" 
-              value={filterForm.statusId} 
-              onChange={(e) => setFilterForm((prev) => ({ ...prev, statusId: e.target.value }))}
-            >
-              <option value="">Estado</option>
-              {statuses?.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
-          </div>
+          <CustomSelect
+            value={filterForm.statusId}
+            onChange={(id) => setFilterForm((prev) => ({ ...prev, statusId: id }))}
+            options={statuses}
+            placeholder="Estado"
+            icon={Activity}
+          />
 
           {/* Fecha de estado */}
           {filterForm.statusId && (
@@ -189,19 +178,13 @@ export function PackageFiltersForm({
           )}
 
           {/* Ubicación */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MapPin className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-            </div>
-            <select 
-              className="w-full h-10 pl-9 pr-3 border border-border rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-surface dark:hover:bg-gray-700/70 appearance-none" 
-              value={filterForm.locationId} 
-              onChange={(e) => setFilterForm((prev) => ({ ...prev, locationId: e.target.value }))}
-            >
-              <option value="">Ubicación</option>
-              {locations?.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
-            </select>
-          </div>
+          <CustomSelect
+            value={filterForm.locationId}
+            onChange={(id) => setFilterForm((prev) => ({ ...prev, locationId: id }))}
+            options={locations}
+            placeholder="Ubicación"
+            icon={MapPin}
+          />
 
           {/* Provincia (multi-select) */}
           <div className="relative" ref={provinceRef}>
@@ -285,51 +268,34 @@ export function PackageFiltersForm({
           </div>
 
           {/* Municipio / Cabecera */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MapPin className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-            </div>
-            <select 
-              className="w-full h-10 pl-9 pr-3 border border-border rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-surface dark:hover:bg-gray-700/70 appearance-none" 
-              value={filterForm.municipeId} 
-              onChange={(e) => setFilterForm((prev) => ({ ...prev, municipeId: e.target.value }))}
-            >
-              <option value="">Municipio</option>
-              <option value="__header__">Cabecera</option>
-              {municipes?.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-            </select>
-          </div>
+          <CustomSelect
+            value={filterForm.municipeId}
+            onChange={(id) => setFilterForm((prev) => ({ ...prev, municipeId: id }))}
+            options={[{ id: '__header__', name: 'Cabecera' }, ...municipes]}
+            placeholder="Municipio"
+            icon={MapPin}
+          />
 
           {/* Agencia */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Building2 className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-            </div>
-            <select 
-              className="w-full h-10 pl-9 pr-3 border border-border rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-surface dark:hover:bg-gray-700/70 appearance-none" 
-              value={filterForm.agencyId} 
-              onChange={(e) => setFilterForm((prev) => ({ ...prev, agencyId: e.target.value }))}
-            >
-              <option value="">Agencia</option>
-              {agencies?.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-            </select>
-          </div>
+          <CustomSelect
+            value={filterForm.agencyId}
+            onChange={(id) => setFilterForm((prev) => ({ ...prev, agencyId: id }))}
+            options={agencies}
+            placeholder="Agencia"
+            icon={Building2}
+          />
 
           {/* Tipo de guía */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Plane className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-            </div>
-            <select 
-              className="w-full h-10 pl-9 pr-3 border border-border rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-surface dark:hover:bg-gray-700/70 appearance-none" 
-              value={filterForm.guideType} 
-              onChange={(e) => setFilterForm((prev) => ({ ...prev, guideType: e.target.value }))}
-            >
-              <option value="">Tipo guía</option>
-              <option value="AEREA">Aérea</option>
-              <option value="MARITIMA">Marítima</option>
-            </select>
-          </div>
+          <CustomSelect
+            value={filterForm.guideType}
+            onChange={(id) => setFilterForm((prev) => ({ ...prev, guideType: id }))}
+            options={[
+              { id: 'AEREA', name: 'Aérea' },
+              { id: 'MARITIMA', name: 'Marítima' },
+            ]}
+            placeholder="Tipo guía"
+            icon={Plane}
+          />
 
           {/* HBL Input */}
           <div className="relative">

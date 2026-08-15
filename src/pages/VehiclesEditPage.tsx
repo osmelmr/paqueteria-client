@@ -2,6 +2,7 @@ import { useState, type FormEvent, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useVehicles, useUpdateVehicle } from '../hooks/useVehicles';
 import { useDrivers } from '../hooks/useDrivers';
+import { CustomSelect } from '../components/CustomSelect';
 
 export default function VehiclesEditPage() {
   const { id } = useParams();
@@ -63,10 +64,7 @@ export default function VehiclesEditPage() {
           </label>
           <label className="flex flex-col gap-1.5 font-medium">
             Choferes
-            <select className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value="" onChange={(e) => { if (e.target.value) toggleDriver(e.target.value); }}>
-              <option value="">Agregar chofer...</option>
-              {drivers.filter((d) => !driverIds.includes(d.id)).map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-            </select>
+            <CustomSelect value="" onChange={(id) => toggleDriver(id)} options={drivers.filter((d) => !driverIds.includes(d.id)).map((d) => ({ id: d.id, name: d.name }))} placeholder="Agregar chofer..." />
           </label>
           {driverIds.length > 0 && (
             <div className="col-span-full flex flex-wrap gap-2">

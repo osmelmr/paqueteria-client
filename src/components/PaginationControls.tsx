@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { CustomSelect } from './CustomSelect';
 
 interface PaginationControlsProps {
   currentPage: number;
@@ -139,18 +140,14 @@ export function PaginationControls({
         {onLimitChange && (
           <label className="ml-3 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             Mostrar
-            <select
-              value={itemsPerPage}
-              onChange={(e) => onLimitChange(Number(e.target.value))}
+            <CustomSelect
+              value={String(itemsPerPage)}
+              onChange={(id) => onLimitChange(Number(id))}
+              options={PAGE_SIZE_OPTIONS.map((size) => ({ id: String(size), name: String(size) }))}
+              searchable={false}
               disabled={loading}
-              className="rounded-lg border border-border bg-white px-2 py-2 text-sm text-gray-700 dark:text-gray-300 dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500/40"
-            >
-              {PAGE_SIZE_OPTIONS.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
+              className="w-24"
+            />
           </label>
         )}
       </div>
