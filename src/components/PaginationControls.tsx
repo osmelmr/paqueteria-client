@@ -96,7 +96,7 @@ export function PaginationControls({
               className={`inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
                 page === currentPage
                   ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
-                  : 'border border-border bg-white text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  : 'border border-border bg-surface text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
               aria-current={page === currentPage ? 'page' : undefined}
             >
@@ -111,7 +111,7 @@ export function PaginationControls({
               type="button"
               onClick={() => onPageChange(totalPages)}
               disabled={loading}
-              className="inline-flex items-center justify-center rounded-lg border border-border bg-white px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="inline-flex items-center justify-center rounded-lg border border-border bg-surface px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               {totalPages}
             </button>
