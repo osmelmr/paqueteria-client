@@ -37,6 +37,14 @@ export default function PackagesCreatePage() {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setLocalError(null);
+    if (!form.statusId) {
+      setLocalError('Debes seleccionar un estado');
+      return;
+    }
+    if (!form.locationId) {
+      setLocalError('Debes seleccionar una ubicación');
+      return;
+    }
     try {
       const dto: CreatePackageDto = {
         guideId: form.guideId || undefined,
@@ -104,12 +112,12 @@ export default function PackagesCreatePage() {
           </label>
            <label className="flex flex-col gap-1.5 font-medium">
 
-            Estado
+            Estado *
             <CustomSelect value={form.statusId} onChange={(id) => setForm((prev) => ({ ...prev, statusId: id }))} options={statuses} placeholder="Seleccionar" />
           </label>
            <label className="flex flex-col gap-1.5 font-medium">
 
-            Ubicacion
+            Ubicacion *
             <CustomSelect value={form.locationId} onChange={(id) => setForm((prev) => ({ ...prev, locationId: id }))} options={locations} placeholder="Seleccionar" />
           </label>
           <label className="col-span-full">
