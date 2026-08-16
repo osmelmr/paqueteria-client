@@ -83,7 +83,7 @@ export function Navbar() {
           aria-label="Recepción"
         >
           <Download className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-          <span className="sr-only">Recepción</span>
+          <span className="hidden md:inline ml-1.5">Recepción</span>
         </button>
 
         <button
@@ -93,7 +93,7 @@ export function Navbar() {
           aria-label="Registrar paquetes nuevos"
         >
           <FileText className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-          <span className="sr-only">Registrar paquetes nuevos</span>
+          <span className="hidden md:inline ml-1.5">Agregar</span>
         </button>
       </div>
 
