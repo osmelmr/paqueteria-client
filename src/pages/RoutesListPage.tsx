@@ -2,6 +2,20 @@ import { useRoutes, useDeleteRoute } from '../hooks/useRoutes';
 import { useNavigate } from 'react-router-dom';
 import {DescargaExcelButton} from '../components/DescargaExcelButton.js'
 
+function parseNotFound(raw: string | null | undefined): string[] {
+  if (!raw) return [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed.map(String);
+  } catch {
+    /* ignorar y tratar como texto */
+  }
+  return raw
+    .split(/[\r\n,;]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 export default function RoutesListPage() {
   const { data: items = [], isLoading, error: queryError } = useRoutes();
   const deleteEntity = useDeleteRoute();
@@ -37,6 +51,7 @@ export default function RoutesListPage() {
                 <th className="border border-border p-2.5 text-left bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100 font-semibold">Salida</th>
                 <th className="border border-border p-2.5 text-left bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100 font-semibold">Vehiculo</th>
                 <th className="border border-border p-2.5 text-left bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100 font-semibold">Paquetes</th>
+                <th className="border border-border p-2.5 text-left bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100 font-semibold">No encontrados</th>
                 <th className="border border-border p-2.5 text-left bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100 font-semibold">Acciones</th>
               </tr>
             </thead>
@@ -47,6 +62,23 @@ export default function RoutesListPage() {
                   <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">{formatDate(item.departureDate)}</td>
                   <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">{item.vehicle?.name ?? '-'}</td>
                   <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">{item.packages?.length ?? 0}</td>
+                  {(() => {
+                    const missing = parseNotFound(item.notFound);
+                    return (
+                      <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">
+                        {missing.length > 0 ? (
+                          <span
+                            title={missing.join(', ')}
+                            className="inline-flex items-center rounded-full bg-rose-100 dark:bg-rose-900/30 px-2.5 py-1 text-xs font-semibold text-rose-700 dark:text-rose-400 cursor-help"
+                          >
+                            {missing.length}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400 dark:text-gray-500">—</span>
+                        )}
+                      </td>
+                    );
+                  })()}
                   <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">
                     <div className="flex gap-2 flex-wrap">
                       <button type="button" className="bg-purple-500 dark:bg-purple-400 text-white rounded-xl px-2.5 py-2 text-xs cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors" onClick={() => navigate(`/routes/${item.id}/edit`)}>Editar</button>
@@ -56,7 +88,7 @@ export default function RoutesListPage() {
                   </td>
                 </tr>
               ))}
-              {items.length === 0 && !isLoading && <tr><td colSpan={5} className="border border-border p-2.5 text-gray-700 dark:text-gray-300" style={{ textAlign: 'center', color: 'var(--muted)' }}>No hay rutas registradas</td></tr>}
+              {items.length === 0 && !isLoading && <tr><td colSpan={6} className="border border-border p-2.5 text-gray-700 dark:text-gray-300" style={{ textAlign: 'center', color: 'var(--muted)' }}>No hay rutas registradas</td></tr>}
             </tbody>
           </table>
         </div>

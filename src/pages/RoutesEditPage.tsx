@@ -5,6 +5,21 @@ import { useVehicles } from '../hooks/useVehicles';
 import { useDrivers } from '../hooks/useDrivers';
 import { CustomSelect } from '../components/CustomSelect';
 import { DatePicker } from '../components/DatePicker';
+import { CreateMissingPackageModal } from '../components/CreateMissingPackageModal';
+
+function parseNotFound(raw: string | null | undefined): string[] {
+  if (!raw) return [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed.map(String);
+  } catch {
+    /* ignorar y tratar como texto */
+  }
+  return raw
+    .split(/[\r\n,;]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
 
 export default function RoutesEditPage() {
   const { id } = useParams();
@@ -23,6 +38,9 @@ export default function RoutesEditPage() {
     vehicleId: '',
     hbls: '',
   });
+  const [notFoundHbls, setNotFoundHbls] = useState<string[]>([]);
+  const [newNotFoundHbl, setNewNotFoundHbl] = useState('');
+  const [editingHbl, setEditingHbl] = useState<string | null>(null);
   const [driverIds, setDriverIds] = useState<string[]>([]);
   const [localError, setLocalError] = useState<string | null>(null);
 
@@ -37,6 +55,7 @@ export default function RoutesEditPage() {
       vehicleId: route.vehicleId,
       hbls: route.packages?.flatMap((p) => p.hbls?.map((h) => h.hblCode) ?? []).join(', ') ?? '',
     });
+    setNotFoundHbls(parseNotFound(route.notFound));
     const routeDrivers = route.drivers?.map((r) => r.driverId) ?? [];
     if (routeDrivers.length > 0) {
       setDriverIds(routeDrivers);
@@ -79,6 +98,7 @@ export default function RoutesEditPage() {
           departureDate: form.departureDate ? new Date(form.departureDate).toISOString() : undefined,
           vehicleId: form.vehicleId || undefined,
           hbls: form.hbls.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean),
+          notFound: notFoundHbls,
           driverIds,
         },
       });
@@ -133,12 +153,93 @@ export default function RoutesEditPage() {
             HBLs (separados por coma, punto y coma o saltos de linea)
             <textarea className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.hbls} onChange={(e) => setForm((prev) => ({ ...prev, hbls: e.target.value }))} rows={3} />
           </label>
+          <div className="col-span-full flex flex-col gap-1.5">
+            <span className="flex items-center gap-2 font-medium">
+              Paquetes faltantes
+              <span className="text-xs font-normal text-gray-500 dark:text-gray-400">
+                ({notFoundHbls.length} HBLs sin paquete asociado)
+              </span>
+            </span>
+            <div className="flex flex-col gap-2">
+              {notFoundHbls.map((hbl, idx) => (
+                <span
+                  key={`${hbl}-${idx}`}
+                  className="flex items-center gap-2 rounded-lg border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-900/20 px-3 py-2"
+                >
+                  <span className="selectable-text flex-1 font-mono text-xs text-rose-700 dark:text-rose-400">{hbl}</span>
+                  <button
+                    type="button"
+                    onClick={() => setEditingHbl(hbl)}
+                    className="bg-rose-500 text-white font-semibold rounded-lg px-3 py-1.5 text-xs cursor-pointer border-none hover:bg-rose-600 transition-colors"
+                  >
+                    Editar paquete
+                  </button>
+                  <button
+                    type="button"
+                    title="Quitar de la lista"
+                    onClick={() => setNotFoundHbls((prev) => prev.filter((h) => h !== hbl))}
+                    className="bg-transparent border-none cursor-pointer text-gray-500 dark:text-gray-400 hover:text-red-500 font-bold"
+                  >
+                    x
+                  </button>
+                </span>
+              ))}
+              {notFoundHbls.length === 0 && (
+                <p className="text-sm text-gray-500 dark:text-gray-400">Sin HBLs pendientes de registro</p>
+              )}
+              <div className="flex gap-2">
+                <input
+                  className="border border-border rounded-xl px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex-1"
+                  value={newNotFoundHbl}
+                  onChange={(e) => setNewNotFoundHbl(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const hbl = newNotFoundHbl.trim();
+                      if (hbl && !notFoundHbls.includes(hbl)) {
+                        setNotFoundHbls((prev) => [...prev, hbl]);
+                      }
+                      setNewNotFoundHbl('');
+                    }
+                  }}
+                  placeholder="Escribir un HBL faltante y presionar Enter"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const hbl = newNotFoundHbl.trim();
+                    if (hbl && !notFoundHbls.includes(hbl)) {
+                      setNotFoundHbls((prev) => [...prev, hbl]);
+                    }
+                    setNewNotFoundHbl('');
+                  }}
+                  className="bg-slate-100 dark:bg-slate-700 text-gray-900 dark:text-gray-100 border border-border font-semibold rounded-xl px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+                >
+                  Agregar
+                </button>
+              </div>
+            </div>
+          </div>
           <div className="flex gap-2.5 flex-wrap mt-3.5" style={{ gridColumn: '1 / -1' }}>
             <button type="submit" className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50" disabled={updateRoute.isPending}>Guardar</button>
             <button type="button" className="bg-slate-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-border font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={() => navigate('/routes')}>Cancelar</button>
           </div>
         </form>
       </div>
+      <CreateMissingPackageModal
+        isOpen={editingHbl !== null}
+        hbl={editingHbl ?? ''}
+        onClose={() => setEditingHbl(null)}
+        onCreated={(hbl) => {
+          setNotFoundHbls((prev) => prev.filter((h) => h !== hbl));
+          setForm((prev) => {
+            const list = prev.hbls.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean);
+            if (!list.includes(hbl)) list.push(hbl);
+            return { ...prev, hbls: list.join(', ') };
+          });
+          setEditingHbl(null);
+        }}
+      />
     </div>
   );
 }

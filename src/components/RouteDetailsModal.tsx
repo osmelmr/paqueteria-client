@@ -7,6 +7,20 @@ interface RouteDetailsModalProps {
   onClose: () => void;
 }
 
+function parseNotFound(raw: string | null | undefined): string[] {
+  if (!raw) return [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed.map(String);
+  } catch {
+    /* ignorar y tratar como texto */
+  }
+  return raw
+    .split(/[\r\n,;]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 export function RouteDetailsModal({ isOpen, routeId, onClose }: RouteDetailsModalProps) {
   const { data, isLoading, isError } = useRoute(routeId ?? undefined);
 
@@ -92,6 +106,28 @@ export function RouteDetailsModal({ isOpen, routeId, onClose }: RouteDetailsModa
                   <p className="text-sm text-slate-500 dark:text-slate-400">No hay paquetes asociados a esta ruta.</p>
                 )}
               </div>
+
+              {parseNotFound(data.notFound).length > 0 && (
+                <div className="rounded-2xl bg-slate-50 dark:bg-slate-900 p-4">
+                  <div className="flex items-center gap-2 mb-3 text-sm font-semibold text-rose-800 dark:text-rose-300">
+                    <X className="w-4 h-4" />
+                    HBLs no encontrados
+                    <span className="rounded-full bg-rose-500 px-2 py-0.5 text-xs font-semibold text-white">
+                      {parseNotFound(data.notFound).length}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {parseNotFound(data.notFound).map((hbl, idx) => (
+                      <span
+                        key={`${hbl}-${idx}`}
+                        className="selectable-text rounded-lg border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-900/20 px-2.5 py-1 font-mono text-xs text-rose-700 dark:text-rose-400"
+                      >
+                        {hbl}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

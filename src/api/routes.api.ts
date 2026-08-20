@@ -11,6 +11,7 @@ export interface Route {
   vehicle?: Vehicle | null;
   drivers?: Array<{ id: string; driverId: string; driver: { id: string; name: string } }>;
   packages?: PackageItem[];
+  notFound?: string | null;
 }
 
 export interface CreateRouteDto {
@@ -20,6 +21,7 @@ export interface CreateRouteDto {
   vehicleId: string;
   hbls: string[];
   driverIds?: string[];
+  notFound?: string[];
 }
 
 export interface UpdateRouteDto {
@@ -29,6 +31,7 @@ export interface UpdateRouteDto {
   vehicleId?: string;
   hbls?: string[];
   driverIds?: string[];
+  notFound?: string[];
 }
 
 export interface CreateRouteResult {
