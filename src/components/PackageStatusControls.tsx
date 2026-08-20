@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Save } from 'lucide-react';
 import { todayDateInput } from '../utils/date';
+import { DatePicker } from './DatePicker';
 
 interface SelectOption {
   id: string;
@@ -138,14 +139,14 @@ export const PackageStatusControls: React.FC<PackageStatusControlsProps> = ({
         </div>
         {/* Fecha del cambio de estado */}
         <div className="relative w-full sm:max-w-40 sm:min-w-30">
-          <input
-            type="date"
+          <DatePicker
             value={statusDate}
+            onChange={onStatusDateChange}
             min={minStatusDate || undefined}
             max={todayDateInput()}
-            onChange={(e) => onStatusDateChange(e.target.value)}
             title="Fecha del cambio de estado"
-            className="w-full h-8 px-2 rounded-md text-sm bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 transition-colors"
+            placeholder="Fecha"
+            className="w-full h-8 px-2 rounded-md border border-gray-300 dark:border-gray-700 bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
           />
         </div>
       </div>

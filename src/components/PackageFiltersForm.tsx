@@ -8,7 +8,6 @@ import {
   Building2, 
   Plane, 
   AlertTriangle,
-  Calendar,
   Hash,
   Search as SearchIcon,
   RotateCcw,
@@ -17,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CustomSelect } from './CustomSelect';
+import { DatePicker } from './DatePicker';
 
 interface FilterFormState {
   guideId: string;
@@ -164,17 +164,12 @@ export function PackageFiltersForm({
 
           {/* Fecha de estado */}
           {filterForm.statusId && (
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-              </div>
-              <input 
-                type="date"
-                className="w-full h-10 pl-9 pr-3 border border-border rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-surface dark:hover:bg-gray-700/70" 
-                value={filterForm.statusDate} 
-                onChange={(e) => setFilterForm((prev) => ({ ...prev, statusDate: e.target.value }))} 
-              />
-            </div>
+            <DatePicker
+              value={filterForm.statusDate}
+              onChange={(v) => setFilterForm((prev) => ({ ...prev, statusDate: v }))}
+              placeholder="Fecha de estado"
+              className="w-full h-10 bg-gray-50 dark:bg-gray-700/50 hover:bg-surface dark:hover:bg-gray-700/70"
+            />
           )}
 
           {/* Ubicación */}

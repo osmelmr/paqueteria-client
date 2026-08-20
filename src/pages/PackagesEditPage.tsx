@@ -11,6 +11,7 @@ import type { UpdatePackageDto } from '../api/packages.api';
 import { toLocalDateInput, dateInputToIso, todayDateInput } from '../utils/date';
 import { CustomSelect } from '../components/CustomSelect';
 import { RecipientsCustomSelect } from '../components/RecipientsCustomSelect';
+import { DatePicker } from '../components/DatePicker';
 
 export default function PackagesEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -200,10 +201,16 @@ export default function PackagesEditPage() {
            <label className="flex flex-col gap-1.5 font-medium">
 
             Fecha cambio de estado
-            <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" type="date" min={minStatusDate} max={todayDateInput()} value={form.statusDate} onChange={(e) => {
-              setStatusDateTouched(true);
-              setForm((prev) => ({ ...prev, statusDate: e.target.value }));
-            }} />
+            <DatePicker
+              value={form.statusDate}
+              min={minStatusDate}
+              max={todayDateInput()}
+              onChange={(v) => {
+                setStatusDateTouched(true);
+                setForm((prev) => ({ ...prev, statusDate: v }));
+              }}
+              className="w-full"
+            />
           </label>
            <label className="flex flex-col gap-1.5 font-medium">
 

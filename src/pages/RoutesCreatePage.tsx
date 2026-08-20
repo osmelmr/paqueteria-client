@@ -12,6 +12,7 @@ import { useVehicles } from '../hooks/useVehicles';
 import { useDrivers } from '../hooks/useDrivers';
 import type { CreateRouteDto, CreateRouteResult } from '../api/routes.api';
 import { CustomSelect } from '../components/CustomSelect';
+import { DatePicker } from '../components/DatePicker';
 
 export default function RoutesCreatePage() {
   const navigate = useNavigate();
@@ -215,7 +216,12 @@ export default function RoutesCreatePage() {
           </label>
           <label className="flex flex-col gap-1.5 font-medium">
             Fecha de salida
-            <input className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" type="datetime-local" value={form.departureDate} onChange={(e) => setForm((prev) => ({ ...prev, departureDate: e.target.value }))} required />
+            <DatePicker
+              value={form.departureDate}
+              onChange={(v) => setForm((prev) => ({ ...prev, departureDate: v }))}
+              placeholder="Seleccionar fecha"
+              className="w-full"
+            />
           </label>
           <label className="flex flex-col gap-1.5 font-medium">
             Vehiculo

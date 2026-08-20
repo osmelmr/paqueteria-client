@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react';
 import {
-  CalendarDays,
   CheckCircle2,
   Loader2,
   Package as PackageIcon,
@@ -11,6 +10,7 @@ import { useStatuses } from '../hooks/useStatuses';
 import { useLocations } from '../hooks/useLocations';
 import { dateInputToIso, todayDateInput } from '../utils/date';
 import { CustomSelect } from '../components/CustomSelect';
+import { DatePicker } from '../components/DatePicker';
 
 type BulkResult = {
   success: Array<{ hbl: string; package: { statusId?: string; locationId?: string | null } | null }>;
@@ -99,17 +99,13 @@ export default function UpdateStatusBulkPage() {
         </label>
         <label className="flex flex-col gap-1.5 font-medium">
           Fecha cambio de estado *
-          <div className="relative">
-            <CalendarDays className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
-            <input
-              className="w-full appearance-none border border-border rounded-xl py-2.5 pl-10 pr-10 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 transition-colors hover:border-gray-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/30 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-3 [&::-webkit-calendar-picker-indicator]:top-1/2 [&::-webkit-calendar-picker-indicator]:-translate-y-1/2 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:transition-opacity hover:[&::-webkit-calendar-picker-indicator]:opacity-100 dark:[&::-webkit-calendar-picker-indicator]:invert dark:[&::-webkit-calendar-picker-indicator]:opacity-70 dark:hover:[&::-webkit-calendar-picker-indicator]:opacity-100"
-              type="date"
-              max={todayDateInput()}
-              value={statusDate}
-              onChange={(e) => setStatusDate(e.target.value)}
-              required
-            />
-          </div>
+          <DatePicker
+            value={statusDate}
+            onChange={setStatusDate}
+            max={todayDateInput()}
+            placeholder="Seleccionar fecha"
+            className="w-full"
+          />
         </label>
         <button type="submit" className="col-span-full bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50 flex items-center justify-center gap-2" disabled={mutation.isPending}>
           {mutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
