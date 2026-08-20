@@ -10,6 +10,7 @@ import AiExtractPage from '../pages/AiExtractPage';
 import ExcelImportPage from '../pages/ExcelImportPage';
 import RegisterPackagesPage from '../pages/RegisterPackagesPage';
 import UpdateStatusBulkPage from '../pages/UpdateStatusBulkPage';
+import ConsultarHblsPage from '../pages/ConsultarHblsPage';
 import AgenciesListPage from '../pages/AgenciesListPage';
 import AgenciesCreatePage from '../pages/AgenciesCreatePage';
 import AgenciesEditPage from '../pages/AgenciesEditPage';
@@ -99,6 +100,7 @@ export const router = createBrowserRouter([
           { path: 'excel-import', element: <ExcelImportPage /> },
           { path: 'register-packages', element: <RegisterPackagesPage /> },
           { path: 'update-status-bulk', element: <UpdateStatusBulkPage /> },
+          { path: 'consultar-hbls', element: <ConsultarHblsPage /> },
         ],
       },
     ],

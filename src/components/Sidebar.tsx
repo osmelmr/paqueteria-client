@@ -23,7 +23,12 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     label: 'Paquetes', roles: ['ADMIN', 'STOREKEEPER'],
-    path: '/packages',
+    links: [
+      { label: 'Paquetes', path: '/packages' },
+      { label: 'Consultar HBLs', path: '/consultar-hbls' },
+      { label: 'Registrar paquetes', path: '/register-packages' },
+      { label: 'Actualizar estado', path: '/update-status-bulk' },
+    ],
   },
   
   {

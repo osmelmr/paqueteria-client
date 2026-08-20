@@ -111,6 +111,11 @@ export interface UpdatePackageDto extends Partial<CreatePackageDto> {
   statusId?: string;
 }
 
+export interface CheckHblsResult {
+  found: Package[];
+  notFound: string[];
+}
+
 export interface PackageHistoryItem {
   id: string;
   packageId: string;
@@ -132,6 +137,9 @@ export const packagesApi = {
 
   findByHbl: (hbl: string) =>
     api.get(`/packages/by-hbl/${hbl}`).then((r) => r.data),
+
+  checkHbls: (hbls: string[]) =>
+    api.post<CheckHblsResult>('/packages/check-hbls', { hbls }).then((r) => r.data),
 
   create: (dto: CreatePackageDto) =>
     api.post('/packages', dto).then((r) => r.data),

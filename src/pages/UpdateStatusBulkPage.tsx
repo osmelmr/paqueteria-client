@@ -68,8 +68,8 @@ export default function UpdateStatusBulkPage() {
   };
 
   return (
-    <div className="p-[18px] border border-border rounded-xl bg-surface shadow-lg mb-[18px]">
-      <h2 className="text-gray-900 dark:text-gray-100 font-semibold m-0 mb-4">Actualizar estado por HBL (bulk)</h2>
+    <div className="p-4.5 border border-border rounded-xl bg-surface shadow-lg mb-4.5">
+      <h2 className="text-gray-900 dark:text-gray-100 font-semibold m-0 mb-4">Actualizar estado por HBL</h2>
       {error && <div className="mb-4 p-3.5 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl">{error}</div>}
       {mutation.isPending && (
         <div className="mb-4 p-3 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-gray-900 dark:text-gray-100 flex items-center gap-2">

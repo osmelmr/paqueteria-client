@@ -32,6 +32,12 @@ export function usePackageHistory(id: string, enabled = true) {
   });
 }
 
+export function useCheckHbls() {
+  return useMutation({
+    mutationFn: (hbls: string[]) => packagesApi.checkHbls(hbls),
+  });
+}
+
 export function useCreatePackage() {
   const qc = useQueryClient();
   return useMutation({
