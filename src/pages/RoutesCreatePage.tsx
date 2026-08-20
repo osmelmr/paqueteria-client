@@ -1,9 +1,16 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  Check,
+  CheckCircle2,
+  Copy,
+  Plus,
+  XCircle,
+} from 'lucide-react';
 import { useCreateRoute } from '../hooks/useRoutes';
 import { useVehicles } from '../hooks/useVehicles';
 import { useDrivers } from '../hooks/useDrivers';
-import type { CreateRouteDto } from '../api/routes.api';
+import type { CreateRouteDto, CreateRouteResult } from '../api/routes.api';
 import { CustomSelect } from '../components/CustomSelect';
 
 export default function RoutesCreatePage() {
@@ -23,6 +30,8 @@ export default function RoutesCreatePage() {
   });
   const [driverIds, setDriverIds] = useState<string[]>([]);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [result, setResult] = useState<CreateRouteResult | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const handleVehicleChange = (vehicleId: string) => {
     setForm((prev) => ({ ...prev, vehicleId }));
@@ -38,9 +47,19 @@ export default function RoutesCreatePage() {
     );
   };
 
+  const resetForm = () => {
+    setForm({ name: '', description: '', departureDate: '', vehicleId: '', hbls: '' });
+    setDriverIds([]);
+    setResult(null);
+    setCopied(false);
+    setLocalError(null);
+  };
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setLocalError(null);
+    setResult(null);
+    setCopied(false);
 
     if (!form.departureDate) {
       setLocalError('La fecha de salida es obligatoria');
@@ -60,12 +79,129 @@ export default function RoutesCreatePage() {
         hbls: form.hbls.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean),
         driverIds,
       };
-      await createRoute.mutateAsync(dto);
-      navigate('/routes');
+      const res = await createRoute.mutateAsync(dto);
+      setResult(res);
     } catch (err) {
       setLocalError((err as Error).message);
     }
   };
+
+  const handleCopyNotFound = async () => {
+    if (!result || result.notFound.length === 0) return;
+    const text = result.notFound.join('\n');
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (result) {
+    const totalHbls = result.totalHbls ?? result.notFound.length + result.foundPackages;
+    return (
+      <div className="max-w-7xl mx-auto w-full min-w-0">
+        <div className="p-[18px] border border-emerald-200 dark:border-emerald-900/50 rounded-xl bg-surface shadow-lg mb-[18px]">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-gray-900 dark:text-gray-100 font-semibold m-0">Ruta creada correctamente</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 m-0 uppercase">{result.route.name}</p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 p-4 border border-border rounded-xl bg-white dark:bg-slate-900 mb-4">
+            <span className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+              Total consultados: {totalHbls}
+            </span>
+            <span className="flex items-center gap-1.5 text-xs font-medium rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2.5 py-1 text-emerald-700 dark:text-emerald-400">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              {result.foundPackages} paquetes encontrados
+            </span>
+            <span className="flex items-center gap-1.5 text-xs font-medium rounded-full bg-rose-100 dark:bg-rose-900/30 px-2.5 py-1 text-rose-700 dark:text-rose-400">
+              <XCircle className="h-3.5 w-3.5" />
+              {result.notFound.length} HBLs no encontrados
+            </span>
+          </div>
+
+          <div className="overflow-hidden rounded-xl border border-rose-200 dark:border-rose-900/50 bg-white dark:bg-slate-900">
+            <div className="flex items-center justify-between gap-3 bg-rose-50 px-4 py-3 dark:bg-rose-900/20">
+              <span className="flex items-center gap-2 text-sm font-semibold text-rose-800 dark:text-rose-300">
+                <XCircle className="h-4 w-4" />
+                HBLs no encontrados
+              </span>
+              <div className="flex items-center gap-2">
+                {result.notFound.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleCopyNotFound}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors ${
+                      copied
+                        ? 'bg-emerald-500 text-white'
+                        : 'bg-white text-rose-700 dark:bg-slate-800 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/40'
+                    }`}
+                  >
+                    {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                    {copied ? '¡Copiados!' : 'Copiar'}
+                  </button>
+                )}
+                <span className="rounded-full bg-rose-500 px-2.5 py-0.5 text-xs font-semibold text-white">
+                  {result.notFound.length}
+                </span>
+              </div>
+            </div>
+            {result.notFound.length === 0 ? (
+              <p className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
+                Todos los HBLs fueron encontrados y agregados a la ruta.
+              </p>
+            ) : (
+              <div className="px-4 py-3.5">
+                <p className="mb-2 text-xs text-gray-400 dark:text-gray-500">
+                  Selecciona el texto para copiarlo.
+                </p>
+                <pre className="selectable-text cursor-text m-0 whitespace-pre-wrap break-words font-mono text-sm text-rose-700 dark:text-rose-300">
+                  {result.notFound.join('\n')}
+                </pre>
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-2.5 flex-wrap mt-5">
+            <button
+              type="button"
+              onClick={() => navigate(`/routes/${result.route.id}`)}
+              className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors"
+            >
+              Ver ruta creada
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/routes')}
+              className="bg-slate-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-border font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            >
+              Ver rutas
+            </button>
+            <button
+              type="button"
+              onClick={resetForm}
+              className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-border font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Crear otra ruta
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto w-full min-w-0">
