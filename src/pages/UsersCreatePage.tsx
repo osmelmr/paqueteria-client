@@ -16,14 +16,15 @@ export default function UsersCreatePage() {
   const navigate = useNavigate();
   const { data: agencies = [] } = useAgencies();
   const createUser = useCreateUser();
-  const [form, setForm] = useState({ username: '', password: '', fullName: '', email: '', role: 'STOREKEEPER' });
+  const [form, setForm] = useState({ username: '', password: '', fullName: '', email: '', role: 'STOREKEEPER', agencyId: '' });
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setError(null);
     try {
-      await createUser.mutateAsync(form);
+      const { agencyId, ...rest } = form;
+      await createUser.mutateAsync({ ...rest, ...(agencyId && { agencyId }) });
       navigate('/users');
     } catch (err) {
       setError((err as Error).message);
