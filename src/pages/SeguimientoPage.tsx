@@ -1,27 +1,26 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   AlertCircle,
+  BarChart3,
   Building2,
+  Calendar,
+  Clock,
+  Eye,
   FileText,
+  Hash,
   History,
   MapPin,
   Package as PackageIcon,
   Search,
+  Tag,
   User,
   Weight,
   X,
 } from 'lucide-react';
-import { usePartnerPackages, usePartnerStory } from '../hooks/usePartner';
+import { usePartnerPackages, usePartnerGuides, usePartnerStats, usePartnerStory } from '../hooks/usePartner';
+import { PaginationControls } from '../components/PaginationControls';
+import { CustomSelect } from '../components/CustomSelect';
 import type { PartnerPackage } from '../api/partner.api';
-
-const maskName = (fullName?: string | null) => {
-  if (!fullName) return '—';
-  const parts = fullName.trim().split(' ');
-  if (parts.length === 1) return parts[0].length > 3 ? `${parts[0].slice(0, 3)}***` : parts[0];
-  const first = parts[0];
-  const last = parts[parts.length - 1];
-  return `${first.slice(0, 3)}***${last.slice(-3)}`;
-};
 
 const getStatusStyle = (status: string) => {
   const s = status.toLowerCase();
@@ -76,7 +75,148 @@ function StoryModal({
   );
 }
 
-function PartnerPackageCard({ pkg }: { pkg: PartnerPackage }) {
+function DetailItem({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value?: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-1 min-w-0">
+      <span className="flex items-center gap-1.5 text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+        <Icon className="w-3.5 h-3.5 shrink-0" />
+        {label}
+      </span>
+      <span className="selectable-text text-sm text-gray-900 dark:text-gray-100 break-words">
+        {value ?? '—'}
+      </span>
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="border-t border-gray-100 dark:border-gray-800 first:border-t-0 pt-4 mt-4 first:pt-0 first:mt-0">
+      <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
+        {title}
+      </h4>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{children}</div>
+    </section>
+  );
+}
+
+function DetailsModal({ pkg, onClose }: { pkg: PartnerPackage; onClose: () => void }) {
+  const formatDate = (date?: string | null) =>
+    date ? new Date(date).toLocaleDateString('es-CU', { year: 'numeric', month: 'short', day: 'numeric' }) : null;
+
+  const formatDateTime = (date?: string | null) =>
+    date ? new Date(date).toLocaleString('es-CU', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 dark:bg-black/60 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="w-full max-w-2xl max-h-[85vh] flex flex-col rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <PackageIcon className="w-4 h-4 text-gray-500" /> Detalles del Paquete
+          </h3>
+          <button
+            onClick={onClose}
+            className="p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="p-4 overflow-y-auto">
+          {/* Identificacion */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {(pkg.hbls ?? []).map((h) => (
+              <span
+                key={h.hblCode}
+                className="px-2.5 py-1 rounded-md bg-gray-100 dark:bg-gray-800 font-mono font-semibold text-sm text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700"
+              >
+                {h.hblCode}
+              </span>
+            ))}
+            {(pkg.hbls ?? []).length === 0 && (
+              <span className="text-sm text-gray-400 dark:text-gray-500">Sin HBL</span>
+            )}
+            {pkg.alert === true && (
+              <span className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-semibold">
+                <AlertCircle className="w-3.5 h-3.5" /> Alerta
+              </span>
+            )}
+          </div>
+
+          <Section title="Guía">
+            <DetailItem icon={Tag} label="Guía" value={pkg.guide?.name} />
+            <DetailItem icon={FileText} label="Tipo" value={pkg.guide?.type} />
+            <DetailItem icon={Building2} label="Agencia" value={pkg.guide?.agency?.name} />
+          </Section>
+
+          <Section title="Destinatario">
+            <DetailItem icon={User} label="Nombre" value={pkg.recipient?.fullName} />
+            <DetailItem icon={Hash} label="Carnet de identidad" value={pkg.recipient?.idCard} />
+            <DetailItem icon={FileText} label="Teléfono" value={pkg.recipient?.phone} />
+          </Section>
+
+          <Section title="Ubicación">
+            <DetailItem icon={MapPin} label="Provincia" value={pkg.province?.name} />
+            <DetailItem icon={MapPin} label="Municipio" value={pkg.municipe?.name} />
+            <DetailItem icon={MapPin} label="Dirección" value={pkg.address} />
+          </Section>
+
+          <Section title="Estado">
+            <DetailItem icon={Tag} label="Estado" value={pkg.status?.name} />
+            <DetailItem icon={MapPin} label="Ubicación actual" value={pkg.location?.name} />
+            <DetailItem icon={Calendar} label="Fecha de llegada" value={formatDate(pkg.arrivalDate)} />
+          </Section>
+
+          <Section title="Detalles del paquete">
+            <DetailItem
+              icon={Weight}
+              label="Peso"
+              value={pkg.weight != null ? `${Number(pkg.weight).toFixed(2)} kg` : null}
+            />
+            <DetailItem icon={PackageIcon} label="Contenido" value={pkg.content} />
+            <DetailItem icon={FileText} label="Anotaciones" value={pkg.anotations} />
+            {pkg.alert === true && (
+              <DetailItem
+                icon={AlertCircle}
+                label="Descripción de alerta"
+                value={pkg.alertDescription}
+              />
+            )}
+          </Section>
+
+          <Section title="Registro">
+            <DetailItem icon={Clock} label="Creado" value={formatDateTime(pkg.createdAt)} />
+            <DetailItem icon={Clock} label="Actualizado" value={formatDateTime(pkg.updatedAt)} />
+          </Section>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PartnerPackageCard({
+  pkg,
+  onOpenDetails,
+}: {
+  pkg: PartnerPackage;
+  onOpenDetails: (pkg: PartnerPackage) => void;
+}) {
   const [showStory, setShowStory] = useState(false);
   const primaryHbl = pkg.hbls?.[0]?.hblCode || 'SIN HBL';
   const extraHblCount = (pkg.hbls?.length ?? 0) > 1 ? pkg.hbls.length - 1 : 0;
@@ -84,7 +224,9 @@ function PartnerPackageCard({ pkg }: { pkg: PartnerPackage }) {
 
   return (
     <>
-      <li className="group w-full not-sm:flex-col gap-4 flex p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors text-base min-h-20">
+      <li
+        className="group w-full not-sm:flex-col gap-4 flex p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors text-base min-h-20"
+      >
         <div className="mb-4 flex gap-4 flex-1 not-sm:w-full not-sm:justify-center">
           {/* COL 1: IDENTIFICADOR + PESO + HBLs */}
           <div className="flex flex-col gap-1 min-w-0">
@@ -127,7 +269,7 @@ function PartnerPackageCard({ pkg }: { pkg: PartnerPackage }) {
             <div className="not-lg:block hidden">
               <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
                 <User className="w-4 h-4 text-gray-400 shrink-0" />
-                <span className="selectable-text truncate text-sm font-medium">{maskName(pkg.recipient?.fullName)}</span>
+                <span className="selectable-text truncate text-sm font-medium">{pkg.recipient?.fullName || '—'}</span>
               </div>
             </div>
           </div>
@@ -136,7 +278,7 @@ function PartnerPackageCard({ pkg }: { pkg: PartnerPackage }) {
           <div className="flex flex-col gap-1 min-w-0 not-lg:hidden">
             <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
               <User className="w-4 h-4 text-gray-400 shrink-0" />
-              <span className="selectable-text truncate text-sm font-medium">{maskName(pkg.recipient?.fullName)}</span>
+              <span className="selectable-text truncate text-sm font-medium">{pkg.recipient?.fullName || '—'}</span>
             </div>
           </div>
         </div>
@@ -161,6 +303,14 @@ function PartnerPackageCard({ pkg }: { pkg: PartnerPackage }) {
           >
             <History className="w-4 h-4" />
           </button>
+
+          <button
+            onClick={() => onOpenDetails(pkg)}
+            title="Ver detalles"
+            className="md:p-2 not-sm:p-2 not-lg:p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-md transition-colors"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
         </div>
       </li>
 
@@ -172,28 +322,56 @@ function PartnerPackageCard({ pkg }: { pkg: PartnerPackage }) {
 }
 
 export default function SeguimientoPage() {
-  const { data: packages = [], isLoading, error } = usePartnerPackages();
+  const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
+  const [guideId, setGuideId] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(50);
+  const [selectedPkg, setSelectedPkg] = useState<PartnerPackage | null>(null);
 
-  const q = search.trim().toLowerCase();
-  const filtered = q
-    ? packages.filter((pkg) => {
-        const haystack = [
-          ...pkg.hbls.map((h) => h.hblCode),
-          pkg.guide?.name ?? '',
-          pkg.guide?.agency?.name ?? '',
-          pkg.province?.name ?? '',
-          pkg.municipe?.name ?? '',
-          pkg.status?.name ?? '',
-          pkg.location?.name ?? '',
-          pkg.content ?? '',
-          pkg.address ?? '',
-        ]
-          .join(' ')
-          .toLowerCase();
-        return haystack.includes(q);
-      })
-    : packages;
+  const { data: guides = [] } = usePartnerGuides();
+
+  // Búsqueda desde el backend con debounce
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setSearch(searchInput.trim());
+      setCurrentPage(1);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  const {
+    data: pageData,
+    isLoading,
+    error,
+  } = usePartnerPackages({
+    search: search || undefined,
+    page: currentPage,
+    limit,
+    guideId: guideId || undefined,
+  });
+
+  const packages = pageData?.items ?? [];
+
+  const { data: stats } = usePartnerStats({
+    search: search || undefined,
+    guideId: guideId || undefined,
+  });
+  const paginationMeta = pageData?.pagination ?? {
+    total: 0,
+    page: currentPage,
+    limit,
+    totalPages: 1,
+    hasNextPage: false,
+    hasPreviousPage: false,
+  };
+
+  const handlePageChange = (page: number) => setCurrentPage(page);
+
+  const handleLimitChange = (newLimit: number) => {
+    setLimit(newLimit);
+    setCurrentPage(1);
+  };
 
   return (
     <main className="flex-1 min-h-screen p-4 sm:p-6">
@@ -209,27 +387,71 @@ export default function SeguimientoPage() {
             </p>
           </div>
 
-          <div className="relative w-full sm:w-80">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="w-4 h-4 text-gray-400" />
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+            <div className="relative w-full sm:w-80">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="w-4 h-4 text-gray-400" />
+              </div>
+              <input
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="Buscar por HBL, carné, teléfono o guía..."
+                className="w-full pl-10 pr-9 py-2.5 border-2 border-border rounded-xl bg-surface text-gray-900 dark:text-gray-100 placeholder-gray-400 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all text-sm"
+              />
+              {searchInput && (
+                <button
+                  onClick={() => setSearchInput('')}
+                  title="Limpiar búsqueda"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar por HBL, destinatario, guía..."
-              className="w-full pl-10 pr-9 py-2.5 border-2 border-border rounded-xl bg-surface text-gray-900 dark:text-gray-100 placeholder-gray-400 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all text-sm"
+
+            <CustomSelect
+              value={guideId}
+              onChange={(id) => {
+                setGuideId(id);
+                setCurrentPage(1);
+              }}
+              options={guides.map((g) => ({ id: g.id, name: g.name }))}
+              placeholder="Todas las guías"
+              icon={FileText}
+              allowClear
+              className="w-full sm:w-60"
             />
-            {search && (
-              <button
-                onClick={() => setSearch('')}
-                title="Limpiar búsqueda"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
           </div>
         </div>
+
+        {/* Informe del filtrado */}
+        {stats && stats.total > 0 && (
+          <div className="mb-4 p-4 bg-surface dark:bg-gray-800/60 border border-border rounded-2xl">
+            <div className="flex items-center gap-2 mb-3">
+              <BarChart3 className="w-4 h-4 text-purple-500 dark:text-purple-400" />
+              <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                Informe del filtrado
+              </h2>
+              <span className="ml-auto text-sm text-gray-500 dark:text-gray-400">
+                Total: <span className="font-bold text-gray-900 dark:text-gray-100">{stats.total}</span> paquete{stats.total !== 1 ? 's' : ''}
+              </span>
+            </div>
+
+            {stats.byStatus.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2">
+                {stats.byStatus.map((s) => (
+                  <span
+                    key={s.statusId}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ring-1 ring-inset ${getStatusStyle(s.name)}`}
+                  >
+                    <Tag className="w-3 h-3" />
+                    {s.name}: {s.count}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Error */}
         {error && (
@@ -249,17 +471,10 @@ export default function SeguimientoPage() {
           </div>
         )}
 
-        {/* Results Counter */}
-        <div className="mt-4 mb-3">
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            {filtered.length} paquete{filtered.length !== 1 ? 's' : ''} encontrado{filtered.length !== 1 ? 's' : ''}
-          </span>
-        </div>
-
         {/* Package List */}
         {!isLoading && (
           <div className="mt-4">
-            {filtered.length === 0 ? (
+            {packages.length === 0 ? (
               <div className="text-center py-16 bg-surface dark:bg-gray-800/60 rounded-2xl border border-border">
                 <PackageIcon className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
                 <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">No se encontraron paquetes</p>
@@ -269,14 +484,32 @@ export default function SeguimientoPage() {
               </div>
             ) : (
               <ul className="max-w-6xl mx-auto rounded-2xl overflow-hidden border border-border divide-y divide-border">
-                {filtered.map((pkg) => (
-                  <PartnerPackageCard key={pkg.id} pkg={pkg} />
+                {packages.map((pkg) => (
+                  <PartnerPackageCard key={pkg.id} pkg={pkg} onOpenDetails={setSelectedPkg} />
                 ))}
               </ul>
             )}
           </div>
         )}
+
+        {/* Pagination Controls */}
+        <PaginationControls
+          currentPage={paginationMeta.page}
+          totalPages={paginationMeta.totalPages}
+          totalItems={paginationMeta.total}
+          itemsPerPage={paginationMeta.limit}
+          hasNextPage={paginationMeta.hasNextPage}
+          hasPreviousPage={paginationMeta.hasPreviousPage}
+          onPageChange={handlePageChange}
+          onLimitChange={handleLimitChange}
+          loading={isLoading}
+        />
       </div>
+
+      {/* Modal Detalles */}
+      {selectedPkg && (
+        <DetailsModal pkg={selectedPkg} onClose={() => setSelectedPkg(null)} />
+      )}
     </main>
   );
 }

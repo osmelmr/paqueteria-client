@@ -1,10 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
-import { partnerApi } from '../api/partner.api';
+import { partnerApi, type PartnerQueryParams } from '../api/partner.api';
 
-export function usePartnerPackages() {
+export function usePartnerPackages(params?: PartnerQueryParams) {
   return useQuery({
-    queryKey: ['partner-packages'],
-    queryFn: () => partnerApi.getAll(),
+    queryKey: ['partner-packages', params],
+    queryFn: () => partnerApi.getAll(params),
+  });
+}
+
+export function usePartnerGuides() {
+  return useQuery({
+    queryKey: ['partner-guides'],
+    queryFn: () => partnerApi.getGuides(),
+  });
+}
+
+export function usePartnerStats(params?: { search?: string; guideId?: string }) {
+  return useQuery({
+    queryKey: ['partner-stats', params],
+    queryFn: () => partnerApi.getStats(params),
   });
 }
 
