@@ -45,6 +45,7 @@ import DriversListPage from '../pages/DriversListPage';
 import DriversCreatePage from '../pages/DriversCreatePage';
 import DriversEditPage from '../pages/DriversEditPage';
 import TestPage from '../pages/TestPage';
+import SeguimientoPage from '../pages/SeguimientoPage';
 
 export const router = createBrowserRouter([
   {
@@ -109,7 +110,7 @@ export const router = createBrowserRouter([
     path:'/seguimiento',
     element:<ProtectedRoute allowedRoles={['ADMIN','WORKER','OWNER','STOREKEEPER','PARTNER']}/>,
     children:[
-      {index:true,element:<div>Hello World</div>}
+      {index:true,element:<SeguimientoPage />}
     ]
   }
 ]);
