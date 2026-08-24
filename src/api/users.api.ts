@@ -15,7 +15,7 @@ export const usersApi = {
   findById: (id: string) => api.get<User>(`/users/${id}`).then((r) => r.data),
   create: (dto: { username: string; password: string; fullName?: string; email?: string; role: string; agencyId?: string }) =>
     api.post<User>('/users', dto).then((r) => r.data),
-  update: (id: string, dto: { fullName?: string; email?: string; role?: string; isActive?: boolean }) =>
+  update: (id: string, dto: { fullName?: string; email?: string; role?: string; isActive?: boolean; agencyId?: string }) =>
     api.patch<User>(`/users/${id}`, dto).then((r) => r.data),
   changePassword: (id: string, newPassword: string) =>
     api.patch(`/users/${id}/change-password`, { newPassword }).then((r) => r.data),
