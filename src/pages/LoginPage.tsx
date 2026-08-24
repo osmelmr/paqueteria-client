@@ -17,14 +17,19 @@ export function LoginPage() {
   const error = useAuthStore((s) => s.error);
   const clearError = useAuthStore((s) => s.clearError);
 
-  useSessionValidation(() => navigate('/', { replace: true }));
+  const redirectToRoleHome = () => {
+    const role = useAuthStore.getState().user?.role;
+    navigate(role === 'PARTNER' ? '/seguimiento' : '/', { replace: true });
+  };
+
+  useSessionValidation(redirectToRoleHome);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     clearError();
     try {
       await loginMutation.mutateAsync({ username, password });
-      navigate('/', { replace: true });
+      redirectToRoleHome();
     } catch {
       // error is handled by the store
     }

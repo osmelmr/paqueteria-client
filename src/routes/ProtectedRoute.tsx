@@ -32,6 +32,9 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
   }
 
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+    if(user.role === 'PARTNER'){
+      return <Navigate to="/seguimiento" replace />;
+    }
     return <Navigate to="/" replace />;
   }
 

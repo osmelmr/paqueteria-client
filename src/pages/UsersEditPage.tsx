@@ -6,6 +6,9 @@ import { CustomSelect } from '../components/CustomSelect';
 
 const ROLE_OPTIONS = [
   { id: 'STOREKEEPER', name: 'Almacenero' },
+  {id:'WORKER',name:'Trabajador'},
+  {id:'PARTNER',name:'Socio'},
+  { id: 'OWNER', name: 'Admin' },
   { id: 'ADMIN', name: 'Admin' },
 ];
 

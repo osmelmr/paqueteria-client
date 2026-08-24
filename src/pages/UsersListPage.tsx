@@ -44,7 +44,7 @@ export default function UsersListPage() {
                   <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">{u.username}</td>
                   <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">{u.fullName}</td>
                   <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">{u.email || '—'}</td>
-                  <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">{u.role === 'ADMIN' ? 'Admin' : 'Almacenero'}</td>
+                  <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">{u.role}</td>
                   <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">{u.isActive ? 'Si' : 'No'}</td>
                   <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">
                     <div className="flex gap-2 flex-wrap">

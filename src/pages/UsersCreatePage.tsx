@@ -2,14 +2,19 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateUser } from '../hooks/useUsers';
 import { CustomSelect } from '../components/CustomSelect';
+import { useAgencies } from '../hooks/useAgencies';
 
 const ROLE_OPTIONS = [
   { id: 'STOREKEEPER', name: 'Almacenero' },
+  {id:'WORKER',name:'Trabajador'},
+  {id:'PARTNER',name:'Socio'},
+  { id: 'OWNER', name: 'Admin' },
   { id: 'ADMIN', name: 'Admin' },
 ];
 
 export default function UsersCreatePage() {
   const navigate = useNavigate();
+  const { data: agencies = [] } = useAgencies();
   const createUser = useCreateUser();
   const [form, setForm] = useState({ username: '', password: '', fullName: '', email: '', role: 'STOREKEEPER' });
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +57,10 @@ export default function UsersCreatePage() {
           <label className="flex flex-col gap-1.5 font-medium">
             Rol
             <CustomSelect value={form.role} onChange={(id) => setForm((prev) => ({ ...prev, role: id }))} options={ROLE_OPTIONS} placeholder="Seleccionar" />
+          </label>
+          <label className="flex flex-col gap-1.5 font-medium">
+            Agencia
+            <CustomSelect value={form.agencyId} onChange={(id) => setForm((prev) => ({ ...prev, agencyId: id }))} options={agencies} placeholder="Seleccionar" />
           </label>
           <div className="flex gap-2.5 flex-wrap mt-3.5" style={{ gridColumn: '1 / -1' }}>
             <button type="submit" disabled={createUser.isPending} className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50">Crear usuario</button>
