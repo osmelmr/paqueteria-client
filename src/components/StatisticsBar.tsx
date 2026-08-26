@@ -4,6 +4,7 @@ import { Clock, FileText, PackageCheck, Route as RouteIcon, Truck, Warehouse } f
 import type { LucideIcon } from 'lucide-react';
 import { useStatistics } from '../hooks/useStatistics';
 import { RouteDetailsModal } from './RouteDetailsModal';
+import type { Statistics } from '../api/statistics.api';
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -14,7 +15,7 @@ interface StatItem {
   icon: LucideIcon;
   iconClass: string;
   // path can be a static string or a function that receives the statistics data
-  path?: string | ((data: any) => string | undefined);
+  path?: string | ((data: Statistics | undefined) => string | undefined);
 }
 
 export function StatisticsBar() {
@@ -37,7 +38,7 @@ export function StatisticsBar() {
       iconClass: 'text-emerald-500',
       path: (s) => (s?.idEntregado ? `/packages?status=${s.idEntregado}` : '/packages?status=entregado'),
     },
-    { label: 'Guías activas', value: data?.totalGuiasActivas, icon: FileText, iconClass: 'text-sky-500' },
+    { label: 'Guías activas', value: data?.totalGuiasActivas, icon: FileText, iconClass: 'text-sky-500', path: '/guides' },
     {
       label: 'En espera',
       value: data?.totalEnEspera,
