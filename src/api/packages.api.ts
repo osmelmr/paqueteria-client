@@ -11,7 +11,7 @@ export interface PackageFilters {
   hbl?: string;
   recipientId?: string;
   guideId?: string;
-  search?: string;
+  idCard?: string;
   alert?: boolean;
   statusDate?: string;
   locationId?: string;

@@ -24,7 +24,7 @@ interface FilterFormState {
   provinceIds: string[];
   municipeId: string;
   hbl: string;
-  search: string;
+  idCard: string;
   alert: string;
   statusDate: string;
   locationId: string;
@@ -101,7 +101,7 @@ export function PackageFiltersForm({
       provinceIds: [],
       municipeId: '',
       hbl: '',
-      search: '',
+      idCard: '',
       alert: '',
       statusDate: '',
       locationId: '',
@@ -305,16 +305,16 @@ export function PackageFiltersForm({
             />
           </div>
 
-          {/* Búsqueda general */}
+          {/* Búsqueda por cédula */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <SearchIcon className="w-4 h-4 text-gray-400 dark:text-gray-500" />
             </div>
             <input 
               className="w-full h-10 pl-9 pr-3 border border-border rounded-xl text-sm bg-gray-50 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 dark:focus:ring-purple-400/50 focus:border-purple-500 dark:focus:border-purple-400 transition-all hover:bg-surface dark:hover:bg-gray-700/70" 
-              value={filterForm.search} 
-              onChange={(e) => setFilterForm((prev) => ({ ...prev, search: e.target.value }))} 
-              placeholder="Buscar..." 
+              value={filterForm.idCard} 
+              onChange={(e) => setFilterForm((prev) => ({ ...prev, idCard: e.target.value }))} 
+              placeholder="carnet..." 
             />
           </div>
 

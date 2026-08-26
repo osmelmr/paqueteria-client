@@ -58,7 +58,7 @@ export default function PackagesListPage() {
     provinceIds: string[]; 
     municipeId: string; 
     hbl: string; 
-    search: string; 
+    idCard: string; 
     alert: string; 
     statusDate: string; 
     locationId: string; 
@@ -70,7 +70,7 @@ export default function PackagesListPage() {
     provinceIds: [], 
     municipeId: '', 
     hbl: hblParam, 
-    search: '', 
+    idCard: '', 
     alert: '', 
     statusDate: '', 
     locationId: '', 
@@ -158,7 +158,7 @@ export default function PackagesListPage() {
       f.municipeId = filterForm.municipeId;
     }
     if (filterForm.hbl) f.hbl = filterForm.hbl;
-    if (filterForm.search) f.search = filterForm.search;
+    if (filterForm.idCard) f.idCard = filterForm.idCard;
     if (filterForm.alert) f.alert = true;
     if (filterForm.statusDate) f.statusDate = filterForm.statusDate;
     if (filterForm.locationId) f.locationId = filterForm.locationId;
