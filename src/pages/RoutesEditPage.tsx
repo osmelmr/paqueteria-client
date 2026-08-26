@@ -1,11 +1,10 @@
 import { useState, type FormEvent, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useRoutes, useUpdateRoute } from '../hooks/useRoutes';
+import { useRoutes, useUpdateRoute, useConvertRouteHbls } from '../hooks/useRoutes';
 import { useVehicles } from '../hooks/useVehicles';
 import { useDrivers } from '../hooks/useDrivers';
 import { CustomSelect } from '../components/CustomSelect';
 import { DatePicker } from '../components/DatePicker';
-import { CreateMissingPackageModal } from '../components/CreateMissingPackageModal';
 
 function parseNotFound(raw: string | null | undefined): string[] {
   if (!raw) return [];
@@ -26,6 +25,7 @@ export default function RoutesEditPage() {
   const navigate = useNavigate();
   const { data: routes = [], isLoading } = useRoutes();
   const updateRoute = useUpdateRoute();
+  const convertHbls = useConvertRouteHbls();
   const { data: vehicles = [] } = useVehicles();
   const { data: drivers = [] } = useDrivers();
 
@@ -40,7 +40,6 @@ export default function RoutesEditPage() {
   });
   const [notFoundHbls, setNotFoundHbls] = useState<string[]>([]);
   const [newNotFoundHbl, setNewNotFoundHbl] = useState('');
-  const [editingHbl, setEditingHbl] = useState<string | null>(null);
   const [driverIds, setDriverIds] = useState<string[]>([]);
   const [localError, setLocalError] = useState<string | null>(null);
 
@@ -169,13 +168,6 @@ export default function RoutesEditPage() {
                   <span className="selectable-text flex-1 font-mono text-xs text-rose-700 dark:text-rose-400">{hbl}</span>
                   <button
                     type="button"
-                    onClick={() => setEditingHbl(hbl)}
-                    className="bg-rose-500 text-white font-semibold rounded-lg px-3 py-1.5 text-xs cursor-pointer border-none hover:bg-rose-600 transition-colors"
-                  >
-                    Editar paquete
-                  </button>
-                  <button
-                    type="button"
                     title="Quitar de la lista"
                     onClick={() => setNotFoundHbls((prev) => prev.filter((h) => h !== hbl))}
                     className="bg-transparent border-none cursor-pointer text-gray-500 dark:text-gray-400 hover:text-red-500 font-bold"
@@ -225,21 +217,24 @@ export default function RoutesEditPage() {
             <button type="button" className="bg-slate-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-border font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={() => navigate('/routes')}>Cancelar</button>
           </div>
         </form>
+        {notFoundHbls.length > 0 && (
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                await convertHbls.mutateAsync(id!);
+                window.location.reload();
+              } catch (err) {
+                setLocalError((err as Error).message);
+              }
+            }}
+            disabled={convertHbls.isPending}
+            className="mt-4 bg-emerald-500 text-white font-semibold rounded-xl px-4 py-2.5 text-sm cursor-pointer border-none hover:bg-emerald-600 transition-colors disabled:opacity-50"
+          >
+            {convertHbls.isPending ? 'Convirtiendo...' : `Convertir ${notFoundHbls.length} HBL${notFoundHbls.length !== 1 ? 's' : ''} a paquetes`}
+          </button>
+        )}
       </div>
-      <CreateMissingPackageModal
-        isOpen={editingHbl !== null}
-        hbl={editingHbl ?? ''}
-        onClose={() => setEditingHbl(null)}
-        onCreated={(hbl) => {
-          setNotFoundHbls((prev) => prev.filter((h) => h !== hbl));
-          setForm((prev) => {
-            const list = prev.hbls.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean);
-            if (!list.includes(hbl)) list.push(hbl);
-            return { ...prev, hbls: list.join(', ') };
-          });
-          setEditingHbl(null);
-        }}
-      />
     </div>
   );
 }

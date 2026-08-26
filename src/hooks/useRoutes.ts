@@ -40,6 +40,14 @@ export function useDeleteRoute() {
   });
 }
 
+export function useConvertRouteHbls() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => routesApi.convertHbls(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
+  });
+}
+
 export function useRouteExcel(routeId: string) {
   return useQuery({
     queryKey: ['route-excel', routeId],

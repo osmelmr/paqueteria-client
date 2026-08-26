@@ -47,4 +47,5 @@ export const routesApi = {
   create: (dto: CreateRouteDto) => api.post<CreateRouteResult>('/routes', dto).then((r) => r.data),
   update: (id: string, dto: UpdateRouteDto) => api.patch<Route>(`/routes/${id}`, dto).then((r) => r.data),
   delete: (id: string) => api.delete(`/routes/${id}`),
+  convertHbls: (id: string) => api.post<Route>(`/routes/${id}/convert-hbls`).then((r) => r.data),
 };
