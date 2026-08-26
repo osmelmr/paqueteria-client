@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   AlertCircle,
   BarChart3,
@@ -9,17 +10,23 @@ import {
   FileText,
   Hash,
   History,
+  LogOut,
   MapPin,
+  Moon,
   Package as PackageIcon,
   Search,
+  Sun,
   Tag,
   User,
+  User as UserIcon,
   Weight,
   X,
 } from 'lucide-react';
 import { usePartnerPackages, usePartnerGuides, usePartnerStats, usePartnerStory } from '../hooks/usePartner';
 import { PaginationControls } from '../components/PaginationControls';
 import { CustomSelect } from '../components/CustomSelect';
+import { useAuthStore } from '../store/auth.store';
+import { useThemeStore } from '../store/theme.store';
 import type { PartnerPackage } from '../api/partner.api';
 
 const getStatusStyle = (status: string) => {
@@ -329,6 +336,17 @@ export default function SeguimientoPage() {
   const [limit, setLimit] = useState(50);
   const [selectedPkg, setSelectedPkg] = useState<PartnerPackage | null>(null);
 
+  const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
+  const theme = useThemeStore((s) => s.theme);
+  const toggleTheme = useThemeStore((s) => s.toggleTheme);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
+
   const { data: guides = [] } = usePartnerGuides();
 
   // Búsqueda desde el backend con debounce
@@ -374,7 +392,57 @@ export default function SeguimientoPage() {
   };
 
   return (
-    <main className="flex-1 min-h-screen p-4 sm:p-6">
+    <div className="min-h-screen flex flex-col bg-canvas">
+      {/* Navbar */}
+      <header className="sticky top-0 z-40 flex items-center justify-between h-16 px-4 sm:px-6 bg-chrome border-b border-border">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 shrink-0">
+            <PackageIcon className="w-5 h-5" />
+          </div>
+          <div className="flex flex-col min-w-0">
+            <span className="text-base font-bold text-slate-900 dark:text-slate-100 leading-tight truncate">Paquetería</span>
+            <span className="text-[10px] font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wider leading-tight">Seguimiento</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button
+            type="button"
+            className="flex items-center justify-center w-10 h-10 rounded-xl text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700/70 transition-all"
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+            title={theme === 'light' ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro'}
+          >
+            {theme === 'light' ? (
+              <Moon className="w-4 h-4 text-slate-700" />
+            ) : (
+              <Sun className="w-4 h-4 text-amber-400" />
+            )}
+          </button>
+
+          <div className="hidden sm:flex items-center gap-2.5">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+              <UserIcon className="w-4 h-4" />
+            </div>
+            <div className="flex flex-col text-left">
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-tight">{user?.username || 'Usuario'}</span>
+              <span className="text-[10px] font-medium text-purple-600 dark:text-purple-400 uppercase tracking-wider">{user?.role || 'Rol'}</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="flex items-center justify-center w-10 h-10 sm:w-auto sm:px-3.5 sm:py-2 rounded-xl text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/40 hover:bg-red-100 dark:hover:bg-red-900/50 transition-all shadow-sm"
+            onClick={handleLogout}
+            title="Cerrar sesión"
+          >
+            <LogOut className="w-4 h-4 sm:mr-1.5" />
+            <span className="hidden sm:inline">Salir</span>
+          </button>
+        </div>
+      </header>
+
+      <main className="flex-1 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
@@ -505,11 +573,12 @@ export default function SeguimientoPage() {
           loading={isLoading}
         />
       </div>
+      </main>
 
       {/* Modal Detalles */}
       {selectedPkg && (
         <DetailsModal pkg={selectedPkg} onClose={() => setSelectedPkg(null)} />
       )}
-    </main>
+    </div>
   );
 }

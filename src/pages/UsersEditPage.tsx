@@ -4,6 +4,7 @@ import { useUsers, useUpdateUser } from '../hooks/useUsers';
 import { usersApi, type User } from '../api/users.api';
 import { CustomSelect } from '../components/CustomSelect';
 import { useAgencies } from '../hooks/useAgencies';
+import { useAuthStore } from '../store/auth.store';
 
 const ROLE_OPTIONS = [
   { id: 'STOREKEEPER', name: 'Almacenero' },
@@ -16,6 +17,10 @@ const ROLE_OPTIONS = [
 function UserEditForm({ user }: { user: User }) {
   const navigate = useNavigate();
   const { data: agencies = [] } = useAgencies();
+  const currentUserRole = useAuthStore((s) => s.user?.role);
+  const roleOptions = ROLE_OPTIONS.filter(
+    (o) => o.id !== 'ADMIN' && (o.id !== 'OWNER' || currentUserRole === 'ADMIN'),
+  );
   const updateUser = useUpdateUser();
   const [error, setError] = useState<string | null>(null);
 
@@ -73,12 +78,14 @@ function UserEditForm({ user }: { user: User }) {
           </label>
           <label className="flex flex-col gap-1.5 font-medium">
             Rol
-            <CustomSelect value={form.role} onChange={(selectedRole) => setForm((prev) => ({ ...prev, role: selectedRole }))} options={ROLE_OPTIONS} placeholder="Seleccionar" />
+            <CustomSelect value={form.role} onChange={(selectedRole) => setForm((prev) => ({ ...prev, role: selectedRole, ...(selectedRole !== 'PARTNER' && { agencyId: '' }) }))} options={roleOptions} placeholder="Seleccionar" />
           </label>
-          <label className="flex flex-col gap-1.5 font-medium">
-            Agencia
-            <CustomSelect value={form.agencyId} onChange={(selectedAgencyId) => setForm((prev) => ({ ...prev, agencyId: selectedAgencyId }))} options={agencies} placeholder="Seleccionar" />
-          </label>
+          {form.role === 'PARTNER' && (
+            <label className="flex flex-col gap-1.5 font-medium">
+              Agencia
+              <CustomSelect value={form.agencyId} onChange={(selectedAgencyId) => setForm((prev) => ({ ...prev, agencyId: selectedAgencyId }))} options={agencies} placeholder="Seleccionar" />
+            </label>
+          )}
           <div className="flex gap-2.5 flex-wrap mt-3.5" style={{ gridColumn: '1 / -1' }}>
             <button type="submit" className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50" disabled={updateUser.isPending}>Actualizar usuario</button>
             <button type="button" className="bg-slate-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-border font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={() => navigate('/users')}>Cancelar</button>
