@@ -1,5 +1,6 @@
 import { useState, type FormEvent, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRoutes, useUpdateRoute, useConvertRouteHbls } from '../hooks/useRoutes';
 import { useVehicles } from '../hooks/useVehicles';
 import { useDrivers } from '../hooks/useDrivers';
@@ -23,6 +24,7 @@ function parseNotFound(raw: string | null | undefined): string[] {
 export default function RoutesEditPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const { data: routes = [], isLoading } = useRoutes();
   const updateRoute = useUpdateRoute();
   const convertHbls = useConvertRouteHbls();
@@ -39,6 +41,7 @@ export default function RoutesEditPage() {
     hbls: '',
   });
   const [notFoundHbls, setNotFoundHbls] = useState<string[]>([]);
+  const [backendNotFoundHbls, setBackendNotFoundHbls] = useState<string[]>([]);
   const [newNotFoundHbl, setNewNotFoundHbl] = useState('');
   const [driverIds, setDriverIds] = useState<string[]>([]);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -47,6 +50,7 @@ export default function RoutesEditPage() {
     if (!route) return;
     const d = route.departureDate ? new Date(route.departureDate) : null;
     const local = d ? new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10) : '';
+    const parsedNotFound = parseNotFound(route.notFound);
     setForm({
       name: route.name,
       description: route.description ?? '',
@@ -54,14 +58,15 @@ export default function RoutesEditPage() {
       vehicleId: route.vehicleId,
       hbls: route.packages?.flatMap((p) => p.hbls?.map((h) => h.hblCode) ?? []).join(', ') ?? '',
     });
-    setNotFoundHbls(parseNotFound(route.notFound));
+    setNotFoundHbls(parsedNotFound);
+    setBackendNotFoundHbls(parsedNotFound);
     const routeDrivers = route.drivers?.map((r) => r.driverId) ?? [];
     if (routeDrivers.length > 0) {
       setDriverIds(routeDrivers);
     } else {
       setDriverIds(route.vehicle?.drivers?.map((dv) => dv.driverId) ?? []);
     }
-  }, [route?.id]);
+  }, [route?.id, routes]);
 
   const handleVehicleChange = (vehicleId: string) => {
     setForm((prev) => ({ ...prev, vehicleId }));
@@ -101,7 +106,7 @@ export default function RoutesEditPage() {
           driverIds,
         },
       });
-      navigate('/routes');
+      await qc.refetchQueries({ queryKey: ['routes'] });
     } catch (err) {
       setLocalError((err as Error).message);
     }
@@ -217,13 +222,13 @@ export default function RoutesEditPage() {
             <button type="button" className="bg-slate-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-border font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={() => navigate('/routes')}>Cancelar</button>
           </div>
         </form>
-        {notFoundHbls.length > 0 && (
+        {backendNotFoundHbls.length > 0 && (
           <button
             type="button"
             onClick={async () => {
               try {
                 await convertHbls.mutateAsync(id!);
-                window.location.reload();
+                await qc.refetchQueries({ queryKey: ['routes'] });
               } catch (err) {
                 setLocalError((err as Error).message);
               }
@@ -231,7 +236,7 @@ export default function RoutesEditPage() {
             disabled={convertHbls.isPending}
             className="mt-4 bg-emerald-500 text-white font-semibold rounded-xl px-4 py-2.5 text-sm cursor-pointer border-none hover:bg-emerald-600 transition-colors disabled:opacity-50"
           >
-            {convertHbls.isPending ? 'Convirtiendo...' : `Convertir ${notFoundHbls.length} HBL${notFoundHbls.length !== 1 ? 's' : ''} a paquetes`}
+            {convertHbls.isPending ? 'Convirtiendo...' : `Convertir ${backendNotFoundHbls.length} HBL${backendNotFoundHbls.length !== 1 ? 's' : ''} a paquetes`}
           </button>
         )}
       </div>

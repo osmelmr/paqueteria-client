@@ -1,9 +1,11 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useMemo, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Check,
   CheckCircle2,
+  ChevronDown,
   Copy,
+  Filter,
   Loader2,
   Package as PackageIcon,
   Search,
@@ -18,7 +20,10 @@ export default function ConsultarHblsPage() {
   const navigate = useNavigate();
   const [hbls, setHbls] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [copiedNotFound, setCopiedNotFound] = useState(false);
+  const [copiedFiltered, setCopiedFiltered] = useState(false);
+  const [selectedStatusIds, setSelectedStatusIds] = useState<string[]>([]);
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
 
   const { data: statuses = [] } = useStatuses();
   const { data: locations = [] } = useLocations();
@@ -27,10 +32,21 @@ export default function ConsultarHblsPage() {
   const error = mutation.isError ? (mutation.error as Error).message : localError;
   const result = mutation.data ?? null;
 
+  const filteredFound = useMemo(() => {
+    if (!result) return [];
+    if (selectedStatusIds.length === 0) return result.found;
+    return result.found.filter((pkg) => pkg.status?.id && selectedStatusIds.includes(pkg.status.id));
+  }, [result, selectedStatusIds]);
+
+  const filteredHbls = useMemo(() => {
+    return filteredFound.flatMap((pkg) => pkg.hbls?.map((h) => h.hblCode) ?? []);
+  }, [filteredFound]);
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setLocalError(null);
-    setCopied(false);
+    setCopiedNotFound(false);
+    setCopiedFiltered(false);
 
     const parsed = hbls.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean);
     if (parsed.length === 0) {
@@ -40,6 +56,7 @@ export default function ConsultarHblsPage() {
 
     try {
       await mutation.mutateAsync(parsed);
+      setSelectedStatusIds([]);
     } catch (err) {
       setLocalError((err as Error).message);
     }
@@ -48,6 +65,20 @@ export default function ConsultarHblsPage() {
   const handleCopyNotFound = async () => {
     if (!result || result.notFound.length === 0) return;
     const text = result.notFound.join('\n');
+    await copyToClipboard(text);
+    setCopiedNotFound(true);
+    setTimeout(() => setCopiedNotFound(false), 2000);
+  };
+
+  const handleCopyFiltered = async () => {
+    if (filteredHbls.length === 0) return;
+    const text = filteredHbls.join('\n');
+    await copyToClipboard(text);
+    setCopiedFiltered(true);
+    setTimeout(() => setCopiedFiltered(false), 2000);
+  };
+
+  const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
     } catch {
@@ -58,8 +89,20 @@ export default function ConsultarHblsPage() {
       document.execCommand('copy');
       document.body.removeChild(ta);
     }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const toggleStatus = (id: string) => {
+    setSelectedStatusIds((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
+    );
+  };
+
+  const toggleAllStatuses = () => {
+    if (selectedStatusIds.length === statuses.length) {
+      setSelectedStatusIds([]);
+    } else {
+      setSelectedStatusIds(statuses.map((s) => s.id));
+    }
   };
 
   return (
@@ -150,13 +193,13 @@ export default function ConsultarHblsPage() {
                       type="button"
                       onClick={handleCopyNotFound}
                       className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors ${
-                        copied
+                        copiedNotFound
                           ? 'bg-emerald-500 text-white'
                           : 'bg-white text-rose-700 dark:bg-slate-800 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/40'
                       }`}
                     >
-                      {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                      {copied ? '¡Copiados!' : 'Copiar'}
+                      {copiedNotFound ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                      {copiedNotFound ? '¡Copiados!' : 'Copiar'}
                     </button>
                   )}
                   <span className="rounded-full bg-rose-500 px-2.5 py-0.5 text-xs font-semibold text-white">
@@ -184,15 +227,94 @@ export default function ConsultarHblsPage() {
                   <CheckCircle2 className="h-4 w-4" />
                   Paquetes encontrados
                 </span>
-                <span className="rounded-full bg-emerald-500 px-2.5 py-0.5 text-xs font-semibold text-white">
-                  {result.found.length}
-                </span>
+                <div className="flex items-center gap-2">
+                  {filteredHbls.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleCopyFiltered}
+                      className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors ${
+                        copiedFiltered
+                          ? 'bg-emerald-500 text-white'
+                          : 'bg-white text-emerald-700 dark:bg-slate-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40'
+                      }`}
+                    >
+                      {copiedFiltered ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                      {copiedFiltered ? '¡Copiados!' : 'Copiar HBLs filtrados'}
+                    </button>
+                  )}
+                  <span className="rounded-full bg-emerald-500 px-2.5 py-0.5 text-xs font-semibold text-white">
+                    {filteredFound.length}/{result.found.length}
+                  </span>
+                </div>
               </div>
+
+              {result.found.length > 0 && (
+                <div className="px-4 py-2 border-b border-emerald-100 dark:border-emerald-900/30 bg-emerald-50/50 dark:bg-emerald-900/10">
+                  <div className="relative" ref={(el) => {
+                    if (!el) return;
+                    const onDocClick = (e: MouseEvent) => {
+                      if (!el.contains(e.target as Node)) setStatusDropdownOpen(false);
+                    };
+                    el.addEventListener('mousedown', onDocClick);
+                    return () => el.removeEventListener('mousedown', onDocClick);
+                  }}>
+                    <button
+                      type="button"
+                      onClick={() => setStatusDropdownOpen((o) => !o)}
+                      className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
+                    >
+                      <Filter className="h-3.5 w-3.5 text-emerald-500" />
+                      {selectedStatusIds.length === 0
+                        ? 'Filtrar por estado (todos)'
+                        : `${selectedStatusIds.length} estado${selectedStatusIds.length !== 1 ? 's' : ''} seleccionado${selectedStatusIds.length !== 1 ? 's' : ''}`}
+                      <ChevronDown className={`h-3.5 w-3.5 transition-transform ${statusDropdownOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {statusDropdownOpen && (
+                      <div className="absolute left-0 top-full mt-1 z-50 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg max-h-64 overflow-y-auto py-1">
+                        <button
+                          type="button"
+                          onClick={toggleAllStatuses}
+                          className="w-full text-left px-3 py-2 text-xs font-semibold text-purple-600 dark:text-purple-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                        >
+                          {selectedStatusIds.length === statuses.length ? 'Limpiar selección' : 'Seleccionar todos'}
+                        </button>
+                        {statuses.map((s) => {
+                          const checked = selectedStatusIds.includes(s.id);
+                          return (
+                            <button
+                              key={s.id}
+                              type="button"
+                              onClick={() => toggleStatus(s.id)}
+                              className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors ${
+                                checked
+                                  ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                              }`}
+                            >
+                              <span className={`w-4 h-4 shrink-0 rounded border flex items-center justify-center transition-colors ${
+                                checked
+                                  ? 'bg-purple-600 border-purple-600'
+                                  : 'border-gray-300 dark:border-gray-600'
+                              }`}>
+                                {checked && <Check className="w-3 h-3 text-white" />}
+                              </span>
+                              <span className="truncate">{s.name}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {result.found.length === 0 ? (
                 <p className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">Ningun paquete fue encontrado para los HBLs consultados.</p>
+              ) : filteredFound.length === 0 ? (
+                <p className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">Ningun paquete coincide con el filtro seleccionado.</p>
               ) : (
                 <ul className="divide-y divide-border">
-                  {result.found.map((pkg) => (
+                  {filteredFound.map((pkg) => (
                     <PackageCard
                       key={`${pkg.id}-${pkg.status?.id ?? ''}:${pkg.location?.id ?? ''}`}
                       data={pkg as unknown as PackageData}

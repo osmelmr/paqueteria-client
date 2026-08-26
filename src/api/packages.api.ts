@@ -155,4 +155,10 @@ export const packagesApi = {
 
   delete: (id: string) =>
     api.delete(`/packages/${id}`),
+
+  bulkCreate: (hbls: string[], statusId: string, locationId: string) =>
+    api.post<{ created: Array<{ hbl: string; packageId: string }>; failed: Array<{ hbl: string; error: string }>; total: number }>(
+      '/packages/bulk-create',
+      { hbls, statusId, locationId },
+    ).then((r) => r.data),
 };

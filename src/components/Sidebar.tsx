@@ -30,6 +30,10 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Actualizar estado', path: '/update-status-bulk' },
     ],
   },
+  {
+    label: 'Crear paquetes (HBL)', roles: ['ADMIN', 'OWNER'],
+    path: '/bulk-create-packages',
+  },
   
   {
     label: 'Rutas', roles: ['ADMIN', 'STOREKEEPER'],

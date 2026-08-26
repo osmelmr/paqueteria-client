@@ -70,3 +70,12 @@ export function useDeletePackage() {
     onSuccess: () => invalidatePackageQueries(qc),
   });
 }
+
+export function useBulkCreatePackages() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ hbls, statusId, locationId }: { hbls: string[]; statusId: string; locationId: string }) =>
+      packagesApi.bulkCreate(hbls, statusId, locationId),
+    onSuccess: () => invalidatePackageQueries(qc),
+  });
+}
