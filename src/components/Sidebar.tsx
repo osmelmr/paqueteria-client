@@ -28,13 +28,9 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Consultar HBLs', path: '/consultar-hbls' },
       { label: 'Registrar paquetes', path: '/register-packages' },
       { label: 'Actualizar estado', path: '/update-status-bulk' },
+      { label: 'Crear paquetes (HBL)', path: '/bulk-create-packages' },
     ],
   },
-  {
-    label: 'Crear paquetes (HBL)', roles: ['ADMIN', 'OWNER'],
-    path: '/bulk-create-packages',
-  },
-  
   {
     label: 'Rutas', roles: ['ADMIN', 'STOREKEEPER'],
     links: [
@@ -116,19 +112,31 @@ export function Sidebar() {
     return null;
   };
 
-  const [openGroup, setOpenGroup] = useState<string | null>(() => findActivePath(visibleGroups));
+  const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
+    const active = findActivePath(visibleGroups);
+    return new Set(active ? [active] : []);
+  });
   const [lastPathname, setLastPathname] = useState(location.pathname);
 
   if (lastPathname !== location.pathname) {
     setLastPathname(location.pathname);
-    setOpenGroup(findActivePath(visibleGroups));
+    const active = findActivePath(visibleGroups);
+    if (active) {
+      setOpenGroups((prev) => new Set(prev).add(active));
+    }
   }
 
   const toggleGroup = (path: string) => {
-    setOpenGroup((prev) => (prev === path ? null : path));
+    setOpenGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(path)) next.delete(path);
+      else next.add(path);
+      return next;
+    });
   };
 
-  const isOpen = (path: string) => openGroup === path || openGroup?.startsWith(path + '::');
+  const isOpen = (path: string) =>
+    openGroups.has(path) || [...openGroups].some((o) => o.startsWith(path + '::'));
 
   const renderLinks = (links: NavLink[]) =>
     links.map((link) => (

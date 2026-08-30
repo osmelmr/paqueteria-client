@@ -46,7 +46,7 @@ export function Navbar() {
         </button>
 
         <div 
-          onClick={() => navigate('/')} 
+          onClick={() => navigate('/packages')} 
           className="flex items-center gap-2.5 cursor-pointer group"
         >
           <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50 transition-colors">
