@@ -15,19 +15,60 @@ import { ErrorBanner } from '../components/ErrorBanner';
 import type { PackageFilters } from '../api/packages.api';
 import { Plus, X, Package as PackageIcon } from 'lucide-react';
 
+const FILTERS_STORAGE_KEY = 'paqueteria_packages_filters_v1';
+
+interface PersistedPackageFilters {
+  filterForm: {
+    guideId: string;
+    statusId: string;
+    provinceIds: string[];
+    municipeId: string;
+    hbl: string;
+    idCard: string;
+    alert: string;
+    statusDate: string;
+    locationId: string;
+    agencyId: string;
+    guideType: string;
+  };
+  filters: PackageFilters;
+  currentPage: number;
+  limit: number;
+}
+
+function loadPersistedFilters(): PersistedPackageFilters | null {
+  try {
+    const raw = localStorage.getItem(FILTERS_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PersistedPackageFilters;
+    if (!parsed || typeof parsed !== 'object') return null;
+    return {
+      filterForm: parsed.filterForm ?? {},
+      filters: parsed.filters ?? {},
+      currentPage: typeof parsed.currentPage === 'number' ? parsed.currentPage : 1,
+      limit: typeof parsed.limit === 'number' ? parsed.limit : 50,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export default function PackagesListPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const hblParam = searchParams.get('hbl') || '';
   const statusParam = searchParams.get('status') || '';
   const statusIdParam = searchParams.get('statusId') || '';
-  const [filters, setFilters] = useState<PackageFilters>(() =>
-    hblParam ? { hbl: hblParam } : {},
-  );
+  const saved = loadPersistedFilters();
+  const [filters, setFilters] = useState<PackageFilters>(() => {
+    if (hblParam) return { hbl: hblParam };
+    if (statusIdParam) return { status: statusIdParam };
+    return saved?.filters ?? {};
+  });
 
   // Paginación
-  const [currentPage, setCurrentPage] = useState(1);
-  const [limit, setLimit] = useState(50);
+  const [currentPage, setCurrentPage] = useState(saved?.currentPage ?? 1);
+  const [limit, setLimit] = useState(saved?.limit ?? 50);
 
   const {
     data: pageData,
@@ -65,19 +106,19 @@ export default function PackagesListPage() {
     locationId: string; 
     agencyId: string; 
     guideType: string;
-  }>({ 
-    guideId: '', 
-    statusId: '', 
-    provinceIds: [], 
-    municipeId: '', 
-    hbl: hblParam, 
-    idCard: '', 
-    alert: '', 
-    statusDate: '', 
-    locationId: '', 
-    agencyId: '', 
-    guideType: '',
-  });
+  }>(() => ({ 
+    guideId: saved?.filterForm?.guideId ?? '', 
+    statusId: saved?.filterForm?.statusId ?? '', 
+    provinceIds: saved?.filterForm?.provinceIds ?? [], 
+    municipeId: saved?.filterForm?.municipeId ?? '', 
+    hbl: hblParam || saved?.filterForm?.hbl || '', 
+    idCard: saved?.filterForm?.idCard ?? '', 
+    alert: saved?.filterForm?.alert ?? '', 
+    statusDate: saved?.filterForm?.statusDate ?? '', 
+    locationId: saved?.filterForm?.locationId ?? '', 
+    agencyId: saved?.filterForm?.agencyId ?? '', 
+    guideType: saved?.filterForm?.guideType ?? '',
+  }));
   const [localError, setLocalError] = useState<string | null>(null);
   const [viewMode] = useState<'card' | 'list'>('card');
   const [copiedHbls, setCopiedHbls] = useState(false);
@@ -152,6 +193,15 @@ export default function PackagesListPage() {
   useEffect(() => {
     setVisibleError(error);
   }, [error]);
+
+  useEffect(() => {
+    const data: PersistedPackageFilters = { filterForm, filters, currentPage, limit };
+    try {
+      localStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify(data));
+    } catch {
+      /* ignore */
+    }
+  }, [filterForm, filters, currentPage, limit]);
 
   const applyFilters = () => {
     const f: PackageFilters = {};
