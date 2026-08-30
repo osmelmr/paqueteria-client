@@ -92,6 +92,7 @@ export interface RouteItem {
 
 export interface PackageItem {
     id: string;
+    routeId?: string | null;
     guide?: Guide | null;
     recipient?: Recipient | null;
     province?: Province | null;

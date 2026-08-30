@@ -19,7 +19,10 @@ export function useCreateRoute() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (dto: CreateRouteDto) => routesApi.create(dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [QUERY_KEY] });
+      qc.invalidateQueries({ queryKey: ['route'] });
+    },
   });
 }
 
@@ -28,7 +31,10 @@ export function useUpdateRoute() {
   return useMutation({
     mutationFn: ({ id, dto }: { id: string; dto: UpdateRouteDto }) =>
       routesApi.update(id, dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [QUERY_KEY] });
+      qc.invalidateQueries({ queryKey: ['route'] });
+    },
   });
 }
 
@@ -36,7 +42,10 @@ export function useDeleteRoute() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => routesApi.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [QUERY_KEY] });
+      qc.invalidateQueries({ queryKey: ['route'] });
+    },
   });
 }
 
@@ -44,7 +53,10 @@ export function useConvertRouteHbls() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => routesApi.convertHbls(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [QUERY_KEY] });
+      qc.invalidateQueries({ queryKey: ['route'] });
+    },
   });
 }
 

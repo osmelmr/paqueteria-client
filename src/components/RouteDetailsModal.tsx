@@ -1,5 +1,9 @@
-import { Package as PackageIcon, Truck, Users, X } from 'lucide-react';
+import { useState } from 'react';
+import { Package as PackageIcon, Truck, Users, X, Eye } from 'lucide-react';
 import { useRoute } from '../hooks/useRoute';
+import { PackageDetailsModal } from './PackageDetailsModal';
+import type { PackageItem } from '../types';
+import type { Package } from '../api/packages.api';
 
 interface RouteDetailsModalProps {
   isOpen: boolean;
@@ -23,11 +27,13 @@ function parseNotFound(raw: string | null | undefined): string[] {
 
 export function RouteDetailsModal({ isOpen, routeId, onClose }: RouteDetailsModalProps) {
   const { data, isLoading, isError } = useRoute(routeId ?? undefined);
+  const [selectedPackage, setSelectedPackage] = useState<PackageItem | null>(null);
 
   if (!isOpen || !routeId) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 dark:bg-black/60 backdrop-blur-sm" onClick={onClose}>
+    <>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 dark:bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div
         role="dialog"
         aria-modal="true"
@@ -92,13 +98,24 @@ export function RouteDetailsModal({ isOpen, routeId, onClose }: RouteDetailsModa
                 {data.packages?.length ? (
                   <div className="max-h-64 overflow-y-auto pr-1 space-y-3">
                     {data.packages.map((pkg) => (
-                      <div key={pkg.id} className="rounded-xl bg-white dark:bg-gray-950 border border-border p-3">
-                        <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
-                          {pkg.hbls?.[0]?.hblCode || 'HBL no disponible'}
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                          {pkg.recipient?.fullName || 'Destinatario no disponible'}
-                        </p>
+                      <div key={pkg.id} className="flex items-center justify-between gap-2 rounded-xl bg-white dark:bg-gray-950 border border-border p-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+                            {pkg.hbls?.[0]?.hblCode || 'HBL no disponible'}
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                            {pkg.recipient?.fullName || 'Destinatario no disponible'}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPackage(pkg)}
+                          title="Ver información del paquete"
+                          aria-label={`Ver información del paquete ${pkg.hbls?.[0]?.hblCode ?? pkg.id}`}
+                          className="shrink-0 p-2 rounded-lg text-slate-500 hover:text-purple-600 dark:text-slate-300 dark:hover:text-purple-400 hover:bg-slate-100 dark:hover:bg-gray-800 transition-colors"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -133,5 +150,12 @@ export function RouteDetailsModal({ isOpen, routeId, onClose }: RouteDetailsModa
         </div>
       </div>
     </div>
+      <PackageDetailsModal
+        isOpen={Boolean(selectedPackage)}
+        packageId={selectedPackage?.id ?? ''}
+        initialData={(selectedPackage ?? null) as Partial<Package> | null}
+        onClose={() => setSelectedPackage(null)}
+      />
+    </>
   );
 }

@@ -25,6 +25,7 @@ import {
 import { usePartnerPackages, usePartnerGuides, usePartnerStats, usePartnerStory } from '../hooks/usePartner';
 import { PaginationControls } from '../components/PaginationControls';
 import { CustomSelect } from '../components/CustomSelect';
+import { ErrorBanner } from '../components/ErrorBanner';
 import { useAuthStore } from '../store/auth.store';
 import { useThemeStore } from '../store/theme.store';
 import type { PartnerPackage } from '../api/partner.api';
@@ -369,6 +370,12 @@ export default function SeguimientoPage() {
     guideId: guideId || undefined,
   });
 
+  const [visibleError, setVisibleError] = useState<string | null>(error ? (error as Error).message : null);
+
+  useEffect(() => {
+    setVisibleError(error ? (error as Error).message : null);
+  }, [error]);
+
   const packages = pageData?.items ?? [];
 
   const { data: stats } = usePartnerStats({
@@ -522,13 +529,8 @@ export default function SeguimientoPage() {
         )}
 
         {/* Error */}
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-sm flex items-center gap-3">
-            <div className="p-1.5 bg-red-100 dark:bg-red-900/30 rounded-lg">
-              <X className="w-4 h-4" />
-            </div>
-            <span className="flex-1">{(error as Error).message}</span>
-          </div>
+        {visibleError && (
+          <ErrorBanner message={visibleError} onDismiss={() => setVisibleError(null)} />
         )}
 
         {/* Loading */}

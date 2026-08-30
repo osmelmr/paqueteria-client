@@ -11,6 +11,7 @@ import { useAgencies } from '../hooks/useAgencies';
 import { PackageCard } from '../components/PackageCard.tsx';
 import { PackageFiltersForm } from '../components/PackageFiltersForm.tsx';
 import { PaginationControls } from '../components/PaginationControls.tsx';
+import { ErrorBanner } from '../components/ErrorBanner';
 import type { PackageFilters } from '../api/packages.api';
 import { Plus, X, Package as PackageIcon } from 'lucide-react';
 
@@ -146,6 +147,11 @@ export default function PackagesListPage() {
   };
 
   const error = queryError ? (queryError as Error).message : localError;
+  const [visibleError, setVisibleError] = useState<string | null>(error);
+
+  useEffect(() => {
+    setVisibleError(error);
+  }, [error]);
 
   const applyFilters = () => {
     const f: PackageFilters = {};
@@ -221,13 +227,8 @@ export default function PackagesListPage() {
         </div>
 
         {/* Error */}
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-sm flex items-center gap-3">
-            <div className="p-1.5 bg-red-100 dark:bg-red-900/30 rounded-lg">
-              <X className="w-4 h-4" />
-            </div>
-            <span className="flex-1">{error}</span>
-          </div>
+        {visibleError && (
+          <ErrorBanner message={visibleError} onDismiss={() => setVisibleError(null)} />
         )}
 
         {/* Loading */}

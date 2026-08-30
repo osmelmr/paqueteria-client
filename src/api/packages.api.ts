@@ -63,6 +63,7 @@ export interface PackageReference {
 
 export interface Package {
   id: string;
+  routeId?: string | null;
   guide?: PackageGuide | null;
   recipient?: PackageRecipient | null;
   province?: PackageReference | null;

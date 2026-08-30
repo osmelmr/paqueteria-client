@@ -12,7 +12,9 @@ import {
   Tag,
   Hash,
   Clock,
+  Truck,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { usePackage } from '../hooks/usePackages';
 import type { Package } from '../api/packages.api';
 
@@ -63,6 +65,7 @@ export const PackageDetailsModal: React.FC<PackageDetailsModalProps> = ({
   onClose,
 }) => {
   const { data: fetched, isLoading } = usePackage(packageId, isOpen);
+  const navigate = useNavigate();
 
   if (!isOpen) return null;
 
@@ -89,12 +92,26 @@ export const PackageDetailsModal: React.FC<PackageDetailsModalProps> = ({
           <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <PackageIcon className="w-4 h-4 text-gray-500" /> Detalles del Paquete
           </h3>
-          <button
-            onClick={onClose}
-            className="p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            {pkg && (
+              <button
+                type="button"
+                disabled={!pkg.routeId}
+                title={pkg.routeId ? 'Ver la ruta asociada a este paquete' : 'Este paquete no está asignado a ninguna ruta'}
+                onClick={() => pkg.routeId && navigate(`/routes?route=${pkg.routeId}`)}
+                className="px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-colors disabled:cursor-not-allowed enabled:cursor-pointer bg-purple-50 dark:bg-purple-900/30 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 enabled:hover:bg-purple-100 dark:enabled:hover:bg-purple-900/50 disabled:text-gray-400 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:border-gray-200 dark:disabled:border-gray-700"
+              >
+                <Truck className="w-4 h-4" />
+                {pkg.routeId ? 'Ver ruta' : 'Sin ruta'}
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         <div className="p-4 overflow-y-auto">
