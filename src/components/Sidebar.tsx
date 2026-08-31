@@ -16,13 +16,15 @@ interface NavGroup {
   path?: string;
 }
 
+const ADMIN_ROLES = ['ADMIN', 'OWNER'];
+
 const NAV_GROUPS: NavGroup[] = [
   {
-    label: 'Inicio', roles: ['ADMIN', 'STOREKEEPER'],
+    label: 'Inicio', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
     path: '/',
   },
   {
-    label: 'Paquetes', roles: ['ADMIN', 'STOREKEEPER'],
+    label: 'Paquetes', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
     links: [
       { label: 'Paquetes', path: '/packages' },
       { label: 'Consultar HBLs', path: '/consultar-hbls' },
@@ -32,7 +34,7 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: 'Rutas', roles: ['ADMIN', 'STOREKEEPER'],
+    label: 'Rutas', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
     links: [
       { label: 'Rutas', path: '/routes' },
       { label: 'Vehiculos', path: '/vehicles' },
@@ -40,41 +42,41 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: 'Guias', roles: ['ADMIN', 'STOREKEEPER'],
+    label: 'Guias', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
     path: '/guides',
   },
   {
-    label: 'Agencias', roles: ['ADMIN', 'STOREKEEPER'],
+    label: 'Agencias', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
     path: '/agencies',
   },
   {
-    label: 'Destino', roles: ['ADMIN', 'STOREKEEPER'],
+    label: 'Destino', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
     links: [],
     groups: [
       {
-        label: 'Destinatarios', roles: ['ADMIN', 'STOREKEEPER'],
+        label: 'Destinatarios', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
         path: '/recipients',
       },
       {
-        label: 'Provincias', roles: ['ADMIN', 'STOREKEEPER'],
+        label: 'Provincias', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
         path: '/provinces',
       },
       {
-        label: 'Municipios', roles: ['ADMIN', 'STOREKEEPER'],
+        label: 'Municipios', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
         path: '/municipes',
       },
     ],
   },
   {
-    label: 'Ubicaciones', roles: ['ADMIN', 'STOREKEEPER'],
+    label: 'Ubicaciones', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
     path: '/locations',
   },
   {
-    label: 'Estados', roles: ['ADMIN', 'STOREKEEPER'],
+    label: 'Estados', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
     path: '/statuses',
   },
   {
-    label: 'Usuarios', roles: ['ADMIN'],
+    label: 'Usuarios', roles: ADMIN_ROLES,
     path: '/users',
   },
 ];
