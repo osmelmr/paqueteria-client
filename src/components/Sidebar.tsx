@@ -51,20 +51,10 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     label: 'Destino', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
-    links: [],
-    groups: [
-      {
-        label: 'Destinatarios', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
-        path: '/recipients',
-      },
-      {
-        label: 'Provincias', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
-        path: '/provinces',
-      },
-      {
-        label: 'Municipios', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
-        path: '/municipes',
-      },
+    links: [
+      { label: 'Destinatarios', path: '/recipients' },
+      { label: 'Provincias', path: '/provinces' },
+      { label: 'Municipios', path: '/municipes' },
     ],
   },
   {
@@ -118,15 +108,6 @@ export function Sidebar() {
     const active = findActivePath(visibleGroups);
     return new Set(active ? [active] : []);
   });
-  const [lastPathname, setLastPathname] = useState(location.pathname);
-
-  if (lastPathname !== location.pathname) {
-    setLastPathname(location.pathname);
-    const active = findActivePath(visibleGroups);
-    if (active) {
-      setOpenGroups((prev) => new Set(prev).add(active));
-    }
-  }
 
   const toggleGroup = (path: string) => {
     setOpenGroups((prev) => {
