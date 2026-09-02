@@ -14,8 +14,8 @@ import {
   Clock,
   Truck,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { usePackage } from '../hooks/usePackages';
+import { RouteDetailsModal } from './RouteDetailsModal';
 import type { Package } from '../api/packages.api';
 
 interface PackageDetailsModalProps {
@@ -65,7 +65,7 @@ export const PackageDetailsModal: React.FC<PackageDetailsModalProps> = ({
   onClose,
 }) => {
   const { data: fetched, isLoading } = usePackage(packageId, isOpen);
-  const navigate = useNavigate();
+  const [routeModalOpen, setRouteModalOpen] = React.useState(false);
 
   if (!isOpen) return null;
 
@@ -78,6 +78,7 @@ export const PackageDetailsModal: React.FC<PackageDetailsModalProps> = ({
     date ? new Date(date).toLocaleString('es-CU', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : null;
 
   return (
+    <>
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 dark:bg-black/60 backdrop-blur-sm"
       onClick={onClose}
@@ -98,7 +99,7 @@ export const PackageDetailsModal: React.FC<PackageDetailsModalProps> = ({
                 type="button"
                 disabled={!pkg.routeId}
                 title={pkg.routeId ? 'Ver la ruta asociada a este paquete' : 'Este paquete no está asignado a ninguna ruta'}
-                onClick={() => pkg.routeId && navigate(`/routes?route=${pkg.routeId}`)}
+                onClick={() => pkg.routeId && setRouteModalOpen(true)}
                 className="px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-colors disabled:cursor-not-allowed enabled:cursor-pointer bg-purple-50 dark:bg-purple-900/30 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 enabled:hover:bg-purple-100 dark:enabled:hover:bg-purple-900/50 disabled:text-gray-400 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:border-gray-200 dark:disabled:border-gray-700"
               >
                 <Truck className="w-4 h-4" />
@@ -203,5 +204,11 @@ export const PackageDetailsModal: React.FC<PackageDetailsModalProps> = ({
         </div>
       </div>
     </div>
+    <RouteDetailsModal
+      isOpen={routeModalOpen}
+      routeId={(routeModalOpen ? pkg?.routeId ?? null : null)}
+      onClose={() => setRouteModalOpen(false)}
+    />
+    </>
   );
 };
