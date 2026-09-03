@@ -29,6 +29,7 @@ export default function ConsultarHblsPage() {
   const [provinceDropdownOpen, setProvinceDropdownOpen] = useState(false);
   const [selectedLocationIds, setSelectedLocationIds] = useState<string[]>([]);
   const [locationDropdownOpen, setLocationDropdownOpen] = useState(false);
+  const [excludeHbls, setExcludeHbls] = useState('');
 
   const { data: statuses = [] } = useStatuses();
   const { data: provinces = [] } = useProvinces();
@@ -38,15 +39,20 @@ export default function ConsultarHblsPage() {
   const error = mutation.isError ? (mutation.error as Error).message : localError;
   const result = mutation.data ?? null;
 
+  const excludeList = useMemo(() => {
+    return excludeHbls.split(/[,.\s\n]+/).map((s) => s.trim()).filter(Boolean);
+  }, [excludeHbls]);
+
   const filteredFound = useMemo(() => {
     if (!result) return [];
     return result.found.filter((pkg) => {
       const matchStatus = selectedStatusIds.length === 0 || (pkg.status?.id && selectedStatusIds.includes(pkg.status.id));
       const matchProvince = selectedProvinceIds.length === 0 || (pkg.province?.id && selectedProvinceIds.includes(pkg.province.id));
       const matchLocation = selectedLocationIds.length === 0 || (pkg.location?.id && selectedLocationIds.includes(pkg.location.id));
-      return matchStatus && matchProvince && matchLocation;
+      const excludeMatches = (pkg.hbls?.some((h) => excludeList.includes(h.hblCode)) ?? false);
+      return matchStatus && matchProvince && matchLocation && !excludeMatches;
     });
-  }, [result, selectedStatusIds, selectedProvinceIds, selectedLocationIds]);
+  }, [result, selectedStatusIds, selectedProvinceIds, selectedLocationIds, excludeList]);
 
   const filteredHbls = useMemo(() => {
     return filteredFound.flatMap((pkg) => pkg.hbls?.map((h) => h.hblCode) ?? []);
@@ -457,6 +463,14 @@ export default function ConsultarHblsPage() {
                       </div>
                     )}
                   </div>
+
+                  <input
+                    type="text"
+                    value={excludeHbls}
+                    onChange={(e) => setExcludeHbls(e.target.value)}
+                    placeholder="Excluir HBLs (separados por coma, punto o espacio)"
+                    className="flex-1 min-w-48 px-3 py-1.5 text-xs font-medium rounded-lg border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-500"
+                  />
                 </div>
               )}
 

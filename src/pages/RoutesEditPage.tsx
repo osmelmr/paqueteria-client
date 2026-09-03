@@ -17,20 +17,6 @@ type BulkResult = {
   failed: string[];
 };
 
-function parseNotFound(raw: string | null | undefined): string[] {
-  if (!raw) return [];
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (Array.isArray(parsed)) return parsed.map(String);
-  } catch {
-    /* ignorar y tratar como texto */
-  }
-  return raw
-    .split(/[\r\n,;]/)
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
-
 export default function RoutesEditPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -52,8 +38,6 @@ export default function RoutesEditPage() {
     vehicleId: '',
     hbls: '',
   });
-  const [notFoundHbls, setNotFoundHbls] = useState<string[]>([]);
-  const [newNotFoundHbl, setNewNotFoundHbl] = useState('');
   const [driverIds, setDriverIds] = useState<string[]>([]);
   const [localError, setLocalError] = useState<string | null>(null);
 
