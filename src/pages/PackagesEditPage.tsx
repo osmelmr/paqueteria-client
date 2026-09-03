@@ -1,6 +1,6 @@
 import { useState, type FormEvent, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { usePackage, useUpdatePackage } from '../hooks/usePackages';
+import { usePackage, useUpdatePackage, useDeletePackage } from '../hooks/usePackages';
 import { useGuides } from '../hooks/useGuides';
 import { useRecipients, useUpdateRecipient, useCreateRecipient } from '../hooks/useRecipients';
 import { useProvinces } from '../hooks/useProvinces';
@@ -18,6 +18,7 @@ export default function PackagesEditPage() {
   const navigate = useNavigate();
   const { data: pkg, isLoading: pkgLoading, error: pkgError } = usePackage(id || '');
   const updatePackage = useUpdatePackage();
+  const deletePackage = useDeletePackage();
   const updateRecipient = useUpdateRecipient();
   const createRecipient = useCreateRecipient();
   const { data: guides = [] } = useGuides();
@@ -116,6 +117,17 @@ export default function PackagesEditPage() {
         hbls: form.hbls.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean),
       };
       await updatePackage.mutateAsync({ id, dto });
+      navigate('/packages');
+    } catch (err) {
+      setLocalError((err as Error).message);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    if (!confirm('Eliminar este paquete? Esta acción no se puede deshacer.')) return;
+    try {
+      await deletePackage.mutateAsync(id);
       navigate('/packages');
     } catch (err) {
       setLocalError((err as Error).message);
@@ -257,6 +269,7 @@ export default function PackagesEditPage() {
           <div className="flex gap-2.5 flex-wrap mt-3.5" style={{ gridColumn: '1 / -1' }}>
             <button type="submit" className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50" disabled={updatePackage.isPending}>Actualizar paquete</button>
             <button type="button" className="bg-slate-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-border font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={() => navigate('/packages')}>Cancelar</button>
+            <button type="button" className="bg-rose-500 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-rose-600 transition-colors disabled:opacity-50" onClick={handleDelete} disabled={deletePackage.isPending}>{deletePackage.isPending ? 'Eliminando...' : 'Eliminar paquete'}</button>
           </div>
         </form>
       </div>
