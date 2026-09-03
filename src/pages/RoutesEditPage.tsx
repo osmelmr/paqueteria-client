@@ -1,7 +1,7 @@
 import { useState, type FormEvent, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRoutes, useUpdateRoute, useConvertRouteHbls } from '../hooks/useRoutes';
+import { useRoutes, useUpdateRoute } from '../hooks/useRoutes';
 import { useVehicles } from '../hooks/useVehicles';
 import { useDrivers } from '../hooks/useDrivers';
 import { useStatuses } from '../hooks/useStatuses';
@@ -37,7 +37,6 @@ export default function RoutesEditPage() {
   const qc = useQueryClient();
   const { data: routes = [], isLoading } = useRoutes();
   const updateRoute = useUpdateRoute();
-  const convertHbls = useConvertRouteHbls();
   const { data: vehicles = [] } = useVehicles();
   const { data: drivers = [] } = useDrivers();
   const { data: statuses = [] } = useStatuses();
@@ -54,7 +53,6 @@ export default function RoutesEditPage() {
     hbls: '',
   });
   const [notFoundHbls, setNotFoundHbls] = useState<string[]>([]);
-  const [backendNotFoundHbls, setBackendNotFoundHbls] = useState<string[]>([]);
   const [newNotFoundHbl, setNewNotFoundHbl] = useState('');
   const [driverIds, setDriverIds] = useState<string[]>([]);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -70,7 +68,6 @@ export default function RoutesEditPage() {
     if (!route) return;
     const d = route.departureDate ? new Date(route.departureDate) : null;
     const local = d ? new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10) : '';
-    const parsedNotFound = parseNotFound(route.notFound);
     setForm({
       name: route.name,
       description: route.description ?? '',
@@ -78,8 +75,6 @@ export default function RoutesEditPage() {
       vehicleId: route.vehicleId,
       hbls: route.packages?.flatMap((p) => p.hbls?.map((h) => h.hblCode) ?? []).join(', ') ?? '',
     });
-    setNotFoundHbls(parsedNotFound);
-    setBackendNotFoundHbls(parsedNotFound);
     setBulkHbls(
       route.packages?.flatMap((p) => p.hbls?.map((h) => h.hblCode) ?? []).join(', ') ?? '',
     );
@@ -125,7 +120,6 @@ export default function RoutesEditPage() {
           departureDate: form.departureDate ? new Date(form.departureDate).toISOString() : undefined,
           vehicleId: form.vehicleId || undefined,
           hbls: form.hbls.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean),
-          notFound: notFoundHbls,
           driverIds,
         },
       });
@@ -180,88 +174,11 @@ export default function RoutesEditPage() {
             HBLs (separados por coma, punto y coma o saltos de linea)
             <textarea className="border border-border rounded-xl px-3 py-2.5 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200" value={form.hbls} onChange={(e) => setForm((prev) => ({ ...prev, hbls: e.target.value }))} rows={3} />
           </label>
-          <div className="col-span-full flex flex-col gap-1.5">
-            <span className="flex items-center gap-2 font-medium">
-              Paquetes faltantes
-              <span className="text-xs font-normal text-gray-500 dark:text-gray-400">
-                ({notFoundHbls.length} HBLs sin paquete asociado)
-              </span>
-            </span>
-            <div className="flex flex-col gap-2">
-              {notFoundHbls.map((hbl, idx) => (
-                <span
-                  key={`${hbl}-${idx}`}
-                  className="flex items-center gap-2 rounded-lg border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-900/20 px-3 py-2"
-                >
-                  <span className="selectable-text flex-1 font-mono text-xs text-rose-700 dark:text-rose-400">{hbl}</span>
-                  <button
-                    type="button"
-                    title="Quitar de la lista"
-                    onClick={() => setNotFoundHbls((prev) => prev.filter((h) => h !== hbl))}
-                    className="bg-transparent border-none cursor-pointer text-gray-500 dark:text-gray-400 hover:text-red-500 font-bold"
-                  >
-                    x
-                  </button>
-                </span>
-              ))}
-              {notFoundHbls.length === 0 && (
-                <p className="text-sm text-gray-500 dark:text-gray-400">Sin HBLs pendientes de registro</p>
-              )}
-              <div className="flex gap-2">
-                <input
-                  className="border border-border rounded-xl px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex-1"
-                  value={newNotFoundHbl}
-                  onChange={(e) => setNewNotFoundHbl(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      const hbl = newNotFoundHbl.trim();
-                      if (hbl && !notFoundHbls.includes(hbl)) {
-                        setNotFoundHbls((prev) => [...prev, hbl]);
-                      }
-                      setNewNotFoundHbl('');
-                    }
-                  }}
-                  placeholder="Escribir un HBL faltante y presionar Enter"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    const hbl = newNotFoundHbl.trim();
-                    if (hbl && !notFoundHbls.includes(hbl)) {
-                      setNotFoundHbls((prev) => [...prev, hbl]);
-                    }
-                    setNewNotFoundHbl('');
-                  }}
-                  className="bg-slate-100 dark:bg-slate-700 text-gray-900 dark:text-gray-100 border border-border font-semibold rounded-xl px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
-                >
-                  Agregar
-                </button>
-              </div>
-            </div>
-          </div>
           <div className="flex gap-2.5 flex-wrap mt-3.5" style={{ gridColumn: '1 / -1' }}>
             <button type="submit" className="bg-purple-500 dark:bg-purple-400 text-white font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors disabled:opacity-50" disabled={updateRoute.isPending}>Guardar</button>
             <button type="button" className="bg-slate-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-border font-semibold rounded-xl px-4 py-3 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={() => navigate('/routes')}>Cancelar</button>
           </div>
         </form>
-        {backendNotFoundHbls.length > 0 && (
-          <button
-            type="button"
-            onClick={async () => {
-              try {
-                await convertHbls.mutateAsync(id!);
-                await qc.refetchQueries({ queryKey: ['routes'] });
-              } catch (err) {
-                setLocalError((err as Error).message);
-              }
-            }}
-            disabled={convertHbls.isPending}
-            className="mt-4 bg-emerald-500 text-white font-semibold rounded-xl px-4 py-2.5 text-sm cursor-pointer border-none hover:bg-emerald-600 transition-colors disabled:opacity-50"
-          >
-            {convertHbls.isPending ? 'Convirtiendo...' : `Convertir ${backendNotFoundHbls.length} HBL${backendNotFoundHbls.length !== 1 ? 's' : ''} a paquetes`}
-          </button>
-        )}
       </div>
 
       <div className="p-[18px] border border-border rounded-xl bg-surface shadow-lg">
