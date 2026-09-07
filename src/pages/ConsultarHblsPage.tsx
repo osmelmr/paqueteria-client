@@ -11,7 +11,7 @@ import {
   Search,
   XCircle,
 } from 'lucide-react';
-import { useCheckHbls } from '../hooks/usePackages';
+import { useCheckHbls, useUpdatePackageStatus } from '../hooks/usePackages';
 import { useStatuses } from '../hooks/useStatuses';
 import { useProvinces } from '../hooks/useProvinces';
 import { useLocations } from '../hooks/useLocations';
@@ -37,6 +37,7 @@ export default function ConsultarHblsPage() {
   const { data: provinces = [] } = useProvinces();
   const { data: locations = [] } = useLocations();
   const mutation = useCheckHbls();
+  const updateStatus = useUpdatePackageStatus();
 
   const error = mutation.isError ? (mutation.error as Error).message : localError;
   const result = mutation.data ?? null;
@@ -108,6 +109,15 @@ export default function ConsultarHblsPage() {
       ta.select();
       document.execCommand('copy');
       document.body.removeChild(ta);
+    }
+  };
+
+  const handleUpdateStatus = async (pkgId: string, statusId: string, locationId: string, statusDate?: string) => {
+    setLocalError(null);
+    try {
+      await updateStatus.mutateAsync({ id: pkgId, statusId, locationId: locationId || undefined, statusDate });
+    } catch (err) {
+      setLocalError((err as Error).message);
     }
   };
 
@@ -487,6 +497,7 @@ export default function ConsultarHblsPage() {
                       key={`${pkg.id}-${pkg.status?.id ?? ''}:${pkg.location?.id ?? ''}`}
                       data={pkg as unknown as PackageData}
                       onEdit={async (id) => { if (await confirm({ message: 'Editar este paquete?', confirmLabel: 'Editar' })) navigate(`/packages/${id}/edit`); }}
+                      onUpdateStatus={handleUpdateStatus}
                       statuses={statuses}
                       locations={locations}
                     />

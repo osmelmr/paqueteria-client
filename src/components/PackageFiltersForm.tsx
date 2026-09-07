@@ -16,10 +16,11 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CustomSelect } from './CustomSelect';
+import { useDropdownPosition } from '../hooks/useDropdownPosition';
 
 interface FilterFormState {
   guideIds: string[];
-  statusId: string;
+  statusIds: string[];
   provinceIds: string[];
   municipeIds: string[];
   hbl: string;
@@ -73,6 +74,7 @@ function MultiSelect({
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const ref = useRef<HTMLDivElement>(null);
+  const openUp = useDropdownPosition(ref, open);
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
@@ -113,7 +115,7 @@ function MultiSelect({
         <ChevronDown className={`w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform ${open ? 'rotate-180' : ''}`} />
       </div>
       {open && (
-        <div className="absolute left-0 right-0 top-11 z-50 mt-1 bg-white dark:bg-gray-800 border border-border rounded-xl shadow-lg shadow-black/10 dark:shadow-black/40 overflow-hidden">
+        <div className={`absolute left-0 right-0 z-50 bg-white dark:bg-gray-800 border border-border rounded-xl shadow-lg shadow-black/10 dark:shadow-black/40 overflow-hidden ${openUp ? 'bottom-full mb-1' : 'top-11 mt-1'}`}>
           <div className="p-2 border-b border-gray-100 dark:border-gray-700/50">
             <input
               autoFocus
@@ -188,7 +190,7 @@ export function PackageFiltersForm({
   const hasActiveFilters = Object.values(filterForm).some(isFilterActive);
   const shouldSubmitOnClear = useRef(false);
 
-  const toggleInList = (key: 'guideIds' | 'provinceIds' | 'municipeIds', id: string) => {
+  const toggleInList = (key: 'guideIds' | 'statusIds' | 'provinceIds' | 'municipeIds', id: string) => {
     setFilterForm((prev) => ({
       ...prev,
       [key]: prev[key].includes(id)
@@ -203,7 +205,7 @@ export function PackageFiltersForm({
     // Reiniciar todos los campos del formulario
     setFilterForm({
       guideIds: [],
-      statusId: '',
+      statusIds: [],
       provinceIds: [],
       municipeIds: [],
       hbl: '',
@@ -262,13 +264,17 @@ export function PackageFiltersForm({
             getCountLabel={(n) => `${n} seleccionada${n !== 1 ? 's' : ''}`}
           />
 
-          {/* Estado */}
-          <CustomSelect
-            value={filterForm.statusId}
-            onChange={(id) => setFilterForm((prev) => ({ ...prev, statusId: id }))}
-            options={statuses}
+          {/* Estado (multi-select) */}
+          <MultiSelect
             placeholder="Estado"
             icon={Activity}
+            items={statuses}
+            selected={filterForm.statusIds}
+            onToggle={(id) => toggleInList('statusIds', id)}
+            onAll={() => setFilterForm((prev) => ({ ...prev, statusIds: statuses.map((s) => s.id) }))}
+            onNone={() => setFilterForm((prev) => ({ ...prev, statusIds: [] }))}
+            searchPlaceholder="Buscar estado..."
+            getCountLabel={(n) => `${n} seleccionado${n !== 1 ? 's' : ''}`}
           />
 
           {/* Ubicación */}

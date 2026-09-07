@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Save } from 'lucide-react';
 import { todayDateInput } from '../utils/date';
 import { DatePicker } from './DatePicker';
+import { useDropdownPosition } from '../hooks/useDropdownPosition';
 
 interface SelectOption {
   id: string;
@@ -45,6 +46,10 @@ export const PackageStatusControls: React.FC<PackageStatusControlsProps> = ({
 }) => {
   const [openDropdown, setOpenDropdown] = useState<'status' | 'location' | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
+  const locationRef = useRef<HTMLDivElement>(null);
+  const statusOpenUp = useDropdownPosition(statusRef, openDropdown === 'status', 220);
+  const locationOpenUp = useDropdownPosition(locationRef, openDropdown === 'location', 220);
 
   // Cerrar al hacer clic fuera
   useEffect(() => {
@@ -61,7 +66,7 @@ export const PackageStatusControls: React.FC<PackageStatusControlsProps> = ({
     <div ref={containerRef} className="flex items-center gap-3 not-lg:gap-1 max-w-50">
       <div className="flex flex-col gap-1 w-full min-w-0 sm:flex-none sm:min-w-30 sm:max-w-40">
         {/* Select Estado */}
-        <div className="relative w-full sm:max-w-40 sm:min-w-40">
+        <div className="relative w-full sm:max-w-40 sm:min-w-40" ref={statusRef}>
           <button
             type="button"
             onClick={() => setOpenDropdown(openDropdown === 'status' ? null : 'status')}
@@ -72,7 +77,7 @@ export const PackageStatusControls: React.FC<PackageStatusControlsProps> = ({
           </button>
 
           {openDropdown === 'status' && (
-            <div className="absolute left-0 top-full mt-1 w-full min-w-[160px] max-w-[200px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50 max-h-48 overflow-y-auto py-1">
+            <div className={`absolute left-0 w-full min-w-[160px] max-w-[200px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50 max-h-48 overflow-y-auto py-1 ${statusOpenUp ? 'bottom-full mb-1' : 'top-full mt-1'}`}>
               {statuses.map((s) => (
                 <button
                   key={s.id}
@@ -95,7 +100,7 @@ export const PackageStatusControls: React.FC<PackageStatusControlsProps> = ({
         </div>
 
         {/* Select Ubicación */}
-        <div className="relative w-full sm:max-w-40 sm:min-w-30">
+        <div className="relative w-full sm:max-w-40 sm:min-w-30" ref={locationRef}>
           <button
             type="button"
             onClick={() => setOpenDropdown(openDropdown === 'location' ? null : 'location')}
@@ -106,7 +111,7 @@ export const PackageStatusControls: React.FC<PackageStatusControlsProps> = ({
           </button>
 
           {openDropdown === 'location' && (
-            <div className="absolute left-0 top-full mt-1 w-full min-w-[160px] max-w-[200px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50 max-h-48 overflow-y-auto py-1">
+            <div className={`absolute left-0 w-full min-w-[160px] max-w-[200px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50 max-h-48 overflow-y-auto py-1 ${locationOpenUp ? 'bottom-full mb-1' : 'top-full mt-1'}`}>
               <button
                 type="button"
                 onClick={() => {

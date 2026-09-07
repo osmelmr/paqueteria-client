@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState, useEffect } from 'react';
 import { ChevronDown, Search, Check, X, type LucideIcon } from 'lucide-react';
+import { useDropdownPosition } from '../hooks/useDropdownPosition';
 
 export interface SelectOption {
   id: string;
@@ -39,6 +40,7 @@ export function CustomSelect({
   const [search, setSearch] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  const openUp = useDropdownPosition(containerRef, open);
 
   const selected = options.find((o) => o.id === value);
 
@@ -114,7 +116,7 @@ export function CustomSelect({
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-11 z-50 mt-1 bg-white dark:bg-gray-800 border border-border rounded-xl shadow-lg shadow-black/10 dark:shadow-black/40 overflow-hidden">
+        <div className={`absolute left-0 right-0 z-50 bg-white dark:bg-gray-800 border border-border rounded-xl shadow-lg shadow-black/10 dark:shadow-black/40 overflow-hidden ${openUp ? 'bottom-full mb-1' : 'top-11 mt-1'}`}>
           {searchable && (
             <div className="p-2 border-b border-gray-100 dark:border-gray-700/50">
               <div className="relative">

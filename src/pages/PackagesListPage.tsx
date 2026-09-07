@@ -21,7 +21,8 @@ const FILTERS_STORAGE_KEY = 'paqueteria_packages_filters_v2';
 interface PersistedPackageFilters {
   filterForm: {
     guideIds: string[];
-    statusId: string;
+    statusIds: string[];
+    statusId?: string;
     provinceIds: string[];
     municipeIds: string[];
     hbl: string;
@@ -42,9 +43,14 @@ function loadPersistedFilters(): PersistedPackageFilters | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as PersistedPackageFilters;
     if (!parsed || typeof parsed !== 'object') return null;
+    const rawFilters = parsed.filters ?? {};
+    const filters: PackageFilters = { ...rawFilters };
+    if (!filters.statusIds && typeof rawFilters.status === 'string') {
+      filters.statusIds = [rawFilters.status];
+    }
     return {
       filterForm: parsed.filterForm ?? {},
-      filters: parsed.filters ?? {},
+      filters,
       currentPage: typeof parsed.currentPage === 'number' ? parsed.currentPage : 1,
       limit: typeof parsed.limit === 'number' ? parsed.limit : 50,
     };
@@ -63,7 +69,7 @@ export default function PackagesListPage() {
   const saved = loadPersistedFilters();
   const [filters, setFilters] = useState<PackageFilters>(() => {
     if (hblParam) return { hbl: hblParam };
-    if (statusIdParam) return { status: statusIdParam };
+    if (statusIdParam) return { statusIds: [statusIdParam] };
     return saved?.filters ?? {};
   });
 
@@ -97,7 +103,7 @@ export default function PackagesListPage() {
 
   const [filterForm, setFilterForm] = useState<{ 
     guideIds: string[]; 
-    statusId: string; 
+    statusIds: string[]; 
     provinceIds: string[]; 
     municipeIds: string[]; 
     hbl: string; 
@@ -108,7 +114,7 @@ export default function PackagesListPage() {
     guideType: string;
   }>(() => ({ 
     guideIds: saved?.filterForm?.guideIds ?? [], 
-    statusId: saved?.filterForm?.statusId ?? '', 
+    statusIds: saved?.filterForm?.statusIds ?? (saved?.filterForm?.statusId ? [saved.filterForm.statusId] : []), 
     provinceIds: saved?.filterForm?.provinceIds ?? [], 
     municipeIds: saved?.filterForm?.municipeIds ?? [], 
     hbl: hblParam || saved?.filterForm?.hbl || '', 
@@ -154,8 +160,8 @@ export default function PackagesListPage() {
     // If the status param looks like an id (uuid-ish), treat it as id
     const isUuid = /^[0-9a-fA-F-]{20,}$/.test(q);
     if (isUuid) {
-      setFilterForm((prev) => ({ ...prev, statusId: q }));
-      setFilters({ status: q });
+      setFilterForm((prev) => ({ ...prev, statusIds: [q] }));
+      setFilters({ statusIds: [q] });
       setCurrentPage(1);
       return;
     }
@@ -165,8 +171,8 @@ export default function PackagesListPage() {
       return name.includes(lower) || lower.includes(name);
     });
     if (!status) return;
-    setFilterForm((prev) => ({ ...prev, statusId: status.id }));
-    setFilters({ status: status.id });
+    setFilterForm((prev) => ({ ...prev, statusIds: [status.id] }));
+    setFilters({ statusIds: [status.id] });
     setCurrentPage(1);
   }, [statusParam, statuses]);
 
@@ -174,8 +180,8 @@ export default function PackagesListPage() {
     // support statusId query param (preferred)
     if (!statusIdParam) return;
     // apply directly even if statuses not yet loaded
-    setFilterForm((prev) => ({ ...prev, statusId: statusIdParam }));
-    setFilters({ status: statusIdParam });
+    setFilterForm((prev) => ({ ...prev, statusIds: [statusIdParam] }));
+    setFilters({ statusIds: [statusIdParam] });
     setCurrentPage(1);
   }, [statusIdParam]);
 
@@ -205,7 +211,7 @@ export default function PackagesListPage() {
   const applyFilters = () => {
     const f: PackageFilters = {};
     if (filterForm.guideIds.length) f.guideIds = filterForm.guideIds;
-    if (filterForm.statusId) f.status = filterForm.statusId;
+    if (filterForm.statusIds.length) f.statusIds = filterForm.statusIds;
     if (filterForm.provinceIds.length) f.provinceIds = filterForm.provinceIds;
     const municipeIds = filterForm.municipeIds.filter((id) => id !== '__header__');
     if (filterForm.municipeIds.includes('__header__')) f.header = true;

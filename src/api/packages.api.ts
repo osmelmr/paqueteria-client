@@ -4,6 +4,7 @@ export type GuideType = 'AEREA' | 'MARITIMA';
 
 export interface PackageFilters {
   status?: string;
+  statusIds?: string[];
   provinceId?: string;
   provinceIds?: string[];
   municipeId?: string;
@@ -152,6 +153,9 @@ export const packagesApi = {
 
   getHistory: (id: string) =>
     api.get<PackageHistoryItem[]>(`/packages/${id}/history`).then((r) => r.data),
+
+  deleteHistory: (packageId: string, historyId: string) =>
+    api.delete(`/packages/${packageId}/history/${historyId}`),
 
   delete: (id: string) =>
     api.delete(`/packages/${id}`),

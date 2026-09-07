@@ -71,6 +71,15 @@ export function useDeletePackage() {
   });
 }
 
+export function useDeletePackageHistory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ packageId, historyId }: { packageId: string; historyId: string }) =>
+      packagesApi.deleteHistory(packageId, historyId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: [HISTORY_KEY] }),
+  });
+}
+
 export function useBulkCreatePackages() {
   const qc = useQueryClient();
   return useMutation({

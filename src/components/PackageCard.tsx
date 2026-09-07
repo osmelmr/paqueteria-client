@@ -235,6 +235,7 @@ export const PackageCard: React.FC<PackageListRowProps> = ({
       <PackageHistoryModal
         isOpen={showHistory}
         onClose={() => setShowHistory(false)}
+        packageId={data.id}
         history={history}
       />
 
