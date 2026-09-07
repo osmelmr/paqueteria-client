@@ -35,6 +35,9 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
     if(user.role === 'PARTNER'){
       return <Navigate to="/seguimiento" replace />;
     }
+    if(user.role === 'AGENT'){
+      return <Navigate to="/packages" replace />;
+    }
     return <Navigate to="/" replace />;
   }
 

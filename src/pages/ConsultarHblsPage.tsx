@@ -16,9 +16,11 @@ import { useStatuses } from '../hooks/useStatuses';
 import { useProvinces } from '../hooks/useProvinces';
 import { useLocations } from '../hooks/useLocations';
 import { PackageCard, type PackageData } from '../components/PackageCard';
+import { useConfirm } from '../hooks/useConfirm';
 
 export default function ConsultarHblsPage() {
   const navigate = useNavigate();
+  const [confirmModal, confirm] = useConfirm();
   const [hbls, setHbls] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
   const [copiedNotFound, setCopiedNotFound] = useState(false);
@@ -484,7 +486,7 @@ export default function ConsultarHblsPage() {
                     <PackageCard
                       key={`${pkg.id}-${pkg.status?.id ?? ''}:${pkg.location?.id ?? ''}`}
                       data={pkg as unknown as PackageData}
-                      onEdit={(id) => navigate(`/packages/${id}/edit`)}
+                      onEdit={async (id) => { if (await confirm({ message: 'Editar este paquete?', confirmLabel: 'Editar' })) navigate(`/packages/${id}/edit`); }}
                       statuses={statuses}
                       locations={locations}
                     />
@@ -495,6 +497,7 @@ export default function ConsultarHblsPage() {
           </div>
         )}
       </div>
+      {confirmModal}
     </main>
   );
 }

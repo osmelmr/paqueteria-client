@@ -6,6 +6,7 @@ import { useUIStore } from '../store/ui.store';
 interface NavLink {
   label: string;
   path: string;
+  roles?: string[];
 }
 
 interface NavGroup {
@@ -24,45 +25,45 @@ const NAV_GROUPS: NavGroup[] = [
     path: '/',
   },
   {
-    label: 'Paquetes', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
+    label: 'Paquetes', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'],
     links: [
-      { label: 'Paquetes', path: '/packages' },
-      { label: 'Consultar HBLs', path: '/consultar-hbls' },
-      { label: 'Registrar paquetes', path: '/register-packages' },
-      { label: 'Actualizar estado', path: '/update-status-bulk' },
-      { label: 'Crear paquetes (HBL)', path: '/bulk-create-packages' },
+      { label: 'Paquetes', path: '/packages', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'] },
+      { label: 'Consultar HBLs', path: '/consultar-hbls', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'] },
+      { label: 'Registrar paquetes', path: '/register-packages', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'] },
+      { label: 'Actualizar estado', path: '/update-status-bulk', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'] },
+      { label: 'Crear paquetes (HBL)', path: '/bulk-create-packages', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'] },
     ],
   },
   {
-    label: 'Rutas', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
+    label: 'Rutas', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'],
     links: [
-      { label: 'Rutas', path: '/routes' },
-      { label: 'Vehiculos', path: '/vehicles' },
-      { label: 'Choferes', path: '/drivers' },
+      { label: 'Rutas', path: '/routes', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'] },
+      { label: 'Vehiculos', path: '/vehicles', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'] },
+      { label: 'Choferes', path: '/drivers', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'] },
     ],
   },
   {
-    label: 'Guias', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
+    label: 'Guias', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'],
     path: '/guides',
   },
   {
-    label: 'Agencias', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
+    label: 'Agencias', roles: [...ADMIN_ROLES],
     path: '/agencies',
   },
   {
-    label: 'Destino', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
+    label: 'Destino', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'],
     links: [
-      { label: 'Destinatarios', path: '/recipients' },
-      { label: 'Provincias', path: '/provinces' },
-      { label: 'Municipios', path: '/municipes' },
+      { label: 'Destinatarios', path: '/recipients', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'] },
+      { label: 'Provincias', path: '/provinces', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'] },
+      { label: 'Municipios', path: '/municipes', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'] },
     ],
   },
   {
-    label: 'Ubicaciones', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
+    label: 'Ubicaciones', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'],
     path: '/locations',
   },
   {
-    label: 'Estados', roles: [...ADMIN_ROLES, 'STOREKEEPER'],
+    label: 'Estados', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'],
     path: '/statuses',
   },
   {
@@ -122,7 +123,7 @@ export function Sidebar() {
     openGroups.has(path) || [...openGroups].some((o) => o.startsWith(path + '::'));
 
   const renderLinks = (links: NavLink[]) =>
-    links.map((link) => (
+    links.filter((link) => !link.roles || link.roles.includes(user!.role)).map((link) => (
       <button
         key={link.path}
         type="button"

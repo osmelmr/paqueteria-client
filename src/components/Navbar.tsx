@@ -76,25 +76,27 @@ export function Navbar() {
           </div>
         </form>
 
-        <button
-          type="button"
-          className="flex items-center justify-center gap-0 px-3 py-2 rounded-xl text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700/60 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-200 dark:hover:border-purple-800/60 transition-all shadow-sm"
-          onClick={() => navigate('/update-status-bulk')}
-          aria-label="Recepción"
-        >
-          <Download className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-          <span className="hidden md:inline ml-1.5">Recepción</span>
-        </button>
+        
+          <button
+            type="button"
+            className="flex items-center justify-center gap-0 px-3 py-2 rounded-xl text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700/60 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-200 dark:hover:border-purple-800/60 transition-all shadow-sm"
+            onClick={() => navigate('/update-status-bulk')}
+            aria-label="Recepción"
+          >
+            <Download className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+            <span className="hidden md:inline ml-1.5">Recepción</span>
+          </button>
+        
+          <button
+            type="button"
+            className="flex items-center justify-center gap-0 px-3 py-2 rounded-xl text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700/60 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-200 dark:hover:border-purple-800/60 transition-all shadow-sm"
+            onClick={() => navigate('/register-packages')}
+            aria-label="Registrar paquetes nuevos"
+          >
+            <FileText className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+            <span className="hidden md:inline ml-1.5">Agregar</span>
+          </button>
 
-        <button
-          type="button"
-          className="flex items-center justify-center gap-0 px-3 py-2 rounded-xl text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700/60 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-200 dark:hover:border-purple-800/60 transition-all shadow-sm"
-          onClick={() => navigate('/register-packages')}
-          aria-label="Registrar paquetes nuevos"
-        >
-          <FileText className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-          <span className="hidden md:inline ml-1.5">Agregar</span>
-        </button>
       </div>
 
       {/* Sección Derecha: Tema, Usuario y Salir */}

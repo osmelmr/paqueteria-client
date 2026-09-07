@@ -4,6 +4,7 @@ import { useGuides, useUpdateGuide } from '../hooks/useGuides';
 import { useAgencies } from '../hooks/useAgencies';
 import type { GuideType } from '../api/guides.api';
 import { CustomSelect } from '../components/CustomSelect';
+import { useConfirm } from '../hooks/useConfirm';
 
 const GUIDE_TYPE_OPTIONS = [
   { id: 'AEREA', name: 'Aerea' },
@@ -16,6 +17,7 @@ export default function GuidesEditPage() {
   const { data: guides = [], isLoading: guidesLoading } = useGuides();
   const { data: agencies = [] } = useAgencies();
   const updateGuide = useUpdateGuide();
+  const [confirmModal, confirm] = useConfirm();
   const [form, setForm] = useState<{ name: string; agencyId: string; type: GuideType }>({ name: '', agencyId: '', type: 'AEREA' });
   const [localError, setLocalError] = useState<string | null>(null);
 
@@ -30,6 +32,8 @@ export default function GuidesEditPage() {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!id) return;
+    const ok = await confirm({ message: 'Guardar los cambios de esta guia?', confirmLabel: 'Guardar' });
+    if (!ok) return;
     setLocalError(null);
     try {
       await updateGuide.mutateAsync({ id, dto: form });
@@ -83,6 +87,7 @@ export default function GuidesEditPage() {
           </div>
         </form>
       </div>
+      {confirmModal}
     </div>
   );
 }

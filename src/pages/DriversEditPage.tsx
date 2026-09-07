@@ -1,12 +1,14 @@
 import { useState, type FormEvent, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDrivers, useUpdateDriver } from '../hooks/useDrivers';
+import { useConfirm } from '../hooks/useConfirm';
 
 export default function DriversEditPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: drivers = [], isLoading } = useDrivers();
   const updateDriver = useUpdateDriver();
+  const [confirmModal, confirm] = useConfirm();
 
   const driver = drivers.find((d) => d.id === id);
   const [name, setName] = useState('');
@@ -27,6 +29,8 @@ export default function DriversEditPage() {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    const ok = await confirm({ message: 'Guardar los cambios de este chofer?', confirmLabel: 'Guardar' });
+    if (!ok) return;
     setLocalError(null);
     try {
       await updateDriver.mutateAsync({ id: id!, dto: { name } });
@@ -56,6 +60,7 @@ export default function DriversEditPage() {
           </div>
         </form>
       </div>
+      {confirmModal}
     </div>
   );
 }

@@ -14,6 +14,7 @@ import { PaginationControls } from '../components/PaginationControls.tsx';
 import { ErrorBanner } from '../components/ErrorBanner';
 import type { PackageFilters } from '../api/packages.api';
 import { Plus, X, Package as PackageIcon } from 'lucide-react';
+import { useConfirm } from '../hooks/useConfirm';
 
 const FILTERS_STORAGE_KEY = 'paqueteria_packages_filters_v1';
 
@@ -55,6 +56,7 @@ function loadPersistedFilters(): PersistedPackageFilters | null {
 
 export default function PackagesListPage() {
   const navigate = useNavigate();
+  const [confirmModal, confirm] = useConfirm();
   const [searchParams, setSearchParams] = useSearchParams();
   const hblParam = searchParams.get('hbl') || '';
   const statusParam = searchParams.get('status') || '';
@@ -366,7 +368,7 @@ export default function PackagesListPage() {
                 <PackageCard
                   key={`${pkg.id}-${pkg.status?.id ?? ''}:${pkg.location?.id ?? ''}-${(pkg.statuses || []).map((s: { id?: string; createdAt?: string }) => `${s.id}:${s.createdAt}`).join('|')}`}
                   data={pkg}
-                  onEdit={(id) => navigate(`/packages/${id}/edit`)}
+                  onEdit={async (id) => { if (await confirm({ message: 'Editar este paquete?', confirmLabel: 'Editar' })) navigate(`/packages/${id}/edit`); }}
                   onUpdateStatus={handleUpdateStatus}
                   statuses={statuses}
                   locations={locations}
@@ -389,6 +391,7 @@ export default function PackagesListPage() {
           loading={isLoading}
         />
       </div>
+      {confirmModal}
     </main>
   );
 }

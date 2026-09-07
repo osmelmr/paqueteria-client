@@ -12,10 +12,12 @@ import { toLocalDateInput, dateInputToIso, todayDateInput } from '../utils/date'
 import { CustomSelect } from '../components/CustomSelect';
 import { RecipientsCustomSelect } from '../components/RecipientsCustomSelect';
 import { DatePicker } from '../components/DatePicker';
+import { useConfirm } from '../hooks/useConfirm';
 
 export default function PackagesEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [confirmModal, confirm] = useConfirm();
   const { data: pkg, isLoading: pkgLoading, error: pkgError } = usePackage(id || '');
   const updatePackage = useUpdatePackage();
   const deletePackage = useDeletePackage();
@@ -70,6 +72,8 @@ export default function PackagesEditPage() {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!id) return;
+    const ok = await confirm({ message: 'Guardar los cambios de este paquete?', confirmLabel: 'Guardar' });
+    if (!ok) return;
     setLocalError(null);
     try {
       let finalRecipientId = form.recipientId;
@@ -125,7 +129,8 @@ export default function PackagesEditPage() {
 
   const handleDelete = async () => {
     if (!id) return;
-    if (!confirm('Eliminar este paquete? Esta acción no se puede deshacer.')) return;
+    const ok = await confirm({ message: 'Eliminar este paquete? Esta acción no se puede deshacer.', confirmLabel: 'Eliminar', danger: true });
+    if (!ok) return;
     try {
       await deletePackage.mutateAsync(id);
       navigate('/packages');
@@ -273,6 +278,7 @@ export default function PackagesEditPage() {
           </div>
         </form>
       </div>
+      {confirmModal}
     </div>
   );
 }

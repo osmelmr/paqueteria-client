@@ -1,12 +1,14 @@
 import { useState, type FormEvent } from 'react';
 import { useStatuses, useUpdateStatus } from '../hooks/useStatuses';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useConfirm } from '../hooks/useConfirm';
 
 export default function StatusesEditPage() {
   const { id } = useParams<{ id: string }>();
   const { data: items = [], isLoading } = useStatuses();
   const updateEntity = useUpdateStatus();
   const navigate = useNavigate();
+  const [confirmModal, confirm] = useConfirm();
   const item = items.find((i) => i.id === id);
   const [name, setName] = useState(item?.name ?? '');
   const [error, setError] = useState<string | null>(null);
@@ -16,6 +18,8 @@ export default function StatusesEditPage() {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    const ok = await confirm({ message: 'Guardar los cambios de este estado?', confirmLabel: 'Guardar' });
+    if (!ok) return;
     setError(null);
     try {
       await updateEntity.mutateAsync({ id: id!, dto: { name } });
@@ -41,6 +45,7 @@ export default function StatusesEditPage() {
           </div>
         </form>
       </div>
+      {confirmModal}
     </div>
   );
 }

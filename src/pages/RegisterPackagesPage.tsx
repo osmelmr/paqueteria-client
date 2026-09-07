@@ -1,12 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, FileSpreadsheet } from 'lucide-react';
+import { useAuthStore } from '../store/auth.store';
 
 export default function RegisterPackagesPage() {
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
 
   return (
-    <div className="mx-auto w-full max-w-4xl min-w-0">
-      <div className="p-[18px] border border-border rounded-xl bg-surface shadow-lg mb-[18px]">
+    <div className="mx-auto max-w-4xl min-w-0">
+      <div className="p-4.5 border border-border rounded-xl bg-surface shadow-lg mb-4.5">
         <h2 className="text-gray-900 dark:text-gray-100 font-semibold m-0 mb-1.5">
           Registrar paquetes nuevos
         </h2>
@@ -14,8 +16,8 @@ export default function RegisterPackagesPage() {
           Elige cómo quieres registrar la lista de paquetes.
         </p>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <button
+        <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2  ${(user?.role !== 'OWNER' && user?.role !== 'ADMIN') && "sm:grid-cols-1"  }`}>
+          {user?.role !== 'AGENT' && (<button
             type="button"
             onClick={() => navigate('/ai-extract')}
             className="group flex flex-col items-start gap-3 rounded-xl border border-border bg-white dark:bg-slate-800 p-5 text-left cursor-pointer transition-all hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-lg hover:-translate-y-0.5"
@@ -35,6 +37,7 @@ export default function RegisterPackagesPage() {
               Ir a la extracción por IA →
             </span>
           </button>
+          )}
 
           <button
             type="button"

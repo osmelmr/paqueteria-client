@@ -11,6 +11,7 @@ import { CustomSelect } from '../components/CustomSelect';
 import { DatePicker } from '../components/DatePicker';
 import { dateInputToIso, todayDateInput } from '../utils/date';
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
+import { useConfirm } from '../hooks/useConfirm';
 
 type BulkResult = {
   success: Array<{ hbl: string; package: { statusId?: string; locationId?: string | null } | null }>;
@@ -28,6 +29,7 @@ export default function RoutesEditPage() {
   const { data: statuses = [] } = useStatuses();
   const { data: locations = [] } = useLocations();
   const updateStatusBulk = useUpdateStatusBulk();
+  const [confirmModal, confirm] = useConfirm();
 
   const route = routes.find((r) => r.id === id);
 
@@ -94,6 +96,8 @@ export default function RoutesEditPage() {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    const ok = await confirm({ message: 'Guardar los cambios de esta ruta?', confirmLabel: 'Guardar' });
+    if (!ok) return;
     setLocalError(null);
     try {
       await updateRoute.mutateAsync({
@@ -305,6 +309,7 @@ export default function RoutesEditPage() {
           </div>
         )}
       </div>
+      {confirmModal}
     </div>
   );
 }

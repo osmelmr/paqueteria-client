@@ -21,7 +21,9 @@ export function LoginPage() {
 
   const redirectToRoleHome = () => {
     const role = useAuthStore.getState().user?.role;
-    navigate(role === 'PARTNER' ? '/seguimiento' : '/', { replace: true });
+    if (role === 'PARTNER') navigate('/seguimiento', { replace: true });
+    else if (role === 'AGENT') navigate('/packages', { replace: true });
+    else navigate('/', { replace: true });
   };
 
   useSessionValidation(redirectToRoleHome);

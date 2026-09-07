@@ -6,11 +6,9 @@ import { useAgencies } from '../hooks/useAgencies';
 import { useAuthStore } from '../store/auth.store';
 
 const ROLE_OPTIONS = [
-  { id: 'STOREKEEPER', name: 'Almacenero' },
-  {id:'WORKER',name:'Trabajador'},
   {id:'PARTNER',name:'Socio'},
   { id: 'OWNER', name: 'Admin' },
-  { id: 'ADMIN', name: 'Admin' },
+  { id: 'AGENT', name: 'Agente' },
 ];
 
 export default function UsersCreatePage() {

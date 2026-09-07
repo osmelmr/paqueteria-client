@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
 import { useRecipients, useDeleteRecipient } from '../hooks/useRecipients';
+import { useConfirm } from '../hooks/useConfirm';
 
 export default function RecipientsListPage() {
   const navigate = useNavigate();
@@ -9,6 +10,7 @@ export default function RecipientsListPage() {
   const [search, setSearch] = useState('');
   const { data: recipients = [], isLoading, error: queryError } = useRecipients({ search: search || undefined });
   const deleteRecipient = useDeleteRecipient();
+  const [confirmModal, confirm] = useConfirm();
 
   useEffect(() => {
     const timer = setTimeout(() => setSearch(searchInput.trim()), 300);
@@ -18,7 +20,8 @@ export default function RecipientsListPage() {
   const error = queryError ? (queryError as Error).message : null;
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Eliminar este destinatario?')) return;
+    const ok = await confirm({ message: 'Eliminar este destinatario?', confirmLabel: 'Eliminar', danger: true });
+    if (!ok) return;
     try {
       await deleteRecipient.mutateAsync(id);
     } catch (err) {
@@ -74,7 +77,7 @@ export default function RecipientsListPage() {
                   <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">{r.phone || '—'}</td>
                   <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">
                     <div className="flex gap-2 flex-wrap">
-                      <button type="button" className="bg-purple-500 dark:bg-purple-400 text-white rounded-xl px-2.5 py-2 text-xs cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors" onClick={() => navigate(`/recipients/${r.id}/edit`)}>Editar</button>
+                      <button type="button" className="bg-purple-500 dark:bg-purple-400 text-white rounded-xl px-2.5 py-2 text-xs cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors" onClick={async () => { if (await confirm({ message: 'Editar este destinatario?', confirmLabel: 'Editar' })) navigate(`/recipients/${r.id}/edit`); }}>Editar</button>
                       <button type="button" className="bg-slate-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-border rounded-xl px-2.5 py-2 text-xs cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={() => handleDelete(r.id)}>Eliminar</button>
                     </div>
                   </td>
@@ -84,6 +87,7 @@ export default function RecipientsListPage() {
           </table>
         </div>
       </div>
+      {confirmModal}
     </div>
   );
 }

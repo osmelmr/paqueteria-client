@@ -1,12 +1,14 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useMunicipes, useUpdateMunicipe } from '../hooks/useMunicipes';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useConfirm } from '../hooks/useConfirm';
 
 export default function MunicipesEditPage() {
   const { id } = useParams<{ id: string }>();
   const { data: items = [], isLoading } = useMunicipes();
   const updateEntity = useUpdateMunicipe();
   const navigate = useNavigate();
+  const [confirmModal, confirm] = useConfirm();
   const item = items.find((i) => i.id === id);
   const [name, setName] = useState(item?.name ?? '');
   const [header, setHeader] = useState(item?.header ?? true);
@@ -24,6 +26,8 @@ export default function MunicipesEditPage() {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    const ok = await confirm({ message: 'Guardar los cambios de este municipio?', confirmLabel: 'Guardar' });
+    if (!ok) return;
     setError(null);
     try {
       await updateEntity.mutateAsync({ id: id!, dto: { name, header } });
@@ -58,6 +62,7 @@ export default function MunicipesEditPage() {
           </div>
         </form>
       </div>
+      {confirmModal}
     </div>
   );
 }

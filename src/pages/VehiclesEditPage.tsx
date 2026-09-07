@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useVehicles, useUpdateVehicle } from '../hooks/useVehicles';
 import { useDrivers } from '../hooks/useDrivers';
 import { CustomSelect } from '../components/CustomSelect';
+import { useConfirm } from '../hooks/useConfirm';
 
 export default function VehiclesEditPage() {
   const { id } = useParams();
@@ -10,6 +11,7 @@ export default function VehiclesEditPage() {
   const { data: vehicles = [], isLoading } = useVehicles();
   const updateVehicle = useUpdateVehicle();
   const { data: drivers = [] } = useDrivers();
+  const [confirmModal, confirm] = useConfirm();
 
   const vehicle = vehicles.find((v) => v.id === id);
   const [name, setName] = useState('');
@@ -40,6 +42,8 @@ export default function VehiclesEditPage() {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    const ok = await confirm({ message: 'Guardar los cambios de este vehiculo?', confirmLabel: 'Guardar' });
+    if (!ok) return;
     setLocalError(null);
     try {
       await updateVehicle.mutateAsync({
@@ -82,6 +86,7 @@ export default function VehiclesEditPage() {
           </div>
         </form>
       </div>
+      {confirmModal}
     </div>
   );
 }

@@ -1,15 +1,18 @@
 import { useNavigate } from 'react-router-dom';
 import { useGuides, useDeleteGuide } from '../hooks/useGuides';
+import { useConfirm } from '../hooks/useConfirm';
 
 export default function GuidesListPage() {
   const navigate = useNavigate();
   const { data: guides = [], isLoading, error: queryError } = useGuides();
   const deleteGuide = useDeleteGuide();
+  const [confirmModal, confirm] = useConfirm();
 
   const error = queryError ? (queryError as Error).message : null;
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Eliminar esta guia?')) return;
+    const ok = await confirm({ message: 'Eliminar esta guia?', confirmLabel: 'Eliminar', danger: true });
+    if (!ok) return;
     try {
       await deleteGuide.mutateAsync(id);
     } catch (err) {
@@ -44,7 +47,7 @@ export default function GuidesListPage() {
                   </td>
                   <td className="border border-border p-2.5 text-gray-700 dark:text-gray-300">
                     <div className="flex gap-2 flex-wrap">
-                      <button type="button" className="bg-purple-500 dark:bg-purple-400 text-white rounded-xl px-2.5 py-2 text-xs cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors" onClick={() => navigate(`/guides/${g.id}/edit`)}>Editar</button>
+                      <button type="button" className="bg-purple-500 dark:bg-purple-400 text-white rounded-xl px-2.5 py-2 text-xs cursor-pointer border-none hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors" onClick={async () => { if (await confirm({ message: 'Editar esta guia?', confirmLabel: 'Editar' })) navigate(`/guides/${g.id}/edit`); }}>Editar</button>
                       <button type="button" className="bg-slate-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-border rounded-xl px-2.5 py-2 text-xs cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onClick={() => handleDelete(g.id)}>Eliminar</button>
                     </div>
                   </td>
@@ -54,6 +57,7 @@ export default function GuidesListPage() {
           </table>
         </div>
       </div>
+      {confirmModal}
     </div>
   );
 }

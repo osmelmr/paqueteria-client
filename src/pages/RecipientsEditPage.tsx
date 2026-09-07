@@ -1,12 +1,14 @@
 import { useState, type FormEvent, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useRecipients, useUpdateRecipient } from '../hooks/useRecipients';
+import { useConfirm } from '../hooks/useConfirm';
 
 export default function RecipientsEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: recipients = [], isLoading } = useRecipients();
   const updateRecipient = useUpdateRecipient();
+  const [confirmModal, confirm] = useConfirm();
   const [form, setForm] = useState({ fullName: '', idCard: '', phone: '' });
   const [localError, setLocalError] = useState<string | null>(null);
 
@@ -21,6 +23,8 @@ export default function RecipientsEditPage() {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!id) return;
+    const ok = await confirm({ message: 'Guardar los cambios de este destinatario?', confirmLabel: 'Guardar' });
+    if (!ok) return;
     setLocalError(null);
     try {
       await updateRecipient.mutateAsync({ id, dto: form });
@@ -74,6 +78,7 @@ export default function RecipientsEditPage() {
           </div>
         </form>
       </div>
+      {confirmModal}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useAgencies, useUpdateAgency } from '../hooks/useAgencies';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { Agency } from '../api/agencies.api';
+import { useConfirm } from '../hooks/useConfirm';
 
 export default function AgenciesEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -17,11 +18,14 @@ export default function AgenciesEditPage() {
 function AgencyEditForm({ item }: { item: Agency }) {
   const updateEntity = useUpdateAgency();
   const navigate = useNavigate();
+  const [confirmModal, confirm] = useConfirm();
   const [name, setName] = useState(item.name);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    const ok = await confirm({ message: 'Guardar los cambios de esta agencia?', confirmLabel: 'Guardar' });
+    if (!ok) return;
     setError(null);
     try {
       await updateEntity.mutateAsync({ id: item.id, dto: { name } });
@@ -47,6 +51,7 @@ function AgencyEditForm({ item }: { item: Agency }) {
           </div>
         </form>
       </div>
+      {confirmModal}
     </div>
   );
 }

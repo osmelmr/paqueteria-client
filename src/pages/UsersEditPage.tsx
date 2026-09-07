@@ -5,6 +5,7 @@ import { usersApi, type User } from '../api/users.api';
 import { CustomSelect } from '../components/CustomSelect';
 import { useAgencies } from '../hooks/useAgencies';
 import { useAuthStore } from '../store/auth.store';
+import { useConfirm } from '../hooks/useConfirm';
 
 const ROLE_OPTIONS = [
   { id: 'STOREKEEPER', name: 'Almacenero' },
@@ -22,6 +23,7 @@ function UserEditForm({ user }: { user: User }) {
     (o) => o.id !== 'ADMIN' && (o.id !== 'OWNER' || currentUserRole === 'ADMIN'),
   );
   const updateUser = useUpdateUser();
+  const [confirmModal, confirm] = useConfirm();
   const [error, setError] = useState<string | null>(null);
 
   const [form, setForm] = useState({
@@ -34,6 +36,8 @@ function UserEditForm({ user }: { user: User }) {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    const ok = await confirm({ message: 'Guardar los cambios de este usuario?', confirmLabel: 'Guardar' });
+    if (!ok) return;
     setError(null);
     try {
       const dto: { fullName?: string; email?: string; role?: string; isActive?: boolean; agencyId?: string } = {
@@ -92,6 +96,7 @@ function UserEditForm({ user }: { user: User }) {
           </div>
         </form>
       </div>
+      {confirmModal}
     </div>
   );
 }
