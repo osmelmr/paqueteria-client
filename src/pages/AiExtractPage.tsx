@@ -23,7 +23,6 @@ type ExtractedPackage = {
   phone?: string | null;
   province?: string | null;
   municipe?: string | null;
-  arrivalDate?: string | null;
   hblCodes?: string[];
   weight?: number | null;
 };
@@ -210,7 +209,6 @@ function AiExtractPage() {
           phone: pkg.phone ?? undefined,
           province: pkg.province ?? undefined,
           municipe: pkg.municipe ?? undefined,
-          arrivalDate: pkg.arrivalDate ?? undefined,
           hblCodes: pkg.hblCodes ?? [],
           weight: pkg.weight ?? undefined,
         })),

@@ -4,7 +4,6 @@ import {
   AlertCircle,
   BarChart3,
   Building2,
-  Calendar,
   Clock,
   Eye,
   FileText,
@@ -117,9 +116,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function DetailsModal({ pkg, onClose }: { pkg: PartnerPackage; onClose: () => void }) {
-  const formatDate = (date?: string | null) =>
-    date ? new Date(date).toLocaleDateString('es-CU', { year: 'numeric', month: 'short', day: 'numeric' }) : null;
-
   const formatDateTime = (date?: string | null) =>
     date ? new Date(date).toLocaleString('es-CU', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : null;
 
@@ -188,7 +184,6 @@ function DetailsModal({ pkg, onClose }: { pkg: PartnerPackage; onClose: () => vo
           <Section title="Estado">
             <DetailItem icon={Tag} label="Estado" value={pkg.status?.name} />
             <DetailItem icon={MapPin} label="Ubicación actual" value={pkg.location?.name} />
-            <DetailItem icon={Calendar} label="Fecha de llegada" value={formatDate(pkg.arrivalDate)} />
           </Section>
 
           <Section title="Detalles del paquete">

@@ -9,7 +9,7 @@ import { useLocations } from '../hooks/useLocations';
 import { useUpdateStatusBulk } from '../hooks/useBusiness';
 import { CustomSelect } from '../components/CustomSelect';
 import { DatePicker } from '../components/DatePicker';
-import { dateInputToIso, todayDateInput } from '../utils/date';
+import { dateInputToMiddayIso, dateInputToIso, todayDateInput } from '../utils/date';
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
 import { useConfirm } from '../hooks/useConfirm';
 
@@ -105,7 +105,7 @@ export default function RoutesEditPage() {
         dto: {
           name: form.name,
           description: form.description || undefined,
-          departureDate: form.departureDate ? new Date(form.departureDate).toISOString() : undefined,
+          departureDate: form.departureDate ? dateInputToMiddayIso(form.departureDate) : undefined,
           vehicleId: form.vehicleId || undefined,
           hbls: form.hbls.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean),
           driverIds,

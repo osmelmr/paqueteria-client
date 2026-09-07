@@ -15,7 +15,6 @@ export interface BulkAiEntities {
     address?: string;
     content?: string;
     weight?: number;
-    arrivalDate?: string;
     fullName?: string;
     idCard?: string;
     phone?: string;
@@ -37,7 +36,6 @@ export interface ResolveAlertDto {
   address?: string;
   weight?: number;
   content?: string;
-  arrivalDate?: string;
   statusId?: string;
   locationId?: string;
   anotations?: string;

@@ -16,18 +16,17 @@ import type { PackageFilters } from '../api/packages.api';
 import { Plus, X, Package as PackageIcon } from 'lucide-react';
 import { useConfirm } from '../hooks/useConfirm';
 
-const FILTERS_STORAGE_KEY = 'paqueteria_packages_filters_v1';
+const FILTERS_STORAGE_KEY = 'paqueteria_packages_filters_v2';
 
 interface PersistedPackageFilters {
   filterForm: {
-    guideId: string;
+    guideIds: string[];
     statusId: string;
     provinceIds: string[];
-    municipeId: string;
+    municipeIds: string[];
     hbl: string;
     idCard: string;
     alert: string;
-    statusDate: string;
     locationId: string;
     agencyId: string;
     guideType: string;
@@ -97,26 +96,24 @@ export default function PackagesListPage() {
   const { data: agencies = [] } = useAgencies();
 
   const [filterForm, setFilterForm] = useState<{ 
-    guideId: string; 
+    guideIds: string[]; 
     statusId: string; 
     provinceIds: string[]; 
-    municipeId: string; 
+    municipeIds: string[]; 
     hbl: string; 
     idCard: string; 
     alert: string; 
-    statusDate: string; 
     locationId: string; 
     agencyId: string; 
     guideType: string;
   }>(() => ({ 
-    guideId: saved?.filterForm?.guideId ?? '', 
+    guideIds: saved?.filterForm?.guideIds ?? [], 
     statusId: saved?.filterForm?.statusId ?? '', 
     provinceIds: saved?.filterForm?.provinceIds ?? [], 
-    municipeId: saved?.filterForm?.municipeId ?? '', 
+    municipeIds: saved?.filterForm?.municipeIds ?? [], 
     hbl: hblParam || saved?.filterForm?.hbl || '', 
     idCard: saved?.filterForm?.idCard ?? '', 
     alert: saved?.filterForm?.alert ?? '', 
-    statusDate: saved?.filterForm?.statusDate ?? '', 
     locationId: saved?.filterForm?.locationId ?? '', 
     agencyId: saved?.filterForm?.agencyId ?? '', 
     guideType: saved?.filterForm?.guideType ?? '',
@@ -207,18 +204,15 @@ export default function PackagesListPage() {
 
   const applyFilters = () => {
     const f: PackageFilters = {};
-    if (filterForm.guideId) f.guideId = filterForm.guideId;
+    if (filterForm.guideIds.length) f.guideIds = filterForm.guideIds;
     if (filterForm.statusId) f.status = filterForm.statusId;
     if (filterForm.provinceIds.length) f.provinceIds = filterForm.provinceIds;
-    if (filterForm.municipeId === '__header__') {
-      f.header = true;
-    } else if (filterForm.municipeId) {
-      f.municipeId = filterForm.municipeId;
-    }
+    const municipeIds = filterForm.municipeIds.filter((id) => id !== '__header__');
+    if (filterForm.municipeIds.includes('__header__')) f.header = true;
+    if (municipeIds.length) f.municipeIds = municipeIds;
     if (filterForm.hbl) f.hbl = filterForm.hbl;
     if (filterForm.idCard) f.idCard = filterForm.idCard;
     if (filterForm.alert) f.alert = true;
-    if (filterForm.statusDate) f.statusDate = filterForm.statusDate;
     if (filterForm.locationId) f.locationId = filterForm.locationId;
     if (filterForm.agencyId) f.agencyId = filterForm.agencyId;
     if (filterForm.guideType) f.guideType = filterForm.guideType as 'AEREA' | 'MARITIMA';

@@ -32,7 +32,7 @@ export default function PackagesEditPage() {
 
   const [form, setForm] = useState({
     guideId: '', recipientId: '', recipientName: '', recipientIdCard: '', recipientPhone: '', provinceId: '', municipeId: '', address: '', weight: '',
-    content: '', arrivalDate: '', statusDate: '', statusId: '', locationId: '',
+    content: '', statusDate: '', statusId: '', locationId: '',
     anotations: '', alert: false, alertDescription: '', hbls: '',
   });
   const [localError, setLocalError] = useState<string | null>(null);
@@ -57,7 +57,6 @@ export default function PackagesEditPage() {
         address: pkg.address || '',
         weight: pkg.weight != null ? String(pkg.weight) : '',
         content: pkg.content || '',
-        arrivalDate: pkg.arrivalDate || '',
         statusDate: todayDateInput(),
         statusId: pkg.status?.id || '',
         locationId: pkg.location?.id || '',
@@ -111,7 +110,6 @@ export default function PackagesEditPage() {
         address: form.address || undefined,
         weight: form.weight ? Number(form.weight) : undefined,
         content: form.content || undefined,
-        arrivalDate: form.arrivalDate || undefined,
         statusDate: statusDateTouched ? dateInputToIso(form.statusDate) : undefined,
         statusId: form.statusId,
         locationId: form.locationId || undefined,

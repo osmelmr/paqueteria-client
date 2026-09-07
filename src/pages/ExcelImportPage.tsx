@@ -24,8 +24,7 @@ type FieldKey =
   | 'municipe'
   | 'address'
   | 'content'
-  | 'weight'
-  | 'arrivalDate';
+  | 'weight';
 
 const FIELD_DEFS: { key: FieldKey; label: string; required?: boolean }[] = [
   { key: 'hblCodes', label: 'HBLs', required: true },
@@ -37,7 +36,6 @@ const FIELD_DEFS: { key: FieldKey; label: string; required?: boolean }[] = [
   { key: 'address', label: 'Direccion' },
   { key: 'content', label: 'Contenido' },
   { key: 'weight', label: 'Peso' },
-  { key: 'arrivalDate', label: 'Fecha de llegada' },
 ];
 
 type ImportedPackage = {
@@ -46,7 +44,6 @@ type ImportedPackage = {
   address?: string;
   content?: string;
   weight?: number;
-  arrivalDate?: string;
   fullName?: string;
   idCard?: string;
   phone?: string;
@@ -70,24 +67,6 @@ function splitHbls(value: string): string[] {
     .split(/[,;\n]/)
     .map((s) => s.trim().replace(/[[\]]/g, ''))
     .filter(Boolean);
-}
-
-function excelSerialToIso(serial: number): string {
-  const ms = Math.round((serial - 25569) * 86400 * 1000);
-  const d = new Date(ms);
-  if (Number.isNaN(d.getTime())) return '';
-  return d.toISOString().slice(0, 10);
-}
-
-function parseArrivalDate(value: string): string {
-  if (!value) return '';
-  const asNumber = Number(value);
-  if (value.trim() !== '' && Number.isFinite(asNumber)) {
-    return excelSerialToIso(asNumber);
-  }
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return '';
-  return d.toISOString().slice(0, 10);
 }
 
 function ExcelImportPage() {
@@ -157,7 +136,6 @@ function ExcelImportPage() {
           address: cell('address') || undefined,
           content: cell('content') || undefined,
           weight: Number.isFinite(weightNum) ? weightNum : undefined,
-          arrivalDate: parseArrivalDate(cell('arrivalDate')) || undefined,
         },
       };
     });
@@ -235,7 +213,6 @@ function ExcelImportPage() {
           phone: pkg.phone,
           province: pkg.province,
           municipe: pkg.municipe,
-          arrivalDate: pkg.arrivalDate,
           hblCodes: pkg.hblCodes,
           weight: pkg.weight,
         })),
@@ -519,7 +496,6 @@ function ExcelImportPage() {
                 <th className="p-2.5 text-left font-semibold">Direccion</th>
                 <th className="p-2.5 text-left font-semibold">Contenido</th>
                 <th className="p-2.5 text-left font-semibold">Peso</th>
-                <th className="p-2.5 text-left font-semibold">Fecha llegada</th>
                 <th className="p-2.5 text-left font-semibold">Eliminar</th>
               </tr>
             </thead>
@@ -537,7 +513,6 @@ function ExcelImportPage() {
                     <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.address || '—'}</td>
                     <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.content || '—'}</td>
                     <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.weight != null ? pkg.weight : '—'}</td>
-                    <td className="p-2.5 text-gray-700 dark:text-gray-300">{pkg.arrivalDate || '—'}</td>
                     <td className="p-2.5">
                       <button
                         type="button"
@@ -552,7 +527,7 @@ function ExcelImportPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={12} className="p-8 text-center text-gray-400 dark:text-gray-500">
+                  <td colSpan={11} className="p-8 text-center text-gray-400 dark:text-gray-500">
                     {rows.length > 0 ? 'Todos los paquetes fueron eliminados de este lote' : 'Carga un archivo Excel y mapea las columnas para ver los datos aqui'}
                   </td>
                 </tr>

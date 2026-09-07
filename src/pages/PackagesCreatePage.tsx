@@ -23,7 +23,7 @@ export default function PackagesCreatePage() {
 
   const [form, setForm] = useState({
     guideId: '', recipientId: '', provinceId: '', municipeId: '', address: '', weight: '',
-    content: '', arrivalDate: '', statusId: '', locationId: '',
+    content: '', statusId: '', locationId: '',
     anotations: '', alert: false, alertDescription: '', hbls: '',
   });
   const [localError, setLocalError] = useState<string | null>(null);
@@ -54,7 +54,6 @@ export default function PackagesCreatePage() {
         address: form.address || undefined,
         weight: form.weight ? Number(form.weight) : undefined,
         content: form.content || undefined,
-        arrivalDate: form.arrivalDate || undefined,
         statusId: form.statusId,
         locationId: form.locationId,
         anotations: form.anotations || undefined,

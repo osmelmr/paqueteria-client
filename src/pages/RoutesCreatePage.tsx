@@ -13,6 +13,7 @@ import { useDrivers } from '../hooks/useDrivers';
 import type { CreateRouteDto, CreateRouteResult } from '../api/routes.api';
 import { CustomSelect } from '../components/CustomSelect';
 import { DatePicker } from '../components/DatePicker';
+import { dateInputToMiddayIso } from '../utils/date';
 
 export default function RoutesCreatePage() {
   const navigate = useNavigate();
@@ -75,7 +76,7 @@ export default function RoutesCreatePage() {
       const dto: CreateRouteDto = {
         name: form.name,
         description: form.description || undefined,
-        departureDate: new Date(form.departureDate).toISOString(),
+        departureDate: dateInputToMiddayIso(form.departureDate)!,
         vehicleId: form.vehicleId,
         hbls: form.hbls.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean),
         driverIds,

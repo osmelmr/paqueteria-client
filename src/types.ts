@@ -102,7 +102,6 @@ export interface PackageItem {
     address?: string | null;
     weight?: number | null;
     content?: string | null;
-    arrivalDate?: string | null;
     anotations?: string | null;
     alert?: boolean | null;
     alertDescription?: string | null;

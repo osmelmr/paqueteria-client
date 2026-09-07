@@ -8,7 +8,6 @@ import {
   MapPin,
   Weight,
   FileText,
-  Calendar,
   Tag,
   Hash,
   Clock,
@@ -70,9 +69,6 @@ export const PackageDetailsModal: React.FC<PackageDetailsModalProps> = ({
   if (!isOpen) return null;
 
   const pkg = fetched ?? initialData;
-
-  const formatDate = (date?: string | null) =>
-    date ? new Date(date).toLocaleDateString('es-CU', { year: 'numeric', month: 'short', day: 'numeric' }) : null;
 
   const formatDateTime = (date?: string | null) =>
     date ? new Date(date).toLocaleString('es-CU', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : null;
@@ -167,11 +163,6 @@ export const PackageDetailsModal: React.FC<PackageDetailsModalProps> = ({
               <Section title="Estado">
                 <DetailItem icon={Tag} label="Estado" value={pkg.status?.name} />
                 <DetailItem icon={MapPin} label="Ubicación actual" value={pkg.location?.name} />
-                <DetailItem
-                  icon={Calendar}
-                  label="Fecha de llegada"
-                  value={formatDate(pkg.arrivalDate)}
-                />
               </Section>
 
               <Section title="Detalles del paquete">

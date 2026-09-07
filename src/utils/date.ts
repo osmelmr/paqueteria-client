@@ -13,6 +13,13 @@ export function dateInputToIso(dateInput?: string): string | undefined {
   return d.toISOString();
 }
 
+export function dateInputToMiddayIso(dateInput?: string): string | undefined {
+  if (!dateInput) return undefined;
+  const d = new Date(`${dateInput}T12:00:00`);
+  if (Number.isNaN(d.getTime())) return undefined;
+  return d.toISOString();
+}
+
 export function todayDateInput(): string {
   return toLocalDateInput(new Date().toISOString());
 }

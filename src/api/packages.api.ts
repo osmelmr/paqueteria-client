@@ -7,13 +7,14 @@ export interface PackageFilters {
   provinceId?: string;
   provinceIds?: string[];
   municipeId?: string;
+  municipeIds?: string[];
   header?: boolean;
   hbl?: string;
   recipientId?: string;
   guideId?: string;
+  guideIds?: string[];
   idCard?: string;
   alert?: boolean;
-  statusDate?: string;
   locationId?: string;
   agencyId?: string;
   guideType?: GuideType;
@@ -76,7 +77,6 @@ export interface Package {
   hbls: { hblCode: string }[];
   address?: string | null;
   content?: string | null;
-  arrivalDate?: string | null;
   anotations?: string | null;
   statusId?: string;
   provinceId?: string;
@@ -98,7 +98,6 @@ export interface CreatePackageDto {
   address?: string;
   weight?: number;
   content?: string;
-  arrivalDate?: string;
   statusDate?: string;
   statusId: string;
   locationId: string;
