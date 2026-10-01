@@ -34,6 +34,9 @@ export default function RoutesCreatePage() {
   const [localError, setLocalError] = useState<string | null>(null);
   const [result, setResult] = useState<CreateRouteResult | null>(null);
   const [copied, setCopied] = useState(false);
+  const [conflictHbls, setConflictHbls] = useState<string[] | null>(null);
+  const [conflictMessage, setConflictMessage] = useState<string | null>(null);
+  const [copiedConflict, setCopiedConflict] = useState(false);
 
   const handleVehicleChange = (vehicleId: string) => {
     setForm((prev) => ({ ...prev, vehicleId }));
@@ -55,6 +58,9 @@ export default function RoutesCreatePage() {
     setResult(null);
     setCopied(false);
     setLocalError(null);
+    setConflictHbls(null);
+    setConflictMessage(null);
+    setCopiedConflict(false);
   };
 
   const handleSubmit = async (event: FormEvent) => {
@@ -62,6 +68,9 @@ export default function RoutesCreatePage() {
     setLocalError(null);
     setResult(null);
     setCopied(false);
+    setConflictHbls(null);
+    setConflictMessage(null);
+    setCopiedConflict(false);
 
     if (!form.departureDate) {
       setLocalError('La fecha de salida es obligatoria');
@@ -84,7 +93,24 @@ export default function RoutesCreatePage() {
       const res = await createRoute.mutateAsync(dto);
       setResult(res);
     } catch (err) {
-      setLocalError((err as Error).message);
+      const data = (
+        err as { response?: { data?: { message?: string | string[]; hbls?: string[] } } }
+      ).response?.data;
+      const rawMessage = data?.message;
+      const message =
+        typeof rawMessage === 'string'
+          ? rawMessage
+          : Array.isArray(rawMessage)
+            ? rawMessage.join(', ')
+            : (err as Error).message;
+      const hbls = data?.hbls;
+      if (Array.isArray(hbls) && hbls.length > 0) {
+        setConflictMessage(message);
+        setConflictHbls(hbls);
+        setLocalError(null);
+      } else {
+        setLocalError(message);
+      }
     }
   };
 
@@ -103,6 +129,23 @@ export default function RoutesCreatePage() {
     }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyConflict = async () => {
+    if (!conflictHbls || conflictHbls.length === 0) return;
+    const text = conflictHbls.join('\n');
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    setCopiedConflict(true);
+    setTimeout(() => setCopiedConflict(false), 2000);
   };
 
   if (result) {
@@ -210,6 +253,36 @@ export default function RoutesCreatePage() {
       <div className="p-[18px] border border-border rounded-xl bg-surface shadow-lg mb-[18px]">
         <h2 className="text-gray-900 dark:text-gray-100 font-semibold m-0 mb-4">Nueva ruta</h2>
         {localError && <div className="mb-4 p-3.5 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl">{localError}</div>}
+        {conflictHbls && conflictHbls.length > 0 && (
+          <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-white dark:bg-slate-900 overflow-hidden">
+            <div className="flex items-center justify-between gap-3 bg-amber-50 dark:bg-amber-900/20 px-4 py-3">
+              <span className="flex items-center gap-2 text-sm font-semibold text-amber-800 dark:text-amber-300">
+                <XCircle className="h-4 w-4" />
+                {conflictMessage ?? 'Algunos HBL ya están asociados a otra ruta'}
+              </span>
+              <button
+                type="button"
+                onClick={handleCopyConflict}
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors ${
+                  copiedConflict
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-white text-amber-700 dark:bg-slate-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40'
+                }`}
+              >
+                {copiedConflict ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                {copiedConflict ? '¡Copiados!' : 'Copiar'}
+              </button>
+            </div>
+            <div className="px-4 py-3.5">
+              <p className="mb-2 text-xs text-gray-400 dark:text-gray-500">
+                Selecciona el texto para copiarlo.
+              </p>
+              <pre className="selectable-text cursor-text m-0 whitespace-pre-wrap break-words font-mono text-sm text-amber-700 dark:text-amber-300">
+                {conflictHbls.join('\n')}
+              </pre>
+            </div>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3.5">
           <label className="flex flex-col gap-1.5 font-medium">
             Nombre
