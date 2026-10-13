@@ -5,13 +5,14 @@ import {
   CheckCircle2,
   ChevronDown,
   Copy,
+  FileSpreadsheet,
   Filter,
   Loader2,
   Package as PackageIcon,
   Search,
   XCircle,
 } from 'lucide-react';
-import { useCheckHbls, useUpdatePackageStatus } from '../hooks/usePackages';
+import { useCheckHbls, usePackagesExcel, useUpdatePackageStatus } from '../hooks/usePackages';
 import { useStatuses } from '../hooks/useStatuses';
 import { useProvinces } from '../hooks/useProvinces';
 import { useLocations } from '../hooks/useLocations';
@@ -38,6 +39,7 @@ export default function ConsultarHblsPage() {
   const { data: locations = [] } = useLocations();
   const mutation = useCheckHbls();
   const updateStatus = useUpdatePackageStatus();
+  const excelMutation = usePackagesExcel();
 
   const error = mutation.isError ? (mutation.error as Error).message : localError;
   const result = mutation.data ?? null;
@@ -97,6 +99,24 @@ export default function ConsultarHblsPage() {
     await copyToClipboard(text);
     setCopiedFiltered(true);
     setTimeout(() => setCopiedFiltered(false), 2000);
+  };
+
+  const handleDownloadExcel = async () => {
+    if (filteredHbls.length === 0) return;
+    setLocalError(null);
+    try {
+      const data = await excelMutation.mutateAsync(filteredHbls);
+      const url = window.URL.createObjectURL(data.blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = data.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setLocalError((err as Error).message || 'No se pudo descargar el Excel.');
+    }
   };
 
   const copyToClipboard = async (text: string) => {
@@ -287,18 +307,29 @@ export default function ConsultarHblsPage() {
                 </span>
                 <div className="flex items-center gap-2">
                   {filteredHbls.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={handleCopyFiltered}
-                      className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors ${
-                        copiedFiltered
-                          ? 'bg-emerald-500 text-white'
-                          : 'bg-white text-emerald-700 dark:bg-slate-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40'
-                      }`}
-                    >
-                      {copiedFiltered ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                      {copiedFiltered ? '¡Copiados!' : 'Copiar HBLs filtrados'}
-                    </button>
+                    <>
+                      <button
+                        type="button"
+                        onClick={handleDownloadExcel}
+                        disabled={excelMutation.isPending}
+                        className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-emerald-700 dark:hover:bg-emerald-600"
+                      >
+                        {excelMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileSpreadsheet className="h-3.5 w-3.5" />}
+                        Descargar Excel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCopyFiltered}
+                        className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors ${
+                          copiedFiltered
+                            ? 'bg-emerald-500 text-white'
+                            : 'bg-white text-emerald-700 dark:bg-slate-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40'
+                        }`}
+                      >
+                        {copiedFiltered ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                        {copiedFiltered ? '¡Copiados!' : 'Copiar HBLs filtrados'}
+                      </button>
+                    </>
                   )}
                   <span className="rounded-full bg-emerald-500 px-2.5 py-0.5 text-xs font-semibold text-white">
                     {filteredFound.length}/{result.found.length}

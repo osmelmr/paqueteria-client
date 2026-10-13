@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import api from '../api/axios';
 import { packagesApi, type PackageFilters, type PaginationParams, type CreatePackageDto, type UpdatePackageDto } from '../api/packages.api';
 
 const QUERY_KEY = 'packages';
@@ -35,6 +36,22 @@ export function usePackageHistory(id: string, enabled = true) {
 export function useCheckHbls() {
   return useMutation({
     mutationFn: (hbls: string[]) => packagesApi.checkHbls(hbls),
+  });
+}
+
+export function usePackagesExcel() {
+  return useMutation({
+    mutationFn: async (hbls: string[]) => {
+      const response = await api.post('/generate/excel-packages', { hbls }, {
+        responseType: 'blob',
+      });
+      const disposition = response.headers['content-disposition'] ?? '';
+      const match = /filename="?([^"]+)"?/.exec(disposition);
+      return {
+        blob: response.data as Blob,
+        filename: match?.[1] ?? 'paquetes.xlsx',
+      };
+    },
   });
 }
 
