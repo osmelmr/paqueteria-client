@@ -117,6 +117,39 @@ export interface CheckHblsResult {
   notFound: string[];
 }
 
+export interface BulkUpsertPackageItem {
+  hbls: string[];
+  statusId?: string;
+  locationId?: string;
+  guideId?: string;
+  provinceId?: string;
+  province?: string;
+  municipeId?: string;
+  municipe?: string;
+  recipientId?: string;
+  fullName?: string;
+  idCard?: string;
+  phone?: string;
+  address?: string;
+  content?: string;
+  weight?: number;
+  arrivalDate?: string;
+  anotations?: string;
+}
+
+export interface BulkUpsertDto {
+  statusId: string;
+  locationId: string;
+  packages: BulkUpsertPackageItem[];
+}
+
+export interface BulkUpsertResult {
+  created: Array<{ hbls: string[]; packageId: string }>;
+  updated: Array<{ hbls: string[]; packageId: string }>;
+  failed: Array<{ hbls: string[]; error: string }>;
+  total: number;
+}
+
 export interface PackageHistoryItem {
   id: string;
   packageId: string;
@@ -165,4 +198,7 @@ export const packagesApi = {
       '/packages/bulk-create',
       { hbls, statusId, locationId },
     ).then((r) => r.data),
+
+  bulkUpsert: (dto: BulkUpsertDto) =>
+    api.post<BulkUpsertResult>('/packages/bulk-upsert', dto).then((r) => r.data),
 };

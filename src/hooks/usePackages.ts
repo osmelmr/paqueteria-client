@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../api/axios';
-import { packagesApi, type PackageFilters, type PaginationParams, type CreatePackageDto, type UpdatePackageDto } from '../api/packages.api';
+import { packagesApi, type PackageFilters, type PaginationParams, type CreatePackageDto, type UpdatePackageDto, type BulkUpsertDto } from '../api/packages.api';
 
 const QUERY_KEY = 'packages';
 const HISTORY_KEY = 'package-history';
@@ -102,6 +102,14 @@ export function useBulkCreatePackages() {
   return useMutation({
     mutationFn: ({ hbls, statusId, locationId }: { hbls: string[]; statusId: string; locationId: string }) =>
       packagesApi.bulkCreate(hbls, statusId, locationId),
+    onSuccess: () => invalidatePackageQueries(qc),
+  });
+}
+
+export function useBulkUpsertPackages() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (dto: BulkUpsertDto) => packagesApi.bulkUpsert(dto),
     onSuccess: () => invalidatePackageQueries(qc),
   });
 }

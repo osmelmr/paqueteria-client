@@ -32,6 +32,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Registrar paquetes', path: '/register-packages', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'] },
       { label: 'Actualizar estado', path: '/update-status-bulk', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'] },
       { label: 'Crear paquetes (HBL)', path: '/bulk-create-packages', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'] },
+      { label: 'Crear / Actualizar (HBL)', path: '/bulk-upsert-packages', roles: [...ADMIN_ROLES, 'STOREKEEPER', 'AGENT'] },
     ],
   },
   {
