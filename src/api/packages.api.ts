@@ -118,10 +118,9 @@ export interface CheckHblsResult {
 }
 
 export interface BulkUpsertPackageItem {
-  hbls: string[];
+  hblCodes: string[];
   statusId?: string;
   locationId?: string;
-  guideId?: string;
   provinceId?: string;
   province?: string;
   municipeId?: string;
@@ -139,14 +138,18 @@ export interface BulkUpsertPackageItem {
 
 export interface BulkUpsertDto {
   statusId: string;
-  locationId: string;
+  locationId?: string;
+  agencyId?: string;
+  guideId?: string;
+  guide?: string;
+  guideType?: GuideType;
   packages: BulkUpsertPackageItem[];
 }
 
 export interface BulkUpsertResult {
-  created: Array<{ hbls: string[]; packageId: string }>;
-  updated: Array<{ hbls: string[]; packageId: string }>;
-  failed: Array<{ hbls: string[]; error: string }>;
+  created: Array<{ hblCodes: string[]; packageId: string }>;
+  updated: Array<{ hblCodes: string[]; packageId: string }>;
+  failed: Array<{ hblCodes: string[]; error: string }>;
   total: number;
 }
 

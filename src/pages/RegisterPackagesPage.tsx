@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, FileSpreadsheet } from 'lucide-react';
+import { Sparkles, FileSpreadsheet, RefreshCw } from 'lucide-react';
 import { useAuthStore } from '../store/auth.store';
 
 export default function RegisterPackagesPage() {
@@ -57,6 +57,27 @@ export default function RegisterPackagesPage() {
             </div>
             <span className="mt-1 text-xs font-semibold text-cyan-600 dark:text-cyan-400 uppercase tracking-wider">
               Ir a la importación manual →
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate('/excel-import-upsert')}
+            className="group flex flex-col items-start gap-3 rounded-xl border border-border bg-white dark:bg-slate-800 p-5 text-left cursor-pointer transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-lg hover:-translate-y-0.5"
+          >
+            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-200 dark:group-hover:bg-emerald-900/50 transition-colors">
+              <RefreshCw className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-gray-900 dark:text-gray-100 font-semibold m-0 mb-1">
+                Excel con actualización
+              </h3>
+              <p className="m-0 text-sm text-gray-500 dark:text-gray-400">
+                Igual que la importación manual, pero los HBL que ya existen se actualizan en vez de dar error por repetidos.
+              </p>
+            </div>
+            <span className="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+              Ir a la importación con actualización →
             </span>
           </button>
         </div>
